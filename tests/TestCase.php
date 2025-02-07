@@ -1,37 +1,29 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace DragonCode\LaravelModelSettings\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
-use VendorName\Skeleton\SkeletonServiceProvider;
 
-class TestCase extends Orchestra
+use function array_merge;
+use function Orchestra\Testbench\workbench_path;
+
+abstract class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
+    use WithWorkbench;
+    use RefreshDatabase;
 
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
+    protected function shouldSeed(): bool
+    {
+        return true;
     }
 
-    protected function getPackageProviders($app)
+    protected function defineEnvironment($app): void
     {
-        return [
-            SkeletonServiceProvider::class,
-        ];
-    }
+        $base = $app['config']->get('model-settings', []);
+        $test = require workbench_path('config/model-settings.php');
 
-    public function getEnvironmentSetUp($app)
-    {
-        config()->set('database.default', 'testing');
-
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        $app['config']->set('model-settings', array_merge($base, $test));
     }
 }
