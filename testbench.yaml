@@ -1,0 +1,23 @@
+laravel: '@testbench'
+
+providers:
+    - DragonCode\LaravelModelSettings\ServiceProvider
+    - Spatie\LaravelData\LaravelDataServiceProvider
+    - Workbench\App\Providers\WorkbenchServiceProvider
+
+migrations:
+    - database/migrations
+
+seeders:
+    - Workbench\Database\Seeders\DatabaseSeeder
+
+workbench:
+    start: /
+    install: true
+    health: false
+    discovers:
+        web: false
+        api: false
+        commands: false
+        components: false
+        views: false

@@ -1,75 +1,83 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
-    "keywords": [
-        ":vendor_name",
-        "laravel",
-        ":package_slug"
-    ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "name": "dragon-code/laravel-model-settings",
+    "description": "Model Settings for your Laravel application",
     "license": "MIT",
+    "keywords": [
+        "The Dragon Code",
+        "laravel",
+        "laravel-model-settings"
+    ],
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
-            "role": "Developer"
+            "name": "Andrey Helldar",
+            "email": "helldar@dragon-code.pro"
         }
     ],
+    "homepage": "https://github.com/dragon-code/laravel-model-settings",
     "require": {
-        "php": "^8.4",
-        "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^10.0||^11.0"
+        "php": "^8.2",
+        "dragon-code/laravel-cache": "^3.12",
+        "illuminate/contracts": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/collections": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/database": "^10.0 || ^11.0 || ^12.0",
+        "illuminate/support": "^10.0 || ^11.0 || ^12.0",
+        "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
-        "laravel/pint": "^1.14",
-        "nunomaduro/collision": "^8.1.1||^7.10.0",
-        "larastan/larastan": "^2.9",
-        "orchestra/testbench": "^9.0.0||^8.22.0",
-        "pestphp/pest": "^3.0",
-        "pestphp/pest-plugin-arch": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "phpstan/extension-installer": "^1.3",
-        "phpstan/phpstan-deprecation-rules": "^1.1",
-        "phpstan/phpstan-phpunit": "^1.3",
-        "spatie/laravel-ray": "^1.35"
+        "nunomaduro/collision": "^7.10.0 || ^8.1.1",
+        "orchestra/testbench": "^8.22.0 || ^9.0.0 || ^10.0",
+        "pestphp/pest": "^3.7.4",
+        "pestphp/pest-plugin-laravel": "^3.1",
+        "pestphp/pest-plugin-type-coverage": "^3.2.3",
+        "roave/security-advisories": "dev-latest",
+        "spatie/laravel-data": "^4.13"
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
-        }
+            "DragonCode\\LaravelModelSettings\\": "src/"
+        },
+        "files": [
+            "helpers/settings.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "DragonCode\\LaravelModelSettings\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
-    },
-    "scripts": {
-        "post-autoload-dump": "@composer run prepare",
-        "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
     },
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
-        }
+            "php-http/discovery": true
+        },
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
     },
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
-            ],
-            "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
-            }
+                "DragonCode\\LaravelModelSettings\\ServiceProvider"
+            ]
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "test": "vendor/bin/pest --parallel",
+        "test:coverage": "vendor/bin/pest --coverage",
+        "test:update": [
+            "rm -rf tests/.pest/snapshots",
+            "@test"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi"
+    }
 }
