@@ -16,7 +16,7 @@
     "homepage": "https://github.com/dragon-code/laravel-model-settings",
     "require": {
         "php": "^8.2",
-        "dragon-code/laravel-cache": "^3.12",
+        "dragon-code/laravel-cache": "^4.0",
         "illuminate/contracts": "^10.0 || ^11.0 || ^12.0",
         "illuminate/collections": "^10.0 || ^11.0 || ^12.0",
         "illuminate/database": "^10.0 || ^11.0 || ^12.0",
