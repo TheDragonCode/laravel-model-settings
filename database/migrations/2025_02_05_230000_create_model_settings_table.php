@@ -19,8 +19,6 @@ return new class extends Migration {
             $table->string('key');
             $table->jsonb('payload');
 
-            $table->smallInteger('sort_order');
-
             $table->timestamps();
 
             $table->unique(['item_type', 'item_id', 'key']);
@@ -30,12 +28,12 @@ return new class extends Migration {
     protected function connection(): Builder
     {
         return Schema::connection(
-            config('model-settings.database.connection')
+            config('model-settings.connection')
         );
     }
 
     protected function table(): string
     {
-        return config()->string('model-settings.database.table');
+        return config()->string('model-settings.table');
     }
 };

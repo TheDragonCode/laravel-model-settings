@@ -15,13 +15,12 @@ class Settings extends Model
         'item_id',
         'key',
         'payload',
-        'sort_order',
     ];
 
     public function __construct(array $attributes = [])
     {
-        $this->setConnection(config('model-settings.repositories.database.connection'));
-        $this->setTable(config('model-settings.repositories.database.table'));
+        $this->setConnection(config('model-settings.connection'));
+        $this->setTable(config('model-settings.table'));
 
         parent::__construct($attributes);
     }
@@ -29,8 +28,7 @@ class Settings extends Model
     protected function casts(): array
     {
         return [
-            'payload'    => 'json',
-            'sort_order' => 'int',
+            'payload' => 'json',
         ];
     }
 }
