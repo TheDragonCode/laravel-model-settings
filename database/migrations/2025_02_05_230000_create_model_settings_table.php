@@ -30,7 +30,7 @@ return new class extends Migration {
     protected function connection(): Builder
     {
         return Schema::connection(
-            config()->string('model-settings.database.connection')
+            config('model-settings.database.connection')
         );
     }
 

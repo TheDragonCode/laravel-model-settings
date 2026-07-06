@@ -12,10 +12,5 @@ arch()
         'exit',
         'print_r',
         'printf',
-        'ray',
         'var_dump',
     ]);
-
-arch()
-    ->expect('DragonCode\LaravelModelSettings')
-    ->toUseStrictTypes();

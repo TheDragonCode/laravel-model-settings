@@ -9,6 +9,6 @@ return [
         'model' => Settings::class,
 
         'connection' => env('MODEL_SETTINGS_DATABASE_CONNECTION', env('DATABASE_CONNECTION')),
-        'table'      => env('MODEL_SETTINGS_DATABASE_TABLE'),
+        'table'      => env('MODEL_SETTINGS_DATABASE_TABLE', 'settings'),
     ],
 ];
