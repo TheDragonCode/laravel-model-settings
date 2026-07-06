@@ -18,10 +18,6 @@ class Settings extends Model
         'sort_order',
     ];
 
-    protected $attributes = [
-        'sort_order' => 1,
-    ];
-
     public function __construct(array $attributes = [])
     {
         $this->setConnection(config('model-settings.repositories.database.connection'));
