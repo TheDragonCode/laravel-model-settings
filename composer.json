@@ -3,8 +3,8 @@
     "description": "Model Settings for your Laravel application",
     "license": "MIT",
     "keywords": [
-        "The Dragon Code",
-        "laravel",
+        "settings",
+        "model-settings",
         "laravel-model-settings"
     ],
     "authors": [
@@ -15,32 +15,23 @@
     ],
     "homepage": "https://github.com/dragon-code/laravel-model-settings",
     "require": {
-        "php": "^8.2",
+        "php": "^8.5",
         "dragon-code/laravel-cache": "^4.2",
-        "illuminate/contracts": "^10.0 || ^11.0 || ^12.0",
-        "illuminate/collections": "^10.0 || ^11.0 || ^12.0",
-        "illuminate/database": "^10.0 || ^11.0 || ^12.0",
-        "illuminate/support": "^10.0 || ^11.0 || ^12.0",
-        "spatie/laravel-package-tools": "^1.16"
+        "illuminate/database": " ^13.0",
+        "illuminate/support": " ^13.0"
     },
     "require-dev": {
-        "nunomaduro/collision": "^7.10.0 || ^8.1.1",
-        "orchestra/testbench": "^8.22.0 || ^9.0.0 || ^10.0",
-        "pestphp/pest": "^3.7.4",
+        "orchestra/testbench": "^11.1",
+        "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^3.1",
-        "pestphp/pest-plugin-type-coverage": "^3.2.3",
-        "roave/security-advisories": "dev-latest",
-        "spatie/laravel-data": "^4.13"
+        "pestphp/pest-plugin-type-coverage": "^3.2.3"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "DragonCode\\LaravelModelSettings\\": "src/"
-        },
-        "files": [
-            "helpers/settings.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
@@ -62,7 +53,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "DragonCode\\LaravelModelSettings\\ServiceProvider"
+                "DragonCode\\LaravelModelSettings\\ModelSettingsServiceProvider"
             ]
         }
     },
