@@ -8,15 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 
 use function config;
 
-/**
- * @property mixed $payload
- */
 class Settings extends Model
 {
     protected $fillable = [
         'item_type',
         'item_id',
+        'key',
         'payload',
+        'sort_order',
+    ];
+
+    protected $attributes = [
+        'sort_order' => 1,
     ];
 
     public function __construct(array $attributes = [])
@@ -30,7 +33,8 @@ class Settings extends Model
     protected function casts(): array
     {
         return [
-            'payload' => config('model-settings.repositories.database.cast'),
+            'payload'    => 'json',
+            'sort_order' => 'int',
         ];
     }
 }

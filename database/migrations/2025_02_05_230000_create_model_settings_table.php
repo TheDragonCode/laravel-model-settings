@@ -16,23 +16,26 @@ return new class extends Migration {
             $table->string('item_type');
             $table->unsignedBigInteger('item_id');
 
+            $table->string('key');
             $table->jsonb('payload');
+
+            $table->smallInteger('sort_order');
 
             $table->timestamps();
 
-            $table->unique(['item_type', 'item_id']);
+            $table->unique(['item_type', 'item_id', 'key']);
         });
     }
 
     protected function connection(): Builder
     {
         return Schema::connection(
-            config('model-settings.repositories.database.connection')
+            config()->string('model-settings.database.connection')
         );
     }
 
     protected function table(): string
     {
-        return config('model-settings.repositories.database.table');
+        return config()->string('model-settings.database.table');
     }
 };

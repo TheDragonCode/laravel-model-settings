@@ -1,9 +1,7 @@
 laravel: '@testbench'
 
 providers:
-    - DragonCode\LaravelModelSettings\ServiceProvider
-    - Spatie\LaravelData\LaravelDataServiceProvider
-    - Workbench\App\Providers\WorkbenchServiceProvider
+    - DragonCode\LaravelModelSettings\ModelSettingsServiceProvider
 
 migrations:
     - database/migrations
