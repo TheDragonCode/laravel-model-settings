@@ -10,12 +10,12 @@ seeders:
     - Workbench\Database\Seeders\DatabaseSeeder
 
 workbench:
-    start: /
     install: true
     health: false
     discovers:
         web: false
-        api: false
+        api: true
+        config: true
         commands: false
-        components: false
+        factories: false
         views: false
