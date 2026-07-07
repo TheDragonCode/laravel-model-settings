@@ -14,5 +14,4 @@ pest()
     ->in('Unit')
     ->afterEach(function () {
         Carbon::setTestNow('2026-07-06T20:51:24+00:00');
-        //expect('fallback')->toMatchSnapshot();
     });
