@@ -18,8 +18,8 @@ test('success', function () {
     app(DefaultStorage::class)->set('foo', 111);
     app(DefaultStorage::class)->set('bar', 222);
 
-    $result1 = app(SettingsService::class, ['model' => $user1])->all();
-    $result2 = app(SettingsService::class, ['model' => $user2])->all();
+    $result1 = app(SettingsService::class, ['model' => $user1])->all()->toArray();
+    $result2 = app(SettingsService::class, ['model' => $user2])->all()->toArray();
 
     ksort($result1);
     ksort($result2);

@@ -17,8 +17,8 @@ test('success', function () {
     app(DefaultStorage::class)->set('foo', 111);
     app(DefaultStorage::class)->set('bar', 222);
 
-    $result1 = $user1->settings()->all();
-    $result2 = $user2->settings()->all();
+    $result1 = $user1->settings()->all()->toArray();
+    $result2 = $user2->settings()->all()->toArray();
 
     ksort($result1);
     ksort($result2);

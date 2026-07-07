@@ -20,8 +20,8 @@ test('success', function () {
     app(ModelStorage::class)->set($user2, 'foo', 333);
     app(ModelStorage::class)->set($user2, 'bar', 444);
 
-    $result1 = $user1->settings()->all();
-    $result2 = $user2->settings()->all();
+    $result1 = $user1->settings()->all()->toArray();
+    $result2 = $user2->settings()->all()->toArray();
 
     ksort($result1);
     ksort($result2);

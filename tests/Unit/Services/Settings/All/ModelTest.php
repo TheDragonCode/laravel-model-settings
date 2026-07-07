@@ -21,8 +21,8 @@ test('success', function () {
     app(ModelStorage::class)->set($user2, 'foo', 333);
     app(ModelStorage::class)->set($user2, 'bar', 444);
 
-    $result1 = app(SettingsService::class, ['model' => $user1])->all();
-    $result2 = app(SettingsService::class, ['model' => $user2])->all();
+    $result1 = app(SettingsService::class, ['model' => $user1])->all()->toArray();
+    $result2 = app(SettingsService::class, ['model' => $user2])->all()->toArray();
 
     ksort($result1);
     ksort($result2);
