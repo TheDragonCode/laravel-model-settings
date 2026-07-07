@@ -58,22 +58,12 @@ $user->settings()->forget('timezone');
 $user->settings()->get('timezone');      // null
 ```
 
+Calling `set()` with a blank value removes the model setting. Blank values include `null`, an empty string, and an
+empty array.
+
 ## Default Settings
 
 Default settings are fallback values shared by models of the same type:
-
-```php
-$defaults = (new User)->defaultSettings();
-
-$defaults->set('timezone', 'UTC');
-$defaults->set('locale', 'en');
-
-$defaults->get('timezone'); // 'UTC'
-$defaults->all();           // Illuminate\Support\Collection
-$defaults->forget('locale');
-```
-
-Model values override defaults. Removing the model value exposes the default again:
 
 ```php
 (new User)->defaultSettings()->set('timezone', 'UTC');
@@ -95,7 +85,7 @@ Default settings are stored with the model morph class and `item_id = 0`.
 |-------------------------------------------------|--------------|----------------------------------------------------------------|
 | `all()`                                         | `Collection` | Returns defaults merged with model settings. Model values win. |
 | `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, then the default value, then `null`.  |
-| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates or updates a model setting.                            |
+| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a model setting.                  |
 | `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a model setting.                                       |
 
 ## Setting Keys
@@ -112,8 +102,7 @@ $user->settings()->set(UserSetting::Timezone, 'UTC');
 $user->settings()->get(UserSetting::Timezone); // 'UTC'
 ```
 
-`get()` treats blank model values as missing and falls back to defaults. This includes `null`, an empty string, and an
-empty array.
+Backed enums, unit enums, strings, and integers are supported.
 
 ## Configuration
 
@@ -125,8 +114,8 @@ After publishing, edit `config/model-settings.php`:
 | `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                             |
 | `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                               |
 
-The migration stores settings in one table with `item_type`, string `item_id`, `key`, and nullable JSON `payload`.
-Each setting is unique by `item_type`, `item_id`, and `key`.
+The migration stores settings in one table with `item_type`, string `item_id`, `key`, and JSONB `payload`. Each setting
+is unique by `item_type`, `item_id`, and `key`. The string `item_id` column supports integer and UUID model keys.
 
 ## Testing
 
@@ -141,8 +130,8 @@ Please see [CONTRIBUTING](https://github.com/TheDragonCode/.github/blob/main/CON
 
 ## Security
 
-If you've found a bug regarding security please mail [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro) instead
-of using the issue tracker.
+If you've found a security bug, mail [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro) instead of using the
+issue tracker.
 
 ## Credits
 
