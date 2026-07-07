@@ -21,11 +21,11 @@ test('new item', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
-    app(DefaultStorage::class)->store('baz', 789);
+    app(DefaultStorage::class)->set('foo', 123);
+    app(DefaultStorage::class)->set('baz', 789);
 
-    app(ModelStorage::class)->store($user, 'foo', 123);
-    app(ModelStorage::class)->store($user, 'bar', 456);
+    app(ModelStorage::class)->set($user, 'foo', 123);
+    app(ModelStorage::class)->set($user, 'bar', 456);
 
     assertDatabaseCount(Settings::class, 4);
 

@@ -24,10 +24,10 @@ class ModelSettingsServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../config/model-settings.php' => $this->app->configPath('model-settings.php'),
-        ]);
+        ], 'model-settings');
 
         $this->publishesMigrations([
             __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations'),
-        ]);
+        ], 'model-settings');
     }
 }

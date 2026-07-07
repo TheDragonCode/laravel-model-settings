@@ -12,11 +12,11 @@ use function Pest\Laravel\assertDatabaseHas;
 test('new item', function () {
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
+    app(DefaultStorage::class)->set('foo', 123);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
 
-    app(DefaultStorage::class)->store('foo', 456);
+    app(DefaultStorage::class)->set('foo', 456);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 456]);
 

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
+use DragonCode\LaravelModelSettings\Services\SettingsService;
 use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Workbench\Database\Factories\UserFactory;
 
@@ -10,23 +11,15 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 use function Pest\Laravel\assertDatabaseHas;
 
-test('new item', function () {
+test('success', function () {
     $user = UserFactory::new()->create();
-
-    $item = [
-        'item_type' => $user->getMorphClass(),
-        'item_id'   => $user->getKey(),
-    ];
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->set($user, 'foo', 123);
+    app(ModelStorage::class)->set($user, 'foo', 111);
 
-    assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 123]);
+    app(SettingsService::class, ['model' => $user])->set('foo', 222);
 
-    app(ModelStorage::class)->set($user, 'foo', 456);
-
-    assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 456]);
-
+    assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 222]);
     assertDatabaseCount(Settings::class, 1);
 });

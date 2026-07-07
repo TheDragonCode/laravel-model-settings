@@ -4,22 +4,14 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Concerns;
 
-use DragonCode\LaravelModelSettings\Constants\DefaultConstant;
-use DragonCode\LaravelModelSettings\Models\Settings;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use DragonCode\LaravelModelSettings\Services\SettingsService;
 
-/** @mixin \Illuminate\Database\Eloquent\Model */
+use function app;
+
 trait HasSettings
 {
-    public function settings(): Relation
+    public function settings(): SettingsService
     {
-        return $this
-            ->morphMany(Settings::class, 'item')
-            ->orWhere(static fn (Builder $query) => $query
-                ->where('item_type', DefaultConstant::Type)
-                ->where('item_id', DefaultConstant::Id)
-            )
-            ->orderByDesc('item_id');
+        return app()->make(SettingsService::class, ['model' => $this]);
     }
 }
