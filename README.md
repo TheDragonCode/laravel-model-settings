@@ -63,12 +63,12 @@ class Some
 
 ### Available Methods
 
-| Method                                                   | Description                                                 |
-|----------------------------------------------------------|-------------------------------------------------------------|
-| `settings()->all()`                                      | Returns all the settings for the model                      |
-| `settings()->get(BackedEnum\|string $key)`               | Returns the value of the settings along the specified path  |
-| `settings()->set(BackedEnum\|string $key, mixed $value)` | Sets the value of the settings along the specified path     |
-| `settings()->forget(BackedEnum\|string $key)`            | Removes the value of the settings along the specified path. |
+| Method                                                 | Description                                                 |
+|--------------------------------------------------------|-------------------------------------------------------------|
+| `settings()->all()`                                    | Returns all the settings for the model                      |
+| `settings()->get(UnitEnum\|string $key)`               | Returns the value of the settings along the specified path  |
+| `settings()->set(UnitEnum\|string $key, mixed $value)` | Sets the value of the settings along the specified path     |
+| `settings()->forget(UnitEnum\|string $key)`            | Removes the value of the settings along the specified path. |
 
 ## Testing
 
