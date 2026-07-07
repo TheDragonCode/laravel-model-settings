@@ -8,7 +8,7 @@ use Workbench\App\Models\User;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 
-test('success', function (UnitEnum $key) {
+test('success', function (UnitEnum|string|int $key) {
     assertDatabaseEmpty(Settings::class);
 
     (new User)->defaultSettings()->set($key, 111);
@@ -18,4 +18,4 @@ test('success', function (UnitEnum $key) {
     $result = (new User)->defaultSettings()->get($key);
 
     expect($result)->toBe(111);
-})->with('enums');
+})->with('setting keys');

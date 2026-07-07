@@ -8,7 +8,7 @@
 
 > [!TIP]
 >
-> Store settings for individual Eloquent models, with optional defaults shared by all models.
+> Store settings for individual Eloquent models, with optional defaults shared by models of the same type.
 >
 > Use this package when each model needs its own settings, but should fall back to shared values when a model value is
 > missing.
@@ -59,12 +59,10 @@ $user->settings()->get('timezone');      // null
 
 ## Default Settings
 
-Default settings are shared fallback values:
+Default settings are fallback values shared by models of the same type:
 
 ```php
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
-
-$defaults = app(DefaultStorage::class);
+$defaults = (new User)->defaultSettings();
 
 $defaults->set('timezone', 'UTC');
 $defaults->set('locale', 'en');
@@ -77,9 +75,7 @@ $defaults->forget('locale');
 Model values override defaults. Removing the model value exposes the default again:
 
 ```php
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
-
-app(DefaultStorage::class)->set('timezone', 'UTC');
+(new User)->defaultSettings()->set('timezone', 'UTC');
 
 $user->settings()->get('timezone'); // 'UTC'
 
@@ -128,7 +124,7 @@ After publishing, edit `config/model-settings.php`:
 
 The migration stores values in one table with `item_type`, `item_id`, `key`, and JSON `payload`.
 
-Default settings use `item_type = '_default'` and `item_id = 0`.
+Default settings use the model morph class as `item_type` and `item_id = 0`.
 
 Each setting is unique by `item_type`, `item_id`, and `key`.
 

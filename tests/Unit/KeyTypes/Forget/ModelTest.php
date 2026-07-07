@@ -8,7 +8,7 @@ use Workbench\Database\Factories\UserFactory;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 
-test('success', function (UnitEnum $key) {
+test('success', function (UnitEnum|string|int $key) {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);
@@ -20,4 +20,4 @@ test('success', function (UnitEnum $key) {
     $user->settings()->forget($key);
 
     assertDatabaseEmpty(Settings::class);
-})->with('enums');
+})->with('setting keys');
