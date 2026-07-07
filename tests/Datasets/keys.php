@@ -13,4 +13,7 @@ dataset('setting keys', [
 
     'string' => 'foo',
     'int'    => 10,
+
+    'space symbol' => ' ',
+    'empty'        => '',
 ]);
