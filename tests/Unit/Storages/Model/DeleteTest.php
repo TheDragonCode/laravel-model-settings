@@ -20,15 +20,15 @@ test('first', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->store($user, 'foo', 123);
-    app(ModelStorage::class)->store($user, 'bar', 456);
+    app(ModelStorage::class)->set($user, 'foo', 123);
+    app(ModelStorage::class)->set($user, 'bar', 456);
 
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'bar', 'payload' => 456]);
 
     assertDatabaseCount(Settings::class, 2);
 
-    app(ModelStorage::class)->delete($user, 'foo');
+    app(ModelStorage::class)->forget($user, 'foo');
 
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'bar', 'payload' => 456]);
 
@@ -45,13 +45,13 @@ test('second', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->store($user, 'foo', 123);
-    app(ModelStorage::class)->store($user, 'bar', 456);
+    app(ModelStorage::class)->set($user, 'foo', 123);
+    app(ModelStorage::class)->set($user, 'bar', 456);
 
     assertDatabaseCount(Settings::class, 2);
 
-    app(ModelStorage::class)->delete($user, 'foo');
-    app(ModelStorage::class)->delete($user, 'foo');
+    app(ModelStorage::class)->forget($user, 'foo');
+    app(ModelStorage::class)->forget($user, 'foo');
 
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'bar', 'payload' => 456]);
 

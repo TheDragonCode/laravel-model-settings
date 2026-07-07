@@ -12,8 +12,8 @@ use function Pest\Laravel\assertDatabaseHas;
 test('new item', function () {
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
-    app(DefaultStorage::class)->store('bar', 456);
+    app(DefaultStorage::class)->set('foo', 123);
+    app(DefaultStorage::class)->set('bar', 456);
 
     assertDatabaseCount(Settings::class, 2);
 

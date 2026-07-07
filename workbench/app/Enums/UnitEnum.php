@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Enums;
 
-enum StringBackedEnum: string
+enum UnitEnum
 {
-    case Bar = 'bar';
+    case Baz;
 }

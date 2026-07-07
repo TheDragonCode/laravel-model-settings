@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Storages;
 
-use BackedEnum;
 use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use UnitEnum;
 
 readonly class ModelStorage
 {
@@ -14,7 +15,24 @@ readonly class ModelStorage
         protected SettingsRepository $repository,
     ) {}
 
-    public function store(Model $model, BackedEnum|string $key, mixed $value): Model
+    public function all(Model $model): Collection
+    {
+        return $this->repository->all(
+            type: $model->getMorphClass(),
+            id  : $model->getKey(),
+        );
+    }
+
+    public function get(Model $model, UnitEnum|string $key): mixed
+    {
+        return $this->repository->get(
+            type: $model->getMorphClass(),
+            id  : $model->getKey(),
+            key : $key,
+        );
+    }
+
+    public function set(Model $model, UnitEnum|string $key, mixed $value): Model
     {
         return $this->repository->store(
             type : $model->getMorphClass(),
@@ -24,7 +42,7 @@ readonly class ModelStorage
         );
     }
 
-    public function delete(Model $model, BackedEnum|string $key): void
+    public function forget(Model $model, UnitEnum|string $key): void
     {
         $this->repository->delete(
             type: $model->getMorphClass(),

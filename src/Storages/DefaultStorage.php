@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Storages;
 
-use BackedEnum;
 use DragonCode\LaravelModelSettings\Constants\DefaultConstant;
 use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use UnitEnum;
 
 readonly class DefaultStorage
 {
@@ -15,7 +16,24 @@ readonly class DefaultStorage
         protected SettingsRepository $repository,
     ) {}
 
-    public function store(BackedEnum|string $key, mixed $value): Model
+    public function all(): Collection
+    {
+        return $this->repository->all(
+            type: DefaultConstant::Type,
+            id  : DefaultConstant::Id,
+        );
+    }
+
+    public function get(UnitEnum|string $key): mixed
+    {
+        return $this->repository->get(
+            type: DefaultConstant::Type,
+            id  : DefaultConstant::Id,
+            key : $key
+        );
+    }
+
+    public function set(UnitEnum|string $key, mixed $value): Model
     {
         return $this->repository->store(
             type : DefaultConstant::Type,
@@ -25,7 +43,7 @@ readonly class DefaultStorage
         );
     }
 
-    public function delete(BackedEnum|string $key): void
+    public function forget(UnitEnum|string $key): void
     {
         $this->repository->delete(
             type: DefaultConstant::Type,

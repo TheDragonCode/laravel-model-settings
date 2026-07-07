@@ -6,16 +6,17 @@ providers:
 migrations:
     - database/migrations
 
-seeders:
-    - Workbench\Database\Seeders\DatabaseSeeder
-
 workbench:
     install: true
     health: false
     discovers:
         web: false
-        api: true
-        config: true
+        api: false
         commands: false
-        factories: false
+        components: false
+        factories: true
         views: false
+    build:
+        - create-sqlite-db
+        - db-wipe
+        - migrate-fresh

@@ -12,15 +12,15 @@ use function Pest\Laravel\assertDatabaseHas;
 test('first', function () {
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
-    app(DefaultStorage::class)->store('bar', 456);
+    app(DefaultStorage::class)->set('foo', 123);
+    app(DefaultStorage::class)->set('bar', 456);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, ['key' => 'bar', 'payload' => 456]);
 
     assertDatabaseCount(Settings::class, 2);
 
-    app(DefaultStorage::class)->delete('foo');
+    app(DefaultStorage::class)->forget('foo');
 
     assertDatabaseHas(Settings::class, ['key' => 'bar', 'payload' => 456]);
 
@@ -30,13 +30,13 @@ test('first', function () {
 test('second', function () {
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
-    app(DefaultStorage::class)->store('bar', 456);
+    app(DefaultStorage::class)->set('foo', 123);
+    app(DefaultStorage::class)->set('bar', 456);
 
     assertDatabaseCount(Settings::class, 2);
 
-    app(DefaultStorage::class)->delete('foo');
-    app(DefaultStorage::class)->delete('foo');
+    app(DefaultStorage::class)->forget('foo');
+    app(DefaultStorage::class)->forget('foo');
 
     assertDatabaseHas(Settings::class, ['key' => 'bar', 'payload' => 456]);
 

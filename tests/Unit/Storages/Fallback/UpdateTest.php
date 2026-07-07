@@ -21,13 +21,13 @@ test('new item', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->store('foo', 123);
-    app(ModelStorage::class)->store($user, 'foo', 123);
+    app(DefaultStorage::class)->set('foo', 123);
+    app(ModelStorage::class)->set($user, 'foo', 123);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 123]);
 
-    app(ModelStorage::class)->store($user, 'foo', 456);
+    app(ModelStorage::class)->set($user, 'foo', 456);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 456]);

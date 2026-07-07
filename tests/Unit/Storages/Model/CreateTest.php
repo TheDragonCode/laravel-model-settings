@@ -20,8 +20,8 @@ test('new item', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->store($user, 'foo', 123);
-    app(ModelStorage::class)->store($user, 'bar', 456);
+    app(ModelStorage::class)->set($user, 'foo', 123);
+    app(ModelStorage::class)->set($user, 'bar', 456);
 
     assertDatabaseCount(Settings::class, 2);
 
