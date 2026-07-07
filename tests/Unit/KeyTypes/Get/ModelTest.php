@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Workbench\App\Enums\IntBackedEnum;
 use Workbench\App\Enums\StringBackedEnum;
 use Workbench\App\Enums\UnitEnum;
@@ -19,15 +18,15 @@ test('success', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->set($user1, IntBackedEnum::Foo, 111);
-    app(ModelStorage::class)->set($user2, StringBackedEnum::Bar, 222);
-    app(ModelStorage::class)->set($user3, UnitEnum::Baz, 333);
+    $user1->settings()->set(IntBackedEnum::Foo, 111);
+    $user2->settings()->set(StringBackedEnum::Bar, 222);
+    $user3->settings()->set(UnitEnum::Baz, 333);
 
     assertDatabaseCount(Settings::class, 3);
 
-    $result1 = app(ModelStorage::class)->get($user1, IntBackedEnum::Foo);
-    $result2 = app(ModelStorage::class)->get($user2, StringBackedEnum::Bar);
-    $result3 = app(ModelStorage::class)->get($user3, UnitEnum::Baz);
+    $result1 = $user1->settings()->get(IntBackedEnum::Foo);
+    $result2 = $user2->settings()->get(StringBackedEnum::Bar);
+    $result3 = $user3->settings()->get(UnitEnum::Baz);
 
     expect($result1)->toBe(111);
     expect($result2)->toBe(222);

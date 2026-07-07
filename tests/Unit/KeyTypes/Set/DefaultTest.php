@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
 use Workbench\App\Enums\IntBackedEnum;
 use Workbench\App\Enums\StringBackedEnum;
 use Workbench\App\Enums\UnitEnum;
@@ -15,9 +14,9 @@ use function Pest\Laravel\assertDatabaseHas;
 test('success', function () {
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->set(IntBackedEnum::Foo, 111);
-    app(DefaultStorage::class)->set(StringBackedEnum::Bar, 222);
-    app(DefaultStorage::class)->set(UnitEnum::Baz, 333);
+    (new \Workbench\App\Models\User)->defaultSettings()->set(IntBackedEnum::Foo, 111);
+    (new \Workbench\App\Models\User)->defaultSettings()->set(StringBackedEnum::Bar, 222);
+    (new \Workbench\App\Models\User)->defaultSettings()->set(UnitEnum::Baz, 333);
 
     assertDatabaseCount(Settings::class, 3);
 

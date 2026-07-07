@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
-use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseCount;
@@ -21,13 +19,13 @@ test('new item', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->set('foo', 123);
-    app(ModelStorage::class)->set($user, 'foo', 123);
+    (new \Workbench\App\Models\User)->defaultSettings()->set('foo', 123);
+    $user->settings()->set('foo', 123);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 123]);
 
-    app(ModelStorage::class)->set($user, 'foo', 456);
+    $user->settings()->set('foo', 456);
 
     assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 123]);
     assertDatabaseHas(Settings::class, [...$item, 'key' => 'foo', 'payload' => 456]);

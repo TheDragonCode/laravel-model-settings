@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Services;
 
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
 use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -17,12 +16,11 @@ class SettingsService
     public function __construct(
         protected Model $model,
         protected ModelStorage $modelStorage,
-        protected DefaultStorage $defaultStorage,
     ) {}
 
     public function all(): Collection
     {
-        $defaults = $this->defaultStorage->all();
+        $defaults = $this->modelStorage->all($this->defaultModel());
         $model    = $this->modelStorage->all($this->model);
 
         return $defaults->merge($model);
@@ -36,7 +34,7 @@ class SettingsService
             return $value;
         }
 
-        return $this->defaultStorage->get($key);
+        return $this->modelStorage->get($this->defaultModel(), $key);
     }
 
     public function set(UnitEnum|string $key, mixed $value): void
@@ -47,5 +45,13 @@ class SettingsService
     public function forget(UnitEnum|string $key): void
     {
         $this->modelStorage->forget($this->model, $key);
+    }
+
+    protected function defaultModel(): Model
+    {
+        $clone = $this->model->replicateQuietly(['id']);
+        $clone->setAttribute($clone->getKeyName(), 0);
+
+        return $clone;
     }
 }
