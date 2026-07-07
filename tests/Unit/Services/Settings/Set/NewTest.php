@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
 use DragonCode\LaravelModelSettings\Services\SettingsService;
-use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseCount;
@@ -16,7 +15,7 @@ test('success', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(ModelStorage::class)->set($user, 'foo', 111);
+    $user->settings()->set('foo', 111);
 
     app(SettingsService::class, ['model' => $user])->set('foo', 222);
 

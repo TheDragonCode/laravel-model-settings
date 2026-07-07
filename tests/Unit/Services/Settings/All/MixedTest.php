@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
 use DragonCode\LaravelModelSettings\Services\SettingsService;
-use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
-use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseEmpty;
@@ -16,11 +14,11 @@ test('success', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    app(DefaultStorage::class)->set('foo', 111);
-    app(DefaultStorage::class)->set('bar', 222);
+    (new \Workbench\App\Models\User)->defaultSettings()->set('foo', 111);
+    (new \Workbench\App\Models\User)->defaultSettings()->set('bar', 222);
 
-    app(ModelStorage::class)->set($user1, 'bar', 333);
-    app(ModelStorage::class)->set($user2, 'bar', 444);
+    $user1->settings()->set('bar', 333);
+    $user2->settings()->set('bar', 444);
 
     $result1 = app(SettingsService::class, ['model' => $user1])->all()->toArray();
     $result2 = app(SettingsService::class, ['model' => $user2])->all()->toArray();
