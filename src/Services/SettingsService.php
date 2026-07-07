@@ -39,7 +39,9 @@ class SettingsService
 
     public function set(UnitEnum|string|int $key, mixed $value): void
     {
-        $this->repository->store($this->model, $key, $value);
+        blank($value)
+            ? $this->repository->delete($this->model, $key)
+            : $this->repository->store($this->model, $key, $value);
     }
 
     public function forget(UnitEnum|string|int $key): void
