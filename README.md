@@ -6,22 +6,23 @@
 [![Total Downloads][badge_downloads]][link_packagist]
 [![License][badge_license]][link_license]
 
-> [!TIP]
->
 > Store settings for individual Eloquent models, with optional defaults shared by models of the same type.
->
-> Use this package when each model needs its own settings, but should fall back to shared values when a model value is
-> missing.
+
+Use this package when each model needs its own settings, but should fall back to shared values when a model value is
+missing.
 
 ## Installation
 
-You can install the package via [Composer](https://getcomposer.org):
+Install the package via [Composer](https://getcomposer.org):
 
 ```bash
 composer require dragon-code/laravel-model-settings
+```
 
+Publish the config and migration, then run migrations:
+
+```bash
 php artisan vendor:publish --tag="model-settings"
-
 php artisan migrate
 ```
 
@@ -51,7 +52,7 @@ $user->settings()->get('timezone');      // 'UTC'
 $user->settings()->get('notifications'); // ['email' => true]
 $user->settings()->get('missing');       // null
 
-$user->settings()->all();                // array of all resolved settings
+$user->settings()->all();                // Illuminate\Support\Collection
 
 $user->settings()->forget('timezone');
 $user->settings()->get('timezone');      // null
@@ -72,14 +73,6 @@ $defaults->all();           // Illuminate\Support\Collection
 $defaults->forget('locale');
 ```
 
-You can also reference the default settings from an existing model:
-
-```php
-$user = User::query()->findOrFail(123);
-
-$user->defaultSettings()->get('timezone'); // 'UTC'
-```
-
 Model values override defaults. Removing the model value exposes the default again:
 
 ```php
@@ -94,7 +87,9 @@ $user->settings()->forget('timezone');
 $user->settings()->get('timezone'); // 'UTC'
 ```
 
-## Methods
+Default settings are stored with the model morph class and `item_id = 0`.
+
+## API
 
 | Method                                          | Returns      | Description                                                    |
 |-------------------------------------------------|--------------|----------------------------------------------------------------|
@@ -103,11 +98,9 @@ $user->settings()->get('timezone'); // 'UTC'
 | `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates or updates a model setting.                            |
 | `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a model setting.                                       |
 
-If you cannot use the trait, resolve `SettingsService` from the container with `['model' => $user]`.
-
 ## Setting Keys
 
-Keys can be strings or PHP enums:
+Keys can be strings, integers, or PHP enums:
 
 ```php
 enum UserSetting: string
@@ -119,22 +112,28 @@ $user->settings()->set(UserSetting::Timezone, 'UTC');
 $user->settings()->get(UserSetting::Timezone); // 'UTC'
 ```
 
-A blank model value is treated as missing by `get()`. For example: `null`, an empty string, or an empty array.
+`get()` treats blank model values as missing and falls back to defaults. This includes `null`, an empty string, and an
+empty array.
 
 ## Configuration
 
 After publishing, edit `config/model-settings.php`:
 
-| Option       | Environment variable                 | Default               |
-|--------------|--------------------------------------|-----------------------|
-| `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `DATABASE_CONNECTION` |
-| `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`            |
+| Option       | Environment variable                 | Default                                                  |
+|--------------|--------------------------------------|----------------------------------------------------------|
+| `model`      | -                                    | `DragonCode\LaravelModelSettings\Models\Settings::class` |
+| `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                             |
+| `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                               |
 
-The migration stores values in one table with `item_type`, `item_id`, `key`, and JSON `payload`.
-
-Default settings use the model morph class as `item_type` and `item_id = 0`.
-
+The migration stores settings in one table with `item_type`, `item_id`, `key`, and JSON `payload`.
 Each setting is unique by `item_type`, `item_id`, and `key`.
+
+## Testing
+
+```bash
+composer test
+composer test:coverage
+```
 
 ## Contributing
 
@@ -154,12 +153,12 @@ of using the issue tracker.
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
-[badge_downloads]:      https://img.shields.io/packagist/dt/dragon-code/laravel-model-settings.svg?style=flat-square
+[badge_downloads]: https://img.shields.io/packagist/dt/dragon-code/laravel-model-settings.svg?style=flat-square
 
-[badge_license]:        https://img.shields.io/packagist/l/dragon-code/laravel-model-settings.svg?style=flat-square
+[badge_license]: https://img.shields.io/packagist/l/dragon-code/laravel-model-settings.svg?style=flat-square
 
-[badge_stable]:         https://img.shields.io/github/v/release/TheDragonCode/laravel-model-settings?label=packagist&style=flat-square
+[badge_stable]: https://img.shields.io/github/v/release/TheDragonCode/laravel-model-settings?label=packagist&style=flat-square
 
-[link_license]:         LICENSE
+[link_license]: LICENSE
 
-[link_packagist]:       https://packagist.org/packages/dragon-code/laravel-model-settings
+[link_packagist]: https://packagist.org/packages/dragon-code/laravel-model-settings
