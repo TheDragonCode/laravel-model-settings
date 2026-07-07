@@ -158,4 +158,4 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 [link_license]:         LICENSE
 
-[link_packagist]:       https://packagist.org/packages/dragon-code/laravel-deploy-operations
+[link_packagist]:       https://packagist.org/packages/dragon-code/laravel-model-settings
