@@ -6,7 +6,7 @@ namespace DragonCode\LaravelModelSettings;
 
 use Illuminate\Support\ServiceProvider;
 
-class ModelSettingsServiceProvider extends ServiceProvider
+final class ModelSettingsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {

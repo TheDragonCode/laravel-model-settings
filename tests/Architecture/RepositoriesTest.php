@@ -12,4 +12,8 @@ arch()
 
 arch()
     ->expect('DragonCode\LaravelModelSettings\Repositories')
-    ->toBeReadonly();
+    ->not->toBeReadonly();
+
+arch()
+    ->expect('DragonCode\LaravelModelSettings\Repositories')
+    ->not->toBeFinal();

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use function config;
 
-class Settings extends Model
+final class Settings extends Model
 {
     protected $fillable = [
         'item_type',

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use UnitEnum;
 
-readonly class SettingsRepository
+class SettingsRepository
 {
     public function store(Model $model, UnitEnum|string $key, mixed $value): Model
     {
