@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('item_id');
 
             $table->string('key');
-            $table->jsonb('payload')->nullable();
+            $table->jsonb('payload');
 
             $table->timestamps();
 
