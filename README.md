@@ -125,7 +125,7 @@ After publishing, edit `config/model-settings.php`:
 | `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                             |
 | `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                               |
 
-The migration stores settings in one table with `item_type`, `item_id`, `key`, and JSON `payload`.
+The migration stores settings in one table with `item_type`, string `item_id`, `key`, and nullable JSON `payload`.
 Each setting is unique by `item_type`, `item_id`, and `key`.
 
 ## Testing
