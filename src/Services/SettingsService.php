@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Services;
 
-use BackedEnum;
 use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
 use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +28,7 @@ class SettingsService
         return array_merge($defaults->toArray(), $model->toArray());
     }
 
-    public function get(BackedEnum|UnitEnum|string $key): mixed
+    public function get(UnitEnum|string $key): mixed
     {
         $value = $this->modelStorage->get($this->model, $key);
 
@@ -40,12 +39,12 @@ class SettingsService
         return $this->defaultStorage->get($key);
     }
 
-    public function set(BackedEnum|UnitEnum|string $key, mixed $value): void
+    public function set(UnitEnum|string $key, mixed $value): void
     {
         $this->modelStorage->set($this->model, $key, $value);
     }
 
-    public function forget(BackedEnum|UnitEnum|string $key): void
+    public function forget(UnitEnum|string $key): void
     {
         $this->modelStorage->forget($this->model, $key);
     }
