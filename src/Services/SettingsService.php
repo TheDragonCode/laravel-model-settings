@@ -7,9 +7,9 @@ namespace DragonCode\LaravelModelSettings\Services;
 use DragonCode\LaravelModelSettings\Storages\DefaultStorage;
 use DragonCode\LaravelModelSettings\Storages\ModelStorage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use UnitEnum;
 
-use function array_merge;
 use function blank;
 
 class SettingsService
@@ -20,12 +20,12 @@ class SettingsService
         protected DefaultStorage $defaultStorage,
     ) {}
 
-    public function all(): array
+    public function all(): Collection
     {
         $defaults = $this->defaultStorage->all();
         $model    = $this->modelStorage->all($this->model);
 
-        return array_merge($defaults->toArray(), $model->toArray());
+        return $defaults->merge($model);
     }
 
     public function get(UnitEnum|string $key): mixed
