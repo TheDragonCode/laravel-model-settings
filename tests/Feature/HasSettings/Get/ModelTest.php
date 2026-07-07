@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Services\SettingsService;
 use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseEmpty;
@@ -17,8 +16,8 @@ test('success', function () {
     $user1->settings()->set('foo', 111);
     $user2->settings()->set('foo', 333);
 
-    $result1 = app(SettingsService::class, ['model' => $user1])->get('foo');
-    $result2 = app(SettingsService::class, ['model' => $user2])->get('foo');
+    $result1 = $user1->settings()->get('foo');
+    $result2 = $user2->settings()->get('foo');
 
     expect($result1)->toBe(111);
     expect($result2)->toBe(333);

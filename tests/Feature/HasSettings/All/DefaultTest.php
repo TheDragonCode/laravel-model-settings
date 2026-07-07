@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Services\SettingsService;
+use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseEmpty;
@@ -14,11 +14,11 @@ test('success', function () {
 
     assertDatabaseEmpty(Settings::class);
 
-    (new \Workbench\App\Models\User)->defaultSettings()->set('foo', 111);
-    (new \Workbench\App\Models\User)->defaultSettings()->set('bar', 222);
+    (new User)->defaultSettings()->set('foo', 111);
+    (new User)->defaultSettings()->set('bar', 222);
 
-    $result1 = app(SettingsService::class, ['model' => $user1])->all()->toArray();
-    $result2 = app(SettingsService::class, ['model' => $user2])->all()->toArray();
+    $result1 = $user1->settings()->all()->toArray();
+    $result2 = $user2->settings()->all()->toArray();
 
     ksort($result1);
     ksort($result2);

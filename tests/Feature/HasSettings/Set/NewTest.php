@@ -3,17 +3,19 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use DragonCode\LaravelModelSettings\Services\SettingsService;
 use Workbench\Database\Factories\UserFactory;
 
+use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
+use function Pest\Laravel\assertDatabaseHas;
 
 test('success', function () {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);
 
-    $result = app(SettingsService::class, ['model' => $user])->get('foo');
+    $user->settings()->set('foo', 111);
 
-    expect($result)->toBeNull();
+    assertDatabaseHas(Settings::class, ['key' => 'foo', 'payload' => 111]);
+    assertDatabaseCount(Settings::class, 1);
 });
