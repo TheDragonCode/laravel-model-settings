@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Services;
 
-use DragonCode\LaravelModelSettings\Storages\ModelStorage;
+use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use UnitEnum;
@@ -15,36 +15,36 @@ class SettingsService
 {
     public function __construct(
         protected Model $model,
-        protected ModelStorage $modelStorage,
+        protected SettingsRepository $repository,
     ) {}
 
     public function all(): Collection
     {
-        $defaults = $this->modelStorage->all($this->defaultModel());
-        $model    = $this->modelStorage->all($this->model);
+        $defaults = $this->repository->all($this->defaultModel());
+        $model    = $this->repository->all($this->model);
 
         return $defaults->merge($model);
     }
 
     public function get(UnitEnum|string $key): mixed
     {
-        $value = $this->modelStorage->get($this->model, $key);
+        $value = $this->repository->get($this->model, $key);
 
         if (! blank($value)) {
             return $value;
         }
 
-        return $this->modelStorage->get($this->defaultModel(), $key);
+        return $this->repository->get($this->defaultModel(), $key);
     }
 
     public function set(UnitEnum|string $key, mixed $value): void
     {
-        $this->modelStorage->set($this->model, $key, $value);
+        $this->repository->store($this->model, $key, $value);
     }
 
     public function forget(UnitEnum|string $key): void
     {
-        $this->modelStorage->forget($this->model, $key);
+        $this->repository->delete($this->model, $key);
     }
 
     protected function defaultModel(): Model
