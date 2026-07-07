@@ -72,6 +72,14 @@ $defaults->all();           // Illuminate\Support\Collection
 $defaults->forget('locale');
 ```
 
+You can also reference the default settings from an existing model:
+
+```php
+$user = User::query()->findOrFail(123);
+
+$user->defaultSettings()->get('timezone'); // 'UTC'
+```
+
 Model values override defaults. Removing the model value exposes the default again:
 
 ```php
@@ -88,12 +96,12 @@ $user->settings()->get('timezone'); // 'UTC'
 
 ## Methods
 
-| Method                                     | Returns      | Description                                                    |
-|--------------------------------------------|--------------|----------------------------------------------------------------|
-| `all()`                                    | `Collection` | Returns defaults merged with model settings. Model values win. |
-| `get(UnitEnum\|string $key)`               | `mixed`      | Returns the model value, then the default value, then `null`.  |
-| `set(UnitEnum\|string $key, mixed $value)` | `void`       | Creates or updates a model setting.                            |
-| `forget(UnitEnum\|string $key)`            | `void`       | Removes a model setting.                                       |
+| Method                                          | Returns      | Description                                                    |
+|-------------------------------------------------|--------------|----------------------------------------------------------------|
+| `all()`                                         | `Collection` | Returns defaults merged with model settings. Model values win. |
+| `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, then the default value, then `null`.  |
+| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates or updates a model setting.                            |
+| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a model setting.                                       |
 
 If you cannot use the trait, resolve `SettingsService` from the container with `['model' => $user]`.
 
