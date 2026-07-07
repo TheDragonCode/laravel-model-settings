@@ -63,10 +63,6 @@
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "test": "vendor/bin/pest --parallel",
         "test:coverage": "vendor/bin/pest --coverage",
-        "test:update": [
-            "rm -rf tests/.pest/snapshots",
-            "@test"
-        ],
         "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi"
     }
 }
