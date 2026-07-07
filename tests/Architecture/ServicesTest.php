@@ -9,3 +9,11 @@ arch()
 arch()
     ->expect('DragonCode\LaravelModelSettings\Services')
     ->toHaveSuffix('Service');
+
+arch()
+    ->expect('DragonCode\LaravelModelSettings\Services')
+    ->not->toBeReadonly();
+
+arch()
+    ->expect('DragonCode\LaravelModelSettings\Services')
+    ->not->toBeFinal();
