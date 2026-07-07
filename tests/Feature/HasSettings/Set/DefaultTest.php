@@ -10,16 +10,16 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 use function Pest\Laravel\assertDatabaseHas;
 
-test('success', function () {
+test('success', function (UnitEnum|string|int $key) {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);
 
-    (new User)->defaultSettings()->set('foo', 111);
+    (new User)->defaultSettings()->set($key, 111);
 
-    $user->settings()->set('foo', 222);
-    $user->settings()->set('foo', 333);
+    $user->settings()->set($key, 222);
+    $user->settings()->set($key, 333);
 
-    assertDatabaseHas(Settings::class, ['item_id' => $user->getKey(), 'key' => 'foo', 'payload' => 333]);
+    assertDatabaseHas(Settings::class, ['item_id' => $user->getKey(), 'key' => $key, 'payload' => 333]);
     assertDatabaseCount(Settings::class, 2);
-});
+})->with('setting keys');

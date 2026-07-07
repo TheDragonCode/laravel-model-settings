@@ -23,7 +23,12 @@ test('success', function () {
 
     $user->settings()->forget('foo');
 
-    assertDatabaseHas(Settings::class, ['item_id' => 0, 'key' => 'foo', 'payload' => 111]);
+    assertDatabaseHas(Settings::class, [
+        'item_type' => $user->getMorphClass(),
+        'item_id'   => 0,
+        'key'       => 'foo',
+        'payload'   => 111,
+    ]);
 
     assertDatabaseCount(Settings::class, 1);
 });

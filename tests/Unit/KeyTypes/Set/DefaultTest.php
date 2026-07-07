@@ -9,7 +9,7 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 use function Pest\Laravel\assertDatabaseHas;
 
-test('success', function (UnitEnum $key) {
+test('success', function (UnitEnum|string|int $key) {
     assertDatabaseEmpty(Settings::class);
 
     (new User)->defaultSettings()->set($key, 111);
@@ -17,4 +17,4 @@ test('success', function (UnitEnum $key) {
     assertDatabaseCount(Settings::class, 1);
 
     assertDatabaseHas(Settings::class, ['key' => $key, 'payload' => 111]);
-})->with('enums');
+})->with('setting keys');

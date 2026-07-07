@@ -6,8 +6,11 @@ use Workbench\App\Enums\IntBackedEnum;
 use Workbench\App\Enums\StringBackedEnum;
 use Workbench\App\Enums\UnitEnum;
 
-dataset('enums', [
+dataset('setting keys', [
     'int enum'    => IntBackedEnum::Foo,
     'string enum' => StringBackedEnum::Bar,
     'unit enum'   => UnitEnum::Baz,
+
+    'string' => 'foo',
+    'int'    => 10,
 ]);
