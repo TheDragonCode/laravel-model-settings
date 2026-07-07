@@ -1,6 +1,7 @@
 * text=auto
 
 .agents/ export-ignore
+.ai-factory/ export-ignore
 .github/ export-ignore
 tests/ export-ignore
 workbench/ export-ignore
