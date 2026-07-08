@@ -10,7 +10,7 @@ use UnitEnum;
 
 class SettingsRepository
 {
-    public function store(Model $model, UnitEnum|string|int $key, mixed $value): Model
+    public function store(Model $model, int|string|UnitEnum $key, mixed $value): Model
     {
         return $model->modelSettings()->updateOrCreate([
             'key' => $key,
@@ -22,14 +22,14 @@ class SettingsRepository
         return $model->modelSettings()->pluck('payload', 'key');
     }
 
-    public function get(Model $model, UnitEnum|string|int $key): mixed
+    public function get(Model $model, int|string|UnitEnum $key): mixed
     {
         return $model->modelSettings()
             ->where('key', $key)
             ->value('payload');
     }
 
-    public function delete(Model $model, UnitEnum|string|int $key): void
+    public function delete(Model $model, int|string|UnitEnum $key): void
     {
         $model->modelSettings()
             ->where('key', $key)

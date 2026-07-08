@@ -41,6 +41,8 @@
     },
     "config": {
         "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "laravel/pint": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         },
@@ -60,9 +62,9 @@
             "@clear",
             "@prepare"
         ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "test": "vendor/bin/pest --parallel",
-        "test:coverage": "vendor/bin/pest --coverage",
-        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi"
+        "test:coverage": "vendor/bin/pest --coverage"
     }
 }
