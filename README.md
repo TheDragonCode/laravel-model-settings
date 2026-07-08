@@ -125,10 +125,17 @@ always exists without seeding the database, and `schema()` returns a fully typed
 ```php
 $user->settings()->get('localization_code'); // 'ru' — from the schema, nothing stored yet
 
-$settings = $user->settings()->schema();      // instance of UserSettings
-$settings->localization_code;                 // string, autocompleted and statically analysable
+// Pass the schema class to get IDE autocomplete and static analysis on the result:
+$settings = $user->settings()->schema(UserSettings::class);
+$settings->localization_code;                 // string — autocompleted, PHPStan/Psalm friendly
 $settings->order_card_payment;                // bool
+
+// Or omit it to hydrate the model's declared schema (typed as a generic object):
+$user->settings()->schema();
 ```
+
+The `schema(UserSettings::class)` form uses a `class-string<T>` → `T` generic, so the IDE resolves the concrete
+schema type and its properties — the same pattern as `app(UserSettings::class)`.
 
 The feature is entirely opt-in: models without a `settingsSchema()` behave exactly as before. Database defaults set via
 `defaultSettings()` still override schema defaults, letting an admin change a value for a whole model type at runtime

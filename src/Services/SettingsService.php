@@ -68,11 +68,20 @@ class SettingsService
      * Return the settings hydrated into the model's typed schema.
      *
      * Values resolve per key: model value, then database default, then the
-     * schema's own default. Returns `null` when the model declares no schema.
+     * schema's own default.
+     *
+     * Pass the schema class explicitly to get IDE autocomplete and static
+     * analysis on the result. Omit it to hydrate the model's declared schema,
+     * which returns `null` when the model declares none.
+     *
+     * @template TSchema of object
+     *
+     * @param  class-string<TSchema>|null  $schema
+     * @return ($schema is null ? object|null : TSchema)
      */
-    public function schema(): ?object
+    public function schema(?string $schema = null): ?object
     {
-        $class = $this->schemaClass();
+        $class = $schema ?? $this->schemaClass();
 
         return $class === null ? null : $this->hydrateSchema($class);
     }

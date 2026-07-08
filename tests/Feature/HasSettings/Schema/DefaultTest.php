@@ -82,9 +82,16 @@ test('schema returns a typed object with resolved values', function () {
     $user->settings()->set('localization_code', 'fr');
     $user->settings()->set('order_card_payment', true);
 
+    // No argument: hydrates the model's declared schema (generic object).
     $settings = $user->settings()->schema();
 
     expect($settings)->toBeInstanceOf(UserSettings::class);
+
+    // Explicit class-string: IDE and static analysis resolve the concrete type.
+    $typed = $user->settings()->schema(UserSettings::class);
+
+    expect($typed)->toBeInstanceOf(UserSettings::class);
+    expect($typed->localization_code)->toBe('fr');
     expect($settings->localization_code)->toBe('fr');    // model value
     expect($settings->default_agreement)->toBe(5);       // database default
     expect($settings->order_card_payment)->toBeTrue();   // model value
