@@ -14,12 +14,46 @@ use function blank;
 use function Illuminate\Support\enum_value;
 use function property_exists;
 
+/**
+ * @template TSchema of object
+ *
+ * @mixin TSchema
+ */
 class SettingsService
 {
     public function __construct(
         protected Model $model,
         protected SettingsRepository $repository,
     ) {}
+
+    /**
+     * Read a setting as a property: `$user->settings()->timezone`.
+     */
+    public function __get(string $name): mixed
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * Write a setting as a property: `$user->settings()->timezone = 'UTC'`.
+     *
+     * Assigning a blank value (`null`, `''`, `[]`) removes the model setting,
+     * mirroring `set()`, so the value falls back to its default.
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        $this->set($name, $value);
+    }
+
+    public function __isset(string $name): bool
+    {
+        return ! blank($this->get($name));
+    }
+
+    public function __unset(string $name): void
+    {
+        $this->forget($name);
+    }
 
     public function all(): Collection
     {

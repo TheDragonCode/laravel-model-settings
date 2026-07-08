@@ -137,6 +137,35 @@ $user->settings()->schema();
 The `schema(UserSettings::class)` form uses a `class-string<T>` → `T` generic, so the IDE resolves the concrete
 schema type and its properties — the same pattern as `app(UserSettings::class)`.
 
+### Property access
+
+Settings can also be read and written as properties, which is the most natural form when a schema is declared:
+
+```php
+$user->settings()->ttb_command_index;        // read — resolves through the value layers
+$user->settings()->ttb_command_index = null; // write — stores (or, for a blank value, removes) the setting
+```
+
+`SettingsService` is generic over the schema (`@mixin TSchema`), so annotating the model's `settings()` method makes
+the IDE autocomplete and type-check these properties:
+
+```php
+use DragonCode\LaravelModelSettings\Services\SettingsService;
+
+/**
+ * @method SettingsService<UserSettings> settings()
+ */
+class User extends Model
+{
+    use HasSettings;
+
+    public function settingsSchema(): ?string
+    {
+        return UserSettings::class;
+    }
+}
+```
+
 The feature is entirely opt-in: models without a `settingsSchema()` behave exactly as before. Database defaults set via
 `defaultSettings()` still override schema defaults, letting an admin change a value for a whole model type at runtime
 without a deploy.
