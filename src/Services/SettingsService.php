@@ -20,21 +20,13 @@ class SettingsService
 
     public function all(): Collection
     {
-        $defaults = $this->repository->all($this->defaultModel());
-        $model    = $this->repository->all($this->model);
-
-        return $defaults->replace($model);
+        return $this->repository->all($this->model);
     }
 
     public function get(int|string|UnitEnum $key): mixed
     {
-        $value = $this->repository->get($this->model, $key);
-
-        if (! blank($value)) {
-            return $value;
-        }
-
-        return $this->repository->get($this->defaultModel(), $key);
+        return $this->repository->get($this->model, $key)
+            ?? $this->repository->get($this->defaultModel(), $key);
     }
 
     public function set(int|string|UnitEnum $key, mixed $value): void
@@ -51,7 +43,7 @@ class SettingsService
 
     protected function defaultModel(): Model
     {
-        $clone = $this->model->replicateQuietly(['id']);
+        $clone = $this->model->replicateQuietly([$this->model->getKeyName()]);
         $clone->setAttribute($clone->getKeyName(), 0);
 
         return $clone;
