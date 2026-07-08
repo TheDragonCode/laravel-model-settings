@@ -1,0 +1,14 @@
+name: Update license
+
+on:
+  schedule:
+    - cron: '0 3 1 1 *'
+  workflow_dispatch:
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+  Update:
+    uses: TheDragonCode/.github/.github/workflows/license.yml@main
