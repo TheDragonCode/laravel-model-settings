@@ -88,6 +88,52 @@ Default settings are stored with the model morph class and `item_id = 0`.
 | `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a model setting.                  |
 | `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a model setting.                                       |
 
+## Typed Settings Schema
+
+Instead of scattering keys, types, and defaults across the code and the database, a model can declare a **schema** — a
+plain object whose promoted properties describe the available settings, their types, and their code-level defaults:
+
+```php
+final class UserSettings
+{
+    public function __construct(
+        public string $localization_code = 'ru',
+        public int $default_agreement = 3,
+        public bool $order_card_payment = false,
+        public ?int $ttb_command_index = null,
+    ) {}
+}
+```
+
+Opt in by overriding `settingsSchema()` on the model:
+
+```php
+class User extends Model
+{
+    use HasSettings;
+
+    public function settingsSchema(): ?string
+    {
+        return UserSettings::class;
+    }
+}
+```
+
+Now values resolve through three layers — **model value → database default → schema default → `null`** — so a value
+always exists without seeding the database, and `schema()` returns a fully typed object:
+
+```php
+$user->settings()->get('localization_code'); // 'ru' — from the schema, nothing stored yet
+
+$settings = $user->settings()->schema();      // instance of UserSettings
+$settings->localization_code;                 // string, autocompleted and statically analysable
+$settings->order_card_payment;                // bool
+```
+
+The feature is entirely opt-in: models without a `settingsSchema()` behave exactly as before. Database defaults set via
+`defaultSettings()` still override schema defaults, letting an admin change a value for a whole model type at runtime
+without a deploy.
+
 ## Setting Keys
 
 Keys can be strings, integers, or PHP enums:

@@ -18,6 +18,21 @@ trait HasSettings
         return app()->make(SettingsService::class, ['model' => $this]);
     }
 
+    /**
+     * The fully qualified class name of the typed settings schema, or `null` when the model has none.
+     *
+     * Override to opt in to typed access and code-level defaults:
+     *
+     *     public function settingsSchema(): ?string
+     *     {
+     *         return UserSettings::class;
+     *     }
+     */
+    public function settingsSchema(): ?string
+    {
+        return null;
+    }
+
     public function defaultSettings(): SettingsService
     {
         $clone = $this->replicateQuietly(['id']);
