@@ -108,11 +108,11 @@ Backed enums, unit enums, strings, and integers are supported.
 
 After publishing, edit `config/model-settings.php`:
 
-| Option       | Environment variable                 | Default                                                  |
-|--------------|--------------------------------------|----------------------------------------------------------|
-| `model`      | -                                    | `DragonCode\LaravelModelSettings\Models\Settings::class` |
-| `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                             |
-| `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                               |
+| Option       | Environment variable                 | Default                                           |
+|--------------|--------------------------------------|---------------------------------------------------|
+| `model`      | -                                    | `DragonCode\LaravelModelSettings\Models\Settings` |
+| `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                      |
+| `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                        |
 
 The migration stores settings in one table with `item_type`, string `item_id`, `key`, and JSONB `payload`. Each setting
 is unique by `item_type`, `item_id`, and `key`. The string `item_id` column supports integer and UUID model keys.
