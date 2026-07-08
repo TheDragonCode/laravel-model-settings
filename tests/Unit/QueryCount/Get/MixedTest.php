@@ -7,7 +7,7 @@ use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
 test('default', function () {
-    $recorder = new QueryRecorder();
+    $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();
 
@@ -24,7 +24,7 @@ test('default', function () {
 });
 
 test('model', function () {
-    $recorder = new QueryRecorder();
+    $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();
 
