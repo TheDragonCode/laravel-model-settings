@@ -44,4 +44,12 @@ return [
     */
 
     'table' => env('MODEL_SETTINGS_DATABASE_TABLE', 'settings'),
+
+    /*
+     * By default, json.
+     */
+    'casts' => [
+        // App\Models\User::class => App\Data\Settings\UserPayload::class,
+        // App\Models\Post::class => App\Data\Settings\PostPayload::class,
+    ],
 ];
