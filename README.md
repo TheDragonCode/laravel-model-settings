@@ -135,7 +135,13 @@ $user->settings()->schema();
 ```
 
 The `schema(UserSettings::class)` form uses a `class-string<T>` → `T` generic, so the IDE resolves the concrete
-schema type and its properties — the same pattern as `app(UserSettings::class)`.
+schema type and its properties — the same pattern as `app(UserSettings::class)`. It works on any model with
+`HasSettings`, declared schema or not: stored values are passed to the constructor and every other parameter keeps
+its own default.
+
+Schema defaults are read from the promoted constructor parameter defaults via reflection — the schema class is never
+instantiated with empty arguments, so a schema with a required parameter cannot break `get()` or `all()`; the
+required key simply resolves to `null` until a value is stored.
 
 ### Property access
 
@@ -145,6 +151,11 @@ Settings can also be read and written as properties, which is the most natural f
 $user->settings()->ttb_command_index;        // read — resolves through the value layers
 $user->settings()->ttb_command_index = null; // write — stores (or, for a blank value, removes) the setting
 ```
+
+`isset()` reports whether the resolved value is not `null`, so null-coalescing reads agree with direct reads —
+including blank-but-defined defaults like `''`. A handful of names that collide with the service's own internals
+(`model`, `repository`, …) throw a `LogicException` on property access instead of being silently misrouted; they
+remain fully usable through `get()` / `set()`.
 
 `SettingsService` is generic over the schema (`@mixin TSchema`), so annotating the model's `settings()` method makes
 the IDE autocomplete and type-check these properties:

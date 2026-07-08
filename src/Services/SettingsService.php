@@ -7,12 +7,16 @@ namespace DragonCode\LaravelModelSettings\Services;
 use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use LogicException;
 use ReflectionClass;
+use ReflectionParameter;
 use UnitEnum;
 
 use function blank;
 use function Illuminate\Support\enum_value;
+use function method_exists;
 use function property_exists;
+use function sprintf;
 
 /**
  * @template TSchema of object
@@ -21,6 +25,10 @@ use function property_exists;
  */
 class SettingsService
 {
+    protected ?Model $defaultModel = null;
+
+    protected ?Collection $schemaDefaults = null;
+
     public function __construct(
         protected Model $model,
         protected SettingsRepository $repository,
@@ -31,6 +39,8 @@ class SettingsService
      */
     public function __get(string $name): mixed
     {
+        $this->ensurePropertyKey($name);
+
         return $this->get($name);
     }
 
@@ -42,31 +52,28 @@ class SettingsService
      */
     public function __set(string $name, mixed $value): void
     {
+        $this->ensurePropertyKey($name);
+
         $this->set($name, $value);
     }
 
     public function __isset(string $name): bool
     {
-        return ! blank($this->get($name));
+        $this->ensurePropertyKey($name);
+
+        return $this->get($name) !== null;
     }
 
     public function __unset(string $name): void
     {
+        $this->ensurePropertyKey($name);
+
         $this->forget($name);
     }
 
     public function all(): Collection
     {
-        $defaults = $this->repository->all($this->defaultModel());
-        $model    = $this->repository->all($this->model);
-
-        $merged = $defaults->replace($model);
-
-        if ($schema = $this->schemaDefaults()) {
-            return $schema->replace($merged);
-        }
-
-        return $merged;
+        return $this->schemaDefaults()->replace($this->storedValues());
     }
 
     public function get(UnitEnum|string|int $key): mixed
@@ -83,7 +90,7 @@ class SettingsService
             return $value;
         }
 
-        return $this->schemaDefault($key);
+        return $this->schemaDefaults()->get((string) enum_value($key));
     }
 
     public function set(UnitEnum|string|int $key, mixed $value): void
@@ -101,17 +108,18 @@ class SettingsService
     /**
      * Return the settings hydrated into the model's typed schema.
      *
-     * Values resolve per key: model value, then database default, then the
-     * schema's own default.
+     * Stored values (model values, then database defaults) are passed to the
+     * schema constructor; keys without a stored value are omitted, so the
+     * constructor defaults of the hydrated class apply.
      *
      * Pass the schema class explicitly to get IDE autocomplete and static
      * analysis on the result. Omit it to hydrate the model's declared schema,
      * which returns `null` when the model declares none.
      *
-     * @template TSchema of object
+     * @template TExplicit of object
      *
-     * @param  class-string<TSchema>|null  $schema
-     * @return ($schema is null ? object|null : TSchema)
+     * @param  class-string<TExplicit>|null  $schema
+     * @return ($schema is null ? TSchema|null : TExplicit)
      */
     public function schema(?string $schema = null): ?object
     {
@@ -122,58 +130,97 @@ class SettingsService
 
     protected function defaultModel(): Model
     {
+        if ($this->defaultModel !== null) {
+            return $this->defaultModel;
+        }
+
         $clone = $this->model->replicateQuietly(['id']);
         $clone->setAttribute($clone->getKeyName(), 0);
 
-        return $clone;
+        return $this->defaultModel = $clone;
+    }
+
+    /**
+     * Database defaults merged with model values. Model values win.
+     */
+    protected function storedValues(): Collection
+    {
+        return $this->repository->all($this->defaultModel())
+            ->replace($this->repository->all($this->model));
     }
 
     protected function schemaClass(): ?string
     {
-        return $this->model->settingsSchema();
+        return method_exists($this->model, 'settingsSchema')
+            ? $this->model->settingsSchema()
+            : null;
     }
 
-    protected function schemaInstance(): ?object
+    protected function schemaDefaults(): Collection
     {
-        $class = $this->schemaClass();
-
-        return $class === null ? null : new $class();
+        return $this->schemaDefaults ??= $this->constructorDefaults($this->schemaClass());
     }
 
-    protected function schemaDefaults(): ?Collection
+    /**
+     * Collect the schema defaults from the promoted constructor parameters
+     * without instantiating the class, so a schema with a required parameter
+     * cannot break reads.
+     */
+    protected function constructorDefaults(?string $class): Collection
     {
-        $instance = $this->schemaInstance();
+        $defaults = new Collection;
 
-        return $instance === null ? null : new Collection(get_object_vars($instance));
-    }
-
-    protected function schemaDefault(UnitEnum|string|int $key): mixed
-    {
-        $instance = $this->schemaInstance();
-
-        if ($instance === null) {
-            return null;
+        if ($class === null) {
+            return $defaults;
         }
 
-        $name = (string) enum_value($key);
+        foreach ($this->constructorParameters($class) as $parameter) {
+            if ($parameter->isPromoted() && $parameter->isDefaultValueAvailable()) {
+                $defaults->put($parameter->getName(), $parameter->getDefaultValue());
+            }
+        }
 
-        return property_exists($instance, $name) ? $instance->{$name} : null;
+        return $defaults;
     }
 
+    /** @return array<ReflectionParameter> */
+    protected function constructorParameters(string $class): array
+    {
+        return (new ReflectionClass($class))->getConstructor()?->getParameters() ?? [];
+    }
+
+    /**
+     * Blank stored values are skipped, mirroring `get()`, so the constructor
+     * default of the hydrated class applies to them.
+     */
     protected function hydrateSchema(string $class): object
     {
-        $constructor = (new ReflectionClass($class))->getConstructor();
-
-        if ($constructor === null) {
-            return new $class();
-        }
+        $stored = $this->storedValues()->reject(fn (mixed $value): bool => blank($value));
 
         $arguments = [];
 
-        foreach ($constructor->getParameters() as $parameter) {
-            $arguments[$parameter->getName()] = $this->get($parameter->getName());
+        foreach ($this->constructorParameters($class) as $parameter) {
+            if ($stored->has($parameter->getName())) {
+                $arguments[$parameter->getName()] = $stored->get($parameter->getName());
+            }
         }
 
         return new $class(...$arguments);
+    }
+
+    /**
+     * Property access is routed to settings only for names that cannot collide
+     * with the service's own properties; colliding names fail loudly instead
+     * of silently reading or writing an unexpected setting.
+     */
+    protected function ensurePropertyKey(string $name): void
+    {
+        if (property_exists($this, $name)) {
+            throw new LogicException(sprintf(
+                'The setting [%s] cannot be accessed as a property: the name collides with an internal %s property. Use get() / set() instead.',
+                $name,
+                static::class,
+            ));
+        }
     }
 }
