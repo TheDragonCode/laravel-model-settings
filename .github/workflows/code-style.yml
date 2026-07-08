@@ -3,8 +3,9 @@ name: Code Style
 on: [ push, pull_request ]
 
 permissions:
-    contents: write
-    pull-requests: write
+  contents: write
+  pull-requests: write
+  artifact-metadata: write
 
 jobs:
     check:
