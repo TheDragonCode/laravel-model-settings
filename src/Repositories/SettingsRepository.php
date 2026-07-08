@@ -13,7 +13,7 @@ class SettingsRepository
 {
     /** @param  class-string<Model>  $modelClass */
     public function __construct(
-        #[Config('model-settings.model')]
+        #[Config('model_settings.model')]
         protected string $modelClass,
     ) {}
 

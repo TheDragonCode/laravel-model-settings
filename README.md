@@ -22,7 +22,7 @@ composer require dragon-code/laravel-model-settings
 Publish the config and migration, then run migrations:
 
 ```bash
-php artisan vendor:publish --tag="model-settings"
+php artisan vendor:publish --tag="model_settings"
 php artisan migrate
 ```
 
@@ -106,7 +106,7 @@ Backed enums, unit enums, strings, and integers are supported.
 
 ## Configuration
 
-After publishing, edit `config/model-settings.php`:
+After publishing, edit `config/model_settings.php`:
 
 | Option       | Environment variable                 | Default                                           |
 |--------------|--------------------------------------|---------------------------------------------------|
