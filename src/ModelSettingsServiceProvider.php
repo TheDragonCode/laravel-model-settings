@@ -11,8 +11,8 @@ final class ModelSettingsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/model-settings.php',
-            'model-settings'
+            __DIR__ . '/../config/model_settings.php',
+            'model_settings'
         );
     }
 
@@ -23,11 +23,11 @@ final class ModelSettingsServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ . '/../config/model-settings.php' => $this->app->configPath('model-settings.php'),
-        ], 'model-settings');
+            __DIR__ . '/../config/model_settings.php' => $this->app->configPath('model_settings.php'),
+        ], 'model_settings');
 
         $this->publishesMigrations([
             __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations'),
-        ], 'model-settings');
+        ], 'model_settings');
     }
 }

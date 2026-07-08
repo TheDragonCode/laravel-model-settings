@@ -19,8 +19,8 @@ final class Settings extends Model
 
     public function __construct(array $attributes = [])
     {
-        $this->setConnection(config('model-settings.connection'));
-        $this->setTable(config('model-settings.table'));
+        $this->setConnection(config('model_settings.connection'));
+        $this->setTable(config('model_settings.table'));
 
         parent::__construct($attributes);
     }

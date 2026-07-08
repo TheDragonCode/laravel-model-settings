@@ -33,12 +33,12 @@ return new class extends Migration {
     protected function connection(): Builder
     {
         return Schema::connection(
-            config('model-settings.connection')
+            config('model_settings.connection')
         );
     }
 
     protected function table(): string
     {
-        return config()->string('model-settings.table');
+        return config()->string('model_settings.table');
     }
 };
