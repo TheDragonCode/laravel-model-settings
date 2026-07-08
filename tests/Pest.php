@@ -12,4 +12,4 @@ pest()
 
 pest()
     ->uses(TestCase::class, WithWorkbench::class, RefreshDatabase::class)
-    ->in('Feature');
+    ->in('Feature', 'Unit');
