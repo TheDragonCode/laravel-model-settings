@@ -6,7 +6,7 @@ use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 
 test('filled', function () {
-    $recorder = new QueryRecorder();
+    $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
 
@@ -18,7 +18,7 @@ test('filled', function () {
 });
 
 test('zero', function () {
-    $recorder = new QueryRecorder();
+    $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
 
@@ -30,7 +30,7 @@ test('zero', function () {
 });
 
 test('empty', function () {
-    $recorder = new QueryRecorder();
+    $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
 
