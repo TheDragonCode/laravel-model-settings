@@ -61,5 +61,6 @@ return [
 
     'casts' => [
         // App\Models\User::class => App\Casts\UserCast::class,
+        // App\Models\Post::class => App\Data\PostData::class,
     ],
 ];
