@@ -58,7 +58,7 @@ class PayloadCast implements CastsAttributes
         }
 
         if (is_a($cast, CastsAttributes::class, true)) {
-            return (new $cast())->set($model, $key, $value, $attributes);
+            $value = (new $cast())->set($model, $key, $value, $attributes);
         }
 
         return $this->asJson($value);
@@ -66,7 +66,7 @@ class PayloadCast implements CastsAttributes
 
     protected function fromJson($value): array|string|int|float|bool|null
     {
-        return Json::decode($value, true);
+        return Json::decode($value);
     }
 
     protected function asJson($value): string
