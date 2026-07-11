@@ -1,0 +1,172 @@
+name: Databases
+
+on:
+    push:
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    mysql_8:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        
+        services:
+            mysql:
+                image: mysql:8
+                env:
+                    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+                    MYSQL_DATABASE: laravel
+                ports:
+                    - 3306:3306
+                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
+        name: MySQL 8
+        
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+                with:
+                    extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, :php-psr
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Install dependencies
+                uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
+                with:
+                    timeout_minutes: 5
+                    max_attempts: 5
+                    command: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+            -   name: Execute tests
+                run: composer test
+                env:
+                    DB_CONNECTION: mysql
+    
+    mariadb:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        
+        services:
+            mariadb:
+                image: mariadb:10
+                env:
+                    MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
+                    MARIADB_DATABASE: laravel
+                ports:
+                    - 3306:3306
+                options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+        
+        name: MariaDB 10
+        
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+                with:
+                    extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, :php-psr
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Install dependencies
+                uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
+                with:
+                    timeout_minutes: 5
+                    max_attempts: 5
+                    command: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+            -   name: Execute tests
+                run: composer test
+                env:
+                    DB_CONNECTION: mariadb
+    
+    pgsql_18:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        
+        services:
+            postgresql:
+                image: postgres:18
+                env:
+                    POSTGRES_DB: laravel
+                    POSTGRES_USER: forge
+                    POSTGRES_PASSWORD: password
+                ports:
+                    - 5432:5432
+                options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
+        
+        name: PostgreSQL 18
+        
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+                with:
+                    extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_pgsql, :php-psr
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Set Framework version
+                run: composer config version "13.x-dev"
+
+            -   name: Install dependencies
+                uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
+                with:
+                    timeout_minutes: 5
+                    max_attempts: 5
+                    command: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+            -   name: Execute tests
+                run: composer test
+                env:
+                    DB_CONNECTION: pgsql
+                    DB_USERNAME: forge
+                    DB_PASSWORD: password
+
+    sqlite:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        
+        name: SQLite
+        
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+                with:
+                    extensions: dom, curl, libxml, mbstring, zip, pcntl, sqlsrv, pdo, pdo_sqlsrv, odbc, pdo_odbc, :php-psr
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Set Framework version
+                run: composer config version "13.x-dev"
+
+            -   name: Install dependencies
+                uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
+                with:
+                    timeout_minutes: 5
+                    max_attempts: 5
+                    command: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+            -   name: Execute tests
+                run: composer test
+                env:
+                    DB_CONNECTION: sqlite
