@@ -7,13 +7,18 @@ namespace DragonCode\LaravelModelSettings\Casts;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Spatie\LaravelData\Data;
 
 use function blank;
 use function class_exists;
 use function config;
+use function is_a;
 use function json_decode;
 use function json_encode;
 use function json_validate;
@@ -32,11 +37,31 @@ class PayloadCast implements CastsAttributes
             return $this->decode($value);
         }
 
-        if (class_exists(Data::class) && $cast instanceof Data) {
-            return $cast::from($this->decode($value));
+        if (class_exists(Data::class) && is_a($cast, Data::class, true)) {
+            return $cast::from($value);
         }
 
-        return new $cast(...$this->decode($value));
+        if (class_exists($cast)) {
+            return new $cast(...$this->decode($value));
+        }
+
+        return match ($cast) {
+            'int',
+            'integer'                   => (int) $value,
+            'string'                    => (string) $value,
+            'bool',
+            'boolean'                   => (bool) $value,
+            'object'                    => $this->fromJson($value, true),
+            'collection'                => new Collection($this->fromJson($value)),
+            'date'                      => $this->fromDate($value),
+            'datetime',
+            'custom_datetime'           => $this->fromDateTime($value),
+            'immutable_date'            => $this->fromDate($value)->toImmutable(),
+            'immutable_datetime',
+            'immutable_custom_datetime' => $this->fromDateTime($value)->toImmutable(),
+            'timestamp'                 => $this->fromTimestamp($value),
+            default                     => $this->fromJson($value)
+        };
     }
 
     /**
@@ -51,16 +76,34 @@ class PayloadCast implements CastsAttributes
         };
     }
 
+    protected function fromJson($value, $asObject = false): array|int|string|float|bool|null
+    {
+        return Json::decode($value, ! $asObject);
+    }
+
+    protected function fromDate(string $value): ?Carbon
+    {
+        return Carbon::parse($value)->startOfDay();
+    }
+
+    protected function fromDateTime(string $value): ?Carbon
+    {
+        return Date::parse($value);
+    }
+
+    protected function fromTimestamp(string $value): int
+    {
+        return $this->fromDateTime($value)->timestamp;
+    }
+
     protected function cast(Model $model): ?string
     {
-        if (! $parent = $this->parentModel($model)) {
-            return null;
-        }
+        $parent = $this->parentModel($model);
 
         return $this->casts()[$parent] ?? null;
     }
 
-    protected function parentModel(Model $model): ?string
+    protected function parentModel(Model $model): string
     {
         return Relation::getMorphedModel($model->item_type) ?? $model->item_type;
     }

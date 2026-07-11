@@ -31,6 +31,7 @@ class SettingsRepository
         return $this->modelClass::query()
             ->where('item_type', $model->getMorphClass())
             ->whereIn('item_id', [$model->getKey(), 0])
+            ->get(['item_type', 'key', 'payload'])
             ->pluck('payload', 'key');
     }
 
@@ -41,6 +42,7 @@ class SettingsRepository
             ->whereIn('item_id', [$model->getKey(), 0])
             ->where('key', $key)
             ->orderByDesc('item_id')
+            ->get(['item_type', 'payload'])
             ->value('payload');
     }
 
