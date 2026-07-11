@@ -60,7 +60,6 @@ return [
     */
 
     'casts' => [
-        // App\Models\User::class => App\Data\Settings\UserPayload::class,
-        // App\Models\Post::class => App\Data\Settings\PostPayload::class,
+        // App\Models\User::class => App\Casts\UserCast::class,
     ],
 ];

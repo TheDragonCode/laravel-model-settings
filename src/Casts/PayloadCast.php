@@ -8,8 +8,11 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Spatie\LaravelData\Data;
 
 use function blank;
+use function class_exists;
 use function config;
 use function json_decode;
 use function json_encode;
@@ -29,6 +32,10 @@ class PayloadCast implements CastsAttributes
             return $this->decode($value);
         }
 
+        if (class_exists(Data::class) && $cast instanceof Data) {
+            return $cast::from($this->decode($value));
+        }
+
         return new $cast(...$this->decode($value));
     }
 
@@ -46,7 +53,16 @@ class PayloadCast implements CastsAttributes
 
     protected function cast(Model $model): ?string
     {
-        return $this->casts()[$model::class] ?? null;
+        if (! $parent = $this->parentModel($model)) {
+            return null;
+        }
+
+        return $this->casts()[$parent] ?? null;
+    }
+
+    protected function parentModel(Model $model): ?string
+    {
+        return Relation::getMorphedModel($model->item_type) ?? $model->item_type;
     }
 
     protected function casts(): array
