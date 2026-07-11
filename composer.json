@@ -65,7 +65,7 @@
         ],
         "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "test": "vendor/bin/pest --parallel",
+        "test": "vendor/bin/pest --compact",
         "test:coverage": "vendor/bin/pest --coverage"
     }
 }
