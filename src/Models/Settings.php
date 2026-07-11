@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Models;
 
+use DragonCode\LaravelModelSettings\Casts\PayloadCast;
 use Illuminate\Database\Eloquent\Model;
 
 use function config;
@@ -28,7 +29,7 @@ final class Settings extends Model
     protected function casts(): array
     {
         return [
-            'payload' => 'json',
+            'payload' => PayloadCast::class,
         ];
     }
 }

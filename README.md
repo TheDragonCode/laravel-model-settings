@@ -11,8 +11,10 @@
 
 > Store settings for individual Eloquent models, with optional defaults shared by models of the same type.
 
-Use this package when each model needs its own settings, but should fall back to shared values when a model value is
-missing.
+## Requirements
+
+- PHP `^8.3`
+- Laravel `^12.0` or `^13.0`
 
 ## Installation
 
@@ -22,7 +24,7 @@ Install the package via [Composer](https://getcomposer.org):
 composer require dragon-code/laravel-model-settings
 ```
 
-Publish the config and migration, then run migrations:
+Publish the config and migration, then run the migration:
 
 ```bash
 php artisan vendor:publish --tag="model_settings"
@@ -51,18 +53,16 @@ $user = User::query()->findOrFail(123);
 $user->settings()->set('timezone', 'UTC');
 $user->settings()->set('notifications', ['email' => true]);
 
-$user->settings()->get('timezone');      // 'UTC'
-$user->settings()->get('notifications'); // ['email' => true]
-$user->settings()->get('missing');       // null
-
-$user->settings()->all();                // Illuminate\Support\Collection
+$timezone = $user->settings()->get('timezone');      // UTC
+$timezone = $user->settings()->get('notifications'); // ['email' => true]
+$settings = $user->settings()->all();
 
 $user->settings()->forget('timezone');
 $user->settings()->get('timezone');      // null
 ```
 
-Calling `set()` with a blank value removes the model setting. Blank values include `null`, an empty string, and an
-empty array.
+Calling `set()` with a blank value removes the setting. Blank values include `null`, an empty string, and an empty
+array.
 
 ## Default Settings
 
@@ -80,6 +80,7 @@ $user->settings()->forget('timezone');
 $user->settings()->get('timezone'); // 'UTC'
 ```
 
+Model settings take precedence over defaults.
 Default settings are stored with the model morph class and `item_id = 0`.
 
 ## API
@@ -88,37 +89,48 @@ Default settings are stored with the model morph class and `item_id = 0`.
 |-------------------------------------------------|--------------|----------------------------------------------------------------|
 | `all()`                                         | `Collection` | Returns defaults merged with model settings. Model values win. |
 | `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, then the default value, then `null`.  |
-| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a model setting.                  |
-| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a model setting.                                       |
+| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a setting.                        |
+| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a setting.                                             |
 
 ## Setting Keys
 
 Keys can be strings, integers, or PHP enums:
 
 ```php
-enum UserSetting: string
-{
-    case Timezone = 'timezone';
-}
+enum UserSetting: string { case Timezone = 'timezone'; }
 
 $user->settings()->set(UserSetting::Timezone, 'UTC');
-$user->settings()->get(UserSetting::Timezone); // 'UTC'
+
+$timezone = $user->settings()->get(UserSetting::Timezone);
 ```
 
-Backed enums, unit enums, strings, and integers are supported.
+## Payload Casts
+
+Without a custom cast, payloads are decoded as arrays, scalar values, or `null`. Configure a cast per model in
+`config/model_settings.php`:
+
+```php
+return ['casts' => [App\Models\User::class => App\Data\UserSettingsData::class]];
+```
+
+The class may implement Laravel's `CastsAttributes` contract. [
+`spatie/laravel-data`](https://spatie.be/docs/laravel-data) `Data` classes are also supported when installed.
 
 ## Configuration
-
-After publishing, edit `config/model_settings.php`:
 
 | Option       | Environment variable                 | Default                                           |
 |--------------|--------------------------------------|---------------------------------------------------|
 | `model`      | -                                    | `DragonCode\LaravelModelSettings\Models\Settings` |
 | `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                      |
 | `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                        |
+| `casts`      | -                                    | `[]`                                              |
 
-The migration stores settings in one table with `item_type`, string `item_id`, `key`, and JSONB `payload`. Each setting
-is unique by `item_type`, `item_id`, and `key`. The string `item_id` column supports integer and UUID model keys.
+The migration stores one row per setting with `item_type`, string `item_id`, `key`, and JSONB `payload`. The unique key
+is
+`item_type`, `item_id`, and `key`; string `item_id` supports integer and UUID model keys.
+
+> The `1.x` configuration key and table schema differ from the previous branch. Existing installations require an
+> explicit configuration and data migration before upgrading.
 
 ## Testing
 

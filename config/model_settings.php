@@ -44,4 +44,23 @@ return [
     */
 
     'table' => env('MODEL_SETTINGS_DATABASE_TABLE', 'settings'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Settings Payload Casts
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom casts for the payload of your model
+    | settings. The array keys should be model class names and the values
+    | should be classes that can be created from the decoded JSON payload.
+    |
+    | When no cast is configured for a model, the payload will be returned as
+    | the decoded JSON value, such as an array, scalar value, or null.
+    |
+    */
+
+    'casts' => [
+        // App\Models\User::class => App\Casts\UserCast::class,
+        // App\Models\Post::class => App\Data\PostData::class,
+    ],
 ];

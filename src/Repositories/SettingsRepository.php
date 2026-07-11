@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Repositories;
 
+use DragonCode\LaravelModelSettings\Scopes\PriorityScope;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -15,6 +16,8 @@ class SettingsRepository
     public function __construct(
         #[Config('model_settings.model')]
         protected string $modelClass,
+        #[Config('model_settings.table')]
+        protected string $table,
     ) {}
 
     public function store(Model $model, int|string|UnitEnum $key, mixed $value): Model
@@ -29,18 +32,19 @@ class SettingsRepository
     public function all(Model $model): Collection
     {
         return $this->modelClass::query()
-            ->where('item_type', $model->getMorphClass())
-            ->whereIn('item_id', [$model->getKey(), 0])
+            ->where($this->table . '.item_type', $model->getMorphClass())
+            ->tap(new PriorityScope($this->table, $model->getKey()))
+            ->get()
             ->pluck('payload', 'key');
     }
 
     public function get(Model $model, int|string|UnitEnum $key): mixed
     {
         return $this->modelClass::query()
-            ->where('item_type', $model->getMorphClass())
-            ->whereIn('item_id', [$model->getKey(), 0])
-            ->where('key', $key)
-            ->orderByDesc('item_id')
+            ->where($this->table . '.item_type', $model->getMorphClass())
+            ->where($this->table . '.key', $key)
+            ->tap(new PriorityScope($this->table, $model->getKey()))
+            ->get()
             ->value('payload');
     }
 
