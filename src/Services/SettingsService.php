@@ -33,10 +33,13 @@ class SettingsService
         blank($value)
             ? $this->repository->delete($this->model, $key)
             : $this->repository->store($this->model, $key, $value);
+
+        $this->model->unsetRelation('modelSettings');
     }
 
     public function forget(int|string|UnitEnum $key): void
     {
         $this->repository->delete($this->model, $key);
+        $this->model->unsetRelation('modelSettings');
     }
 }

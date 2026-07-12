@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DragonCode\LaravelModelSettings\Repositories;
 
 use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
-use DragonCode\LaravelModelSettings\Scopes\PriorityScope;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -32,20 +31,13 @@ class SettingsRepository
 
     public function all(Model $model): Collection
     {
-        return $this->modelClass::query()
-            ->where($this->settingsModel()->qualifyColumn('item_type'), $model->getMorphClass())
-            ->tap(new PriorityScope($model, $model->getKey()))
-            ->get()
-            ->pluck('payload', 'key');
+        return $model->modelSettings->pluck('payload', 'key');
     }
 
     public function get(Model $model, int|string|UnitEnum $key): mixed
     {
-        return $this->modelClass::query()
-            ->where($this->settingsModel()->qualifyColumn('item_type'), $model->getMorphClass())
+        return $model->modelSettings
             ->where($this->settingsModel()->qualifyColumn('key'), $key)
-            ->tap(new PriorityScope($model, $model->getKey()))
-            ->get()
             ->value('payload');
     }
 

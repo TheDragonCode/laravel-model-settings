@@ -22,11 +22,13 @@ test('success', function (): void {
     $user2->settings()->set('bar', 333);
     $user3->settings()->set('baz', 444);
 
+    $users = User::get();
+
     $recorder->start();
 
-    User::query()->each(
+    $users->each(
         fn (User $user) => $user->settings()->all()
     );
 
-    expect($recorder->calls())->toBe(2);
+    expect($recorder->calls())->toBe(1);
 });
