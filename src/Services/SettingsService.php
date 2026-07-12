@@ -28,8 +28,7 @@ class SettingsService
 
     public function get(int|string|UnitEnum $key): mixed
     {
-        return $this->repository->get($this->model, $key)
-            ?? $this->repository->get($this->defaultModel(), $key);
+        return $this->repository->get($this->model, $key);
     }
 
     public function set(int|string|UnitEnum $key, mixed $value): void

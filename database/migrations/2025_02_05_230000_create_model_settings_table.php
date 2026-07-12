@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
 
             $table->string('item_type');
-            $table->unsignedBigInteger('item_id');
+            $table->string('item_id');
 
             $table->string('key');
             $table->jsonb('payload');

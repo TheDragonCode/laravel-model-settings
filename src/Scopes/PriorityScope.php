@@ -37,7 +37,7 @@ class PriorityScope
                 )
             )
             ->orderByDesc($this->qualifyColumn('item_id'))
-            ->orderByDesc($this->qualifyColumn('key'));
+            ->orderBy($this->qualifyColumn('key'));
     }
 
     protected function qualifyColumn(string $column): string
