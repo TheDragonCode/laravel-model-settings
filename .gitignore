@@ -15,4 +15,8 @@ vendor/
 
 composer.lock
 
+biome.json
+pint.json
+rector.php
+
 playground.php
