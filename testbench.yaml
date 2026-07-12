@@ -6,6 +6,7 @@ providers:
 
 migrations:
     - database/migrations
+    - workbench/database/migrations
 
 workbench:
     install: true

@@ -6,16 +6,14 @@ namespace Workbench\App\Models;
 
 use DragonCode\LaravelModelSettings\Concerns\HasSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-final class User extends Authenticatable
+final class SomeId extends Model
 {
     use HasFactory;
     use HasSettings;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $table = 'some_ids';
+
+    public $timestamps = false;
 }

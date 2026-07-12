@@ -6,16 +6,18 @@ namespace Workbench\App\Models;
 
 use DragonCode\LaravelModelSettings\Concerns\HasSettings;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UuidUser extends Model
+final class SomeUuid extends Model
 {
+    use HasFactory;
     use HasSettings;
     use HasUuids;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $table = 'some_uuids';
+
+    protected $primaryKey = 'uuid';
+
+    public $timestamps = false;
 }

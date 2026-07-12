@@ -42,12 +42,4 @@ class SettingsService
     {
         $this->repository->delete($this->model, $key);
     }
-
-    protected function defaultModel(): Model
-    {
-        $clone = $this->model->replicateQuietly([$this->model->getKeyName()]);
-        $clone->setAttribute($clone->getKeyName(), $this->defaultId());
-
-        return $clone;
-    }
 }
