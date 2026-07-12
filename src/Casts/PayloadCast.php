@@ -8,6 +8,7 @@ use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
+use JsonException;
 use Spatie\LaravelData\Data;
 
 use function class_exists;
@@ -27,7 +28,7 @@ class PayloadCast implements CastsAttributes
         }
 
         if (is_a($cast, CastsAttributes::class, true)) {
-            return (new $cast())->get($model, $key, $value, $attributes);
+            return (new $cast)->get($model, $key, $value, $attributes);
         }
 
         if (class_exists(Data::class) && is_a($cast, Data::class, true)) {
@@ -37,9 +38,7 @@ class PayloadCast implements CastsAttributes
         return $this->fromJson($value);
     }
 
-    /**
-     * @throws \JsonException
-     */
+    /** @throws JsonException */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
         if (! $cast = $this->cast($model)) {
@@ -51,13 +50,13 @@ class PayloadCast implements CastsAttributes
         }
 
         if (is_a($cast, CastsAttributes::class, true)) {
-            $value = (new $cast())->set($model, $key, $value, $attributes);
+            $value = (new $cast)->set($model, $key, $value, $attributes);
         }
 
         return $this->asJson($value);
     }
 
-    protected function fromJson($value): array|string|int|float|bool|null
+    protected function fromJson($value): array|bool|float|int|string|null
     {
         return Json::decode($value);
     }
