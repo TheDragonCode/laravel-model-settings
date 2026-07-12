@@ -6,6 +6,7 @@ namespace DragonCode\LaravelModelSettings\Models;
 
 use DragonCode\LaravelModelSettings\Casts\PayloadCast;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 use function config;
