@@ -21,6 +21,7 @@
     },
     "require-dev": {
         "dragon-code/benchmark": "^4.6",
+        "dragon-code/codestyler": "^6.7",
         "orchestra/testbench": "^10.0 || ^11.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
@@ -60,12 +61,23 @@
         }
     },
     "scripts": {
+        "post-update-cmd": [
+            "vendor/bin/codestyle pint 8.3",
+            "vendor/bin/codestyle rector laravel",
+            "vendor/bin/codestyle editorconfig",
+            "vendor/bin/codestyle npm"
+        ],
         "post-autoload-dump": [
             "@clear",
             "@prepare"
         ],
         "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "style": [
+            "vendor/bin/rector",
+            "vendor/bin/pint --parallel",
+            "composer normalize"
+        ],
         "test": "vendor/bin/pest --compact",
         "test:coverage": "vendor/bin/pest --coverage"
     }
