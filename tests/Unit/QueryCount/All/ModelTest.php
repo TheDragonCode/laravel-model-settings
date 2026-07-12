@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
-test('success', function () {
+test('success', function (): void {
     $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();

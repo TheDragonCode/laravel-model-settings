@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
-test('filled', function () {
+test('filled', function (): void {
     $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();
@@ -19,7 +19,7 @@ test('filled', function () {
     expect($recorder->calls())->toBe(2);
 });
 
-test('zero', function () {
+test('zero', function (): void {
     $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();
@@ -33,7 +33,7 @@ test('zero', function () {
     expect($recorder->calls())->toBe(2);
 });
 
-test('empty', function () {
+test('empty', function (): void {
     $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();

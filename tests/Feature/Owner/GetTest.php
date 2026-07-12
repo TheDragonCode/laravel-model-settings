@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
-test('success', function () {
+test('success', function (): void {
     $user1 = UserFactory::new()->create();
     $user2 = UserFactory::new()->create();
     $user3 = UserFactory::new()->create();

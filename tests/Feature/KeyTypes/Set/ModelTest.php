@@ -9,7 +9,7 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseEmpty;
 use function Pest\Laravel\assertDatabaseHas;
 
-test('success', function (int|string|UnitEnum $key) {
+test('success', function (int|string|UnitEnum $key): void {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);

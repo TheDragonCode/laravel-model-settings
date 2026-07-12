@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 
-test('success', function () {
+test('success', function (): void {
     $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);

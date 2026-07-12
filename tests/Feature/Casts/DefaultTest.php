@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Workbench\Database\Factories\UserFactory;
 
-test('success', function (mixed $default, mixed $model) {
+test('success', function (mixed $default, mixed $model): void {
     $user = UserFactory::new()->create();
 
     $user->defaultSettings()->set('foo', $default);

@@ -63,7 +63,6 @@
     "scripts": {
         "post-update-cmd": [
             "vendor/bin/codestyle pint 8.3",
-            "vendor/bin/codestyle rector laravel",
             "vendor/bin/codestyle editorconfig",
             "vendor/bin/codestyle npm"
         ],
@@ -74,7 +73,6 @@
         "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "style": [
-            "vendor/bin/rector",
             "vendor/bin/pint --parallel",
             "composer normalize"
         ],

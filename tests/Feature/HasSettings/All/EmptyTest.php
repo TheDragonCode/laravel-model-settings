@@ -7,7 +7,7 @@ use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseEmpty;
 
-test('success', function () {
+test('success', function (): void {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);

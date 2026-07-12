@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
-test('default first', function () {
+test('default first', function (): void {
     $user1 = UserFactory::new()->create();
     $user2 = UserFactory::new()->create();
     $user3 = UserFactory::new()->create();
@@ -25,7 +25,7 @@ test('default first', function () {
     expect($result3)->toBe(['bar' => 222, 'foo' => 111]);
 });
 
-test('model first', function () {
+test('model first', function (): void {
     $user1 = UserFactory::new()->create();
     $user2 = UserFactory::new()->create();
     $user3 = UserFactory::new()->create();

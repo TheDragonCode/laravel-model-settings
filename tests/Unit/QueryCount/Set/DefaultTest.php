@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 
-test('filled', function () {
+test('filled', function (): void {
     $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
@@ -17,7 +17,7 @@ test('filled', function () {
     expect($recorder->calls())->toBe(2);
 });
 
-test('zero', function () {
+test('zero', function (): void {
     $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
@@ -29,7 +29,7 @@ test('zero', function () {
     expect($recorder->calls())->toBe(2);
 });
 
-test('empty', function () {
+test('empty', function (): void {
     $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);

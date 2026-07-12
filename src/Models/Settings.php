@@ -6,6 +6,7 @@ namespace DragonCode\LaravelModelSettings\Models;
 
 use DragonCode\LaravelModelSettings\Casts\PayloadCast;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 use function config;
 
@@ -26,6 +27,7 @@ final class Settings extends Model
         parent::__construct($attributes);
     }
 
+    #[Override]
     protected function casts(): array
     {
         return [

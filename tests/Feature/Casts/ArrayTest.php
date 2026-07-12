@@ -6,7 +6,7 @@ use Workbench\App\Casts\CustomCast;
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
-test('success', function () {
+test('success', function (): void {
     config()->set('model_settings.casts.' . User::class, CustomCast::class);
 
     $defaultData = [

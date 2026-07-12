@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace DragonCode\LaravelModelSettings;
 
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 final class ModelSettingsServiceProvider extends ServiceProvider
 {
+    #[Override]
     public function register(): void
     {
         $this->mergeConfigFrom(
