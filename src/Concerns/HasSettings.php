@@ -6,10 +6,11 @@ namespace DragonCode\LaravelModelSettings\Concerns;
 
 use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use DragonCode\LaravelModelSettings\Services\SettingsService;
+use Illuminate\Database\Eloquent\Model;
 
 use function app;
 
-/** @mixin \Illuminate\Database\Eloquent\Model */
+/** @mixin Model */
 trait HasSettings
 {
     public function settings(): SettingsService

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        $this->schema()->create($this->table(), static function (Blueprint $table) {
+        $this->schema()->create($this->table(), static function (Blueprint $table): void {
             $table->id();
 
             $table->string('item_type');

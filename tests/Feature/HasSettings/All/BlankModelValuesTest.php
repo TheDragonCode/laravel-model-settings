@@ -8,7 +8,7 @@ use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseEmpty;
 
-test('blank model values do not override defaults in all results', function (mixed $value) {
+test('blank model values do not override defaults in all results', function (mixed $value): void {
     $user = UserFactory::new()->create();
 
     assertDatabaseEmpty(Settings::class);

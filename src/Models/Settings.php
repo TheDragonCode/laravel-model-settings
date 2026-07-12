@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace DragonCode\LaravelModelSettings\Models;
 
 use DragonCode\LaravelModelSettings\Casts\PayloadCast;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 use function config;
 
+#[Fillable([
+    'item_type',
+    'item_id',
+    'key',
+    'payload',
+])]
 final class Settings extends Model
 {
-    protected $fillable = [
-        'item_type',
-        'item_id',
-        'key',
-        'payload',
-    ];
-
     public function __construct(array $attributes = [])
     {
         $this->setConnection(config('model_settings.connection'));
@@ -26,6 +27,7 @@ final class Settings extends Model
         parent::__construct($attributes);
     }
 
+    #[Override]
     protected function casts(): array
     {
         return [

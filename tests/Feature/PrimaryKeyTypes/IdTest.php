@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\SomeId;
 use Workbench\Database\Factories\SomeIdFactory;
 
-test('default first', function () {
+test('default first', function (): void {
     $user1 = SomeIdFactory::new()->create();
     $user2 = SomeIdFactory::new()->create();
     $user3 = SomeIdFactory::new()->create();
@@ -25,7 +25,7 @@ test('default first', function () {
     expect($result3)->toBe(['bar' => 222, 'foo' => 111]);
 });
 
-test('model first', function () {
+test('model first', function (): void {
     $user1 = SomeIdFactory::new()->create();
     $user2 = SomeIdFactory::new()->create();
     $user3 = SomeIdFactory::new()->create();
