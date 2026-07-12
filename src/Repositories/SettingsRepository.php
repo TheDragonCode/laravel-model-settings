@@ -33,7 +33,7 @@ class SettingsRepository
     {
         return $this->modelClass::query()
             ->where($this->table . '.item_type', $model->getMorphClass())
-            ->tap(new PriorityScope($this->table, $model->getKey()))
+            ->tap(new PriorityScope($model->getKey()))
             ->get()
             ->pluck('payload', 'key');
     }
@@ -43,7 +43,7 @@ class SettingsRepository
         return $this->modelClass::query()
             ->where($this->table . '.item_type', $model->getMorphClass())
             ->where($this->table . '.key', $key)
-            ->tap(new PriorityScope($this->table, $model->getKey()))
+            ->tap(new PriorityScope($model->getKey()))
             ->get()
             ->value('payload');
     }

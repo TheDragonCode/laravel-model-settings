@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Scopes;
 
+use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 
 class PriorityScope
 {
+    use HasModelResolver;
+
     public function __construct(
-        protected string $table,
         protected int|string $id,
     ) {}
 
@@ -19,7 +21,7 @@ class PriorityScope
         $builder
             ->select($this->qualifyColumn('*'))
             ->leftJoin(
-                $this->table . ' as overrides',
+                $this->table() . ' as overrides',
                 fn (JoinClause $join) => $join
                     ->on('overrides.item_type', $this->qualifyColumn('item_type'))
                     ->on('overrides.key', $this->qualifyColumn('key'))
@@ -38,6 +40,11 @@ class PriorityScope
 
     protected function qualifyColumn(string $column): string
     {
-        return $this->table . '.' . $column;
+        return $this->settingsModel()->qualifyColumn($column);
+    }
+
+    protected function table(): string
+    {
+        return $this->settingsModel()->getTable();
     }
 }

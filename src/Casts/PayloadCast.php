@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Casts;
 
+use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Spatie\LaravelData\Data;
 
 use function blank;
@@ -17,6 +17,8 @@ use function is_a;
 
 class PayloadCast implements CastsAttributes
 {
+    use HasModelResolver;
+
     protected int $flags = JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
@@ -76,16 +78,9 @@ class PayloadCast implements CastsAttributes
 
     protected function cast(Model $model): ?string
     {
-        $parent = $this->parentModel($model);
+        $parent = $this->parentModelClass($model);
 
         return $this->casts()[$parent] ?? null;
-    }
-
-    protected function parentModel(Model $model): string
-    {
-        $type = $model->getAttribute('item_type');
-
-        return Relation::getMorphedModel($type) ?? $type;
     }
 
     protected function casts(): array
