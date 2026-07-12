@@ -27,7 +27,7 @@ trait HasIdentifier
             return $this->defaultIdentifier = 0;
         }
 
-        $traits = (new ReflectionClass($model))->getTraits();
+        $traits = (new ReflectionClass($model))->getTraitNames();
 
         if (in_array(HasUuids::class, $traits, true)) {
             return $this->defaultIdentifier = '019b76da-a800-734b-a5f1-4b5ce56f6062';

@@ -27,6 +27,9 @@ test('success', function () {
 
     $result1 = $user->defaultSettings()->get('foo');
     $result2 = $user->settings()->get('foo');
+    
+    ksort($defaultData);
+    ksort($modelData);
 
     expect($result1)->toBe($defaultData);
     expect($result2)->toBe($modelData);
