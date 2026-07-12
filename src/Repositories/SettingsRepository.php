@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Repositories;
 
+use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use DragonCode\LaravelModelSettings\Scopes\PriorityScope;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Model;
@@ -12,19 +13,21 @@ use UnitEnum;
 
 class SettingsRepository
 {
+    use HasModelResolver;
+
     /** @param  class-string<Model>  $modelClass */
     public function __construct(
         #[Config('model_settings.model')]
         protected string $modelClass,
-        #[Config('model_settings.table')]
-        protected string $table,
     ) {}
 
     public function store(Model $model, int|string|UnitEnum $key, mixed $value): Model
     {
+        $column = $this->modelIdColumn($model);
+
         return $this->modelClass::query()->updateOrCreate([
             'item_type' => $model->getMorphClass(),
-            'item_id'   => $model->getKey(),
+            $column     => $model->getKey(),
             'key'       => $key,
         ], ['payload' => $value]);
     }
@@ -32,8 +35,8 @@ class SettingsRepository
     public function all(Model $model): Collection
     {
         return $this->modelClass::query()
-            ->where($this->table . '.item_type', $model->getMorphClass())
-            ->tap(new PriorityScope($model->getKey()))
+            ->where($this->settingsModel()->qualifyColumn('item_type'), $model->getMorphClass())
+            ->tap(new PriorityScope($model, $model->getKey()))
             ->get()
             ->pluck('payload', 'key');
     }
@@ -41,18 +44,20 @@ class SettingsRepository
     public function get(Model $model, int|string|UnitEnum $key): mixed
     {
         return $this->modelClass::query()
-            ->where($this->table . '.item_type', $model->getMorphClass())
-            ->where($this->table . '.key', $key)
-            ->tap(new PriorityScope($model->getKey()))
+            ->where($this->settingsModel()->qualifyColumn('item_type'), $model->getMorphClass())
+            ->where($this->settingsModel()->qualifyColumn('key'), $key)
+            ->tap(new PriorityScope($model, $model->getKey()))
             ->get()
             ->value('payload');
     }
 
     public function delete(Model $model, int|string|UnitEnum $key): void
     {
+        $column = $this->modelIdColumn($model);
+
         $this->modelClass::query()
             ->where('item_type', $model->getMorphClass())
-            ->where('item_id', $model->getKey())
+            ->where($column, $model->getKey())
             ->where('key', $key)
             ->delete();
     }

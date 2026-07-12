@@ -13,8 +13,8 @@
 
 ## Requirements
 
-- PHP `^8.3`
-- Laravel `^12.0` or `^13.0`
+- PHP 8.3+
+- Laravel 12.0+
 
 ## Installation
 

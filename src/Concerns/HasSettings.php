@@ -20,7 +20,7 @@ trait HasSettings
 
     public function defaultSettings(): SettingsService
     {
-        $clone = $this->replicateQuietly([$this->getKeyName()]);
+        $clone = new static;
         $clone->setAttribute($clone->getKeyName(), $this->defaultId());
 
         return app()->make(SettingsService::class, ['model' => $clone]);
