@@ -10,14 +10,14 @@ test('success', function () {
     config()->set('model_settings.casts.' . User::class, CustomCast::class);
 
     $defaultData = [
-        'foo' => 'Foo 1',
         'bar' => 'Bar 1',
         'baz' => 'Baz 1',
+        'foo' => 'Foo 1',
     ];
 
     $modelData = [
-        'foo' => 'Foo 2',
         'bar' => 'Bar 2',
+        'foo' => 'Foo 2',
     ];
 
     $user = UserFactory::new()->create();
@@ -27,9 +27,6 @@ test('success', function () {
 
     $result1 = $user->defaultSettings()->get('foo');
     $result2 = $user->settings()->get('foo');
-    
-    ksort($defaultData);
-    ksort($modelData);
 
     expect($result1)->toBe($defaultData);
     expect($result2)->toBe($modelData);
