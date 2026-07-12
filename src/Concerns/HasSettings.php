@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Concerns;
 
+use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use DragonCode\LaravelModelSettings\Services\SettingsService;
 
 use function app;
@@ -18,8 +19,8 @@ trait HasSettings
 
     public function defaultSettings(): SettingsService
     {
-        $clone = $this->replicateQuietly([$this->getKeyName()]);
-        $clone->setAttribute($clone->getKeyName(), 0);
+        $clone = new static;
+        $clone->setAttribute($clone->getKeyName(), IdentifierEnum::Default->value);
 
         return app()->make(SettingsService::class, ['model' => $clone]);
     }

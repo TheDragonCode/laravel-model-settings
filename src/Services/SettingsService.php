@@ -25,8 +25,7 @@ class SettingsService
 
     public function get(int|string|UnitEnum $key): mixed
     {
-        return $this->repository->get($this->model, $key)
-            ?? $this->repository->get($this->defaultModel(), $key);
+        return $this->repository->get($this->model, $key);
     }
 
     public function set(int|string|UnitEnum $key, mixed $value): void
@@ -39,13 +38,5 @@ class SettingsService
     public function forget(int|string|UnitEnum $key): void
     {
         $this->repository->delete($this->model, $key);
-    }
-
-    protected function defaultModel(): Model
-    {
-        $clone = $this->model->replicateQuietly([$this->model->getKeyName()]);
-        $clone->setAttribute($clone->getKeyName(), 0);
-
-        return $clone;
     }
 }

@@ -4,34 +4,30 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Casts;
 
+use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use JsonException;
 use Spatie\LaravelData\Data;
 
-use function blank;
 use function class_exists;
 use function config;
 use function is_a;
 
 class PayloadCast implements CastsAttributes
 {
+    use HasModelResolver;
+
     protected int $flags = JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if (blank($value)) {
-            return null;
-        }
-
         if (! $cast = $this->cast($model)) {
             return $this->fromJson($value);
         }
 
         if (is_a($cast, CastsAttributes::class, true)) {
-            return (new $cast)->get($model, $key, $value, $attributes);
+            return (new $cast())->get($model, $key, $value, $attributes);
         }
 
         if (class_exists(Data::class) && is_a($cast, Data::class, true)) {
@@ -41,13 +37,11 @@ class PayloadCast implements CastsAttributes
         return $this->fromJson($value);
     }
 
-    /** @throws JsonException */
+    /**
+     * @throws \JsonException
+     */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
-        if (blank($value)) {
-            return null;
-        }
-
         if (! $cast = $this->cast($model)) {
             return $this->asJson($value);
         }
@@ -57,13 +51,13 @@ class PayloadCast implements CastsAttributes
         }
 
         if (is_a($cast, CastsAttributes::class, true)) {
-            $value = (new $cast)->set($model, $key, $value, $attributes);
+            $value = (new $cast())->set($model, $key, $value, $attributes);
         }
 
         return $this->asJson($value);
     }
 
-    protected function fromJson($value): array|bool|float|int|string|null
+    protected function fromJson($value): array|string|int|float|bool|null
     {
         return Json::decode($value);
     }
@@ -75,16 +69,9 @@ class PayloadCast implements CastsAttributes
 
     protected function cast(Model $model): ?string
     {
-        $parent = $this->parentModel($model);
+        $parent = $this->parentModelClass($model);
 
         return $this->casts()[$parent] ?? null;
-    }
-
-    protected function parentModel(Model $model): string
-    {
-        $type = $model->getAttribute('item_type');
-
-        return Relation::getMorphedModel($type) ?? $type;
     }
 
     protected function casts(): array

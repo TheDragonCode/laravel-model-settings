@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        $this->connection()->create($this->table(), static function (Blueprint $table) {
+        $this->schema()->create($this->table(), static function (Blueprint $table) {
             $table->id();
 
             $table->string('item_type');
-            $table->string('item_id');
+            $table->string('item_id', 36);
 
             $table->string('key');
             $table->jsonb('payload');
@@ -27,14 +27,19 @@ return new class extends Migration {
 
     public function down(): void
     {
-        $this->connection()->dropIfExists($this->table());
+        $this->schema()->dropIfExists($this->table());
     }
 
-    protected function connection(): Builder
+    protected function schema(): Builder
     {
         return Schema::connection(
-            config('model_settings.connection')
+            $this->connection()
         );
+    }
+
+    protected function connection(): ?string
+    {
+        return config('model_settings.connection');
     }
 
     protected function table(): string

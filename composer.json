@@ -20,6 +20,7 @@
         "illuminate/support": "^12.0 || ^13.0"
     },
     "require-dev": {
+        "dragon-code/benchmark": "^4.6",
         "orchestra/testbench": "^10.0 || ^11.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
