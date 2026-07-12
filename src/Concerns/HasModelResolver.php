@@ -14,8 +14,6 @@ trait HasModelResolver
 {
     protected ?string $parentModelClass = null;
 
-    protected ?string $parentModelColumn = null;
-
     protected ?Model $settingsModel = null;
 
     protected function parentModelClass(Model $model): string
@@ -27,20 +25,6 @@ trait HasModelResolver
         $type = $this->modelTypeColumn($model);
 
         return $this->parentModelClass = Relation::getMorphedModel($type) ?? $type;
-    }
-
-    protected function modelIdColumn(Model $model): string
-    {
-        if ($this->parentModelColumn) {
-            return $this->parentModelColumn;
-        }
-
-        /** @var class-string<Model> $class */
-        $class = $this->parentModelClass($model);
-
-        $column = (new $class)->getKeyName();
-
-        return $this->parentModelColumn = 'item_' . $column;
     }
 
     protected function modelTypeColumn(Model $model): string

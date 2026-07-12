@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Scopes;
 
-use DragonCode\LaravelModelSettings\Concerns\HasIdentifier;
 use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
+use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
@@ -13,7 +13,6 @@ use Illuminate\Database\Query\JoinClause;
 class PriorityScope
 {
     use HasModelResolver;
-    use HasIdentifier;
 
     public function __construct(
         protected Model $model,
@@ -22,8 +21,6 @@ class PriorityScope
 
     public function __invoke(Builder $builder): void
     {
-        $column = $this->modelIdColumn($this->model);
-
         $builder
             ->select($this->qualifyColumn('*'))
             ->leftJoin(
@@ -31,16 +28,16 @@ class PriorityScope
                 fn (JoinClause $join) => $join
                     ->on('overrides.item_type', $this->qualifyColumn('item_type'))
                     ->on('overrides.key', $this->qualifyColumn('key'))
-                    ->where('overrides.' . $column, $this->id)
+                    ->where('overrides.item_id', $this->id)
             )
             ->where(fn (Builder $query) => $query
-                ->where($this->qualifyColumn($column), $this->id)
+                ->where($this->qualifyColumn('item_id'), $this->id)
                 ->orWhere(fn (Builder $query) => $query
-                    ->where($this->qualifyColumn($column), $this->defaultId($this->model))
-                    ->whereNull('overrides.' . $column)
+                    ->where($this->qualifyColumn('item_id'), IdentifierEnum::Default->value)
+                    ->whereNull('overrides.item_id')
                 )
             )
-            ->orderByDesc($this->qualifyColumn($column))
+            ->orderByDesc($this->qualifyColumn('item_id'))
             ->orderBy($this->qualifyColumn('key'));
     }
 

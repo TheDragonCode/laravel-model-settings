@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\LaravelData\Data;
 
-use function blank;
 use function class_exists;
 use function config;
 use function is_a;
@@ -23,10 +22,6 @@ class PayloadCast implements CastsAttributes
 
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if (blank($value)) {
-            return null;
-        }
-
         if (! $cast = $this->cast($model)) {
             return $this->fromJson($value);
         }
@@ -47,10 +42,6 @@ class PayloadCast implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
-        if (blank($value)) {
-            return null;
-        }
-
         if (! $cast = $this->cast($model)) {
             return $this->asJson($value);
         }

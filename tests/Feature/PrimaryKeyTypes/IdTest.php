@@ -2,17 +2,8 @@
 
 declare(strict_types=1);
 
-use DragonCode\LaravelModelSettings\Models\Settings;
 use Workbench\App\Models\SomeId;
 use Workbench\Database\Factories\SomeIdFactory;
-
-use function Pest\Laravel\assertDatabaseHas;
-use function Pest\Laravel\assertDatabaseMissing;
-
-afterEach(function () {
-    assertDatabaseHas(Settings::class, ['item_uuid' => null, 'item_ulid' => null]);
-    assertDatabaseMissing(Settings::class, ['item_id' => null]);
-});
 
 test('default first', function () {
     $user1 = SomeIdFactory::new()->create();

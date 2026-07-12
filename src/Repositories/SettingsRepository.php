@@ -23,11 +23,9 @@ class SettingsRepository
 
     public function store(Model $model, int|string|UnitEnum $key, mixed $value): Model
     {
-        $column = $this->modelIdColumn($model);
-
         return $this->modelClass::query()->updateOrCreate([
             'item_type' => $model->getMorphClass(),
-            $column     => $model->getKey(),
+            'item_id'   => $model->getKey(),
             'key'       => $key,
         ], ['payload' => $value]);
     }
@@ -53,11 +51,9 @@ class SettingsRepository
 
     public function delete(Model $model, int|string|UnitEnum $key): void
     {
-        $column = $this->modelIdColumn($model);
-
         $this->modelClass::query()
             ->where('item_type', $model->getMorphClass())
-            ->where($column, $model->getKey())
+            ->where('item_id', $model->getKey())
             ->where('key', $key)
             ->delete();
     }
