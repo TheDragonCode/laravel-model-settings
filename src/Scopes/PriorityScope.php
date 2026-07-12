@@ -36,7 +36,7 @@ class PriorityScope
             ->where(fn (Builder $query) => $query
                 ->where($this->qualifyColumn($column), $this->id)
                 ->orWhere(fn (Builder $query) => $query
-                    ->where($this->qualifyColumn($column), $this->defaultId())
+                    ->where($this->qualifyColumn($column), $this->defaultId($this->model))
                     ->whereNull('overrides.' . $column)
                 )
             )
