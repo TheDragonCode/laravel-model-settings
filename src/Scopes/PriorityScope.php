@@ -30,12 +30,14 @@ class PriorityScope
                     ->on('overrides.key', $this->qualifyColumn('key'))
                     ->where('overrides.item_id', $this->id)
             )
-            ->where(fn (Builder $query) => $query
-                ->where($this->qualifyColumn('item_id'), $this->id)
-                ->orWhere(fn (Builder $query) => $query
-                    ->where($this->qualifyColumn('item_id'), IdentifierEnum::Default->value)
-                    ->whereNull('overrides.item_id')
-                )
+            ->where(
+                fn (Builder $query) => $query
+                    ->where($this->qualifyColumn('item_id'), $this->id)
+                    ->orWhere(
+                        fn (Builder $query) => $query
+                            ->where($this->qualifyColumn('item_id'), IdentifierEnum::Default->value)
+                            ->whereNull('overrides.item_id')
+                    )
             )
             ->orderByDesc($this->qualifyColumn('item_id'))
             ->orderBy($this->qualifyColumn('key'));
