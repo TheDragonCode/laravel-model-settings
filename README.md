@@ -9,12 +9,12 @@
 [![Total Downloads][badge_downloads]][link_packagist]
 [![License][badge_license]][link_license]
 
-> Store settings for individual Eloquent models, with optional defaults shared by models of the same type.
+> Persist settings for individual Eloquent models, with defaults shared by each model type.
 
 ## Requirements
 
 - PHP 8.3+
-- Laravel 12.0+
+- Laravel 12+
 
 ## Installation
 
@@ -31,9 +31,9 @@ php artisan vendor:publish --tag="model_settings"
 php artisan migrate
 ```
 
-## Quick Start
+## Usage
 
-Add the `HasSettings` trait to a model:
+Add `HasSettings` to an Eloquent model:
 
 ```php
 use DragonCode\LaravelModelSettings\Concerns\HasSettings;
@@ -80,17 +80,20 @@ $user->settings()->forget('timezone');
 $user->settings()->get('timezone'); // 'UTC'
 ```
 
-Model settings take precedence over defaults.
+Model values take priority over defaults.
+Passing a blank value to `set()` removes the setting, exposing the default again.
+Settings support integer, UUID, and ULID model keys, string, integer, and PHP enum setting keys.
+
 Default settings are stored with the model morph class and `item_id = 0`.
 
 ## API
 
-| Method                                          | Returns      | Description                                                    |
-|-------------------------------------------------|--------------|----------------------------------------------------------------|
-| `all()`                                         | `Collection` | Returns defaults merged with model settings. Model values win. |
-| `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, then the default value, then `null`.  |
-| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a setting.                        |
-| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a setting.                                             |
+| Method                                          | Returns      | Description                                  |
+|-------------------------------------------------|--------------|----------------------------------------------|
+| `all()`                                         | `Collection` | Returns defaults merged with model settings. |
+| `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, default, or `null`. |
+| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a setting.      |
+| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a setting.                           |
 
 ## Setting Keys
 
@@ -118,19 +121,28 @@ The class may implement Laravel's `CastsAttributes` contract. [
 
 ## Configuration
 
-| Option       | Environment variable                 | Default                                           |
-|--------------|--------------------------------------|---------------------------------------------------|
-| `model`      | -                                    | `DragonCode\LaravelModelSettings\Models\Settings` |
-| `connection` | `MODEL_SETTINGS_DATABASE_CONNECTION` | `env('DATABASE_CONNECTION')`                      |
-| `table`      | `MODEL_SETTINGS_DATABASE_TABLE`      | `settings`                                        |
-| `casts`      | -                                    | `[]`                                              |
+Published `config/model_settings.php` accepts these options:
 
-The migration stores one row per setting with `item_type`, string `item_id`, `key`, and JSONB `payload`. The unique key
-is
-`item_type`, `item_id`, and `key`; string `item_id` supports integer and UUID model keys.
+| Option       | Default                                           | Purpose                                |
+|--------------|---------------------------------------------------|----------------------------------------|
+| `model`      | `DragonCode\LaravelModelSettings\Models\Settings` | Eloquent model for persisted settings. |
+| `connection` | `env('DATABASE_CONNECTION')`                      | Database connection.                   |
+| `table`      | `settings`                                        | Settings table.                        |
+| `casts`      | `[]`                                              | Payload casts by parent model class.   |
 
-> The `1.x` configuration key and table schema differ from the previous branch. Existing installations require an
-> explicit configuration and data migration before upgrading.
+`MODEL_SETTINGS_DATABASE_CONNECTION` and `MODEL_SETTINGS_DATABASE_TABLE` override the connection and table.
+A `payload` cast may implement Laravel's `CastsAttributes` contract. Spatie Laravel Data classes are also supported when
+installed.
+
+```php
+return [
+    'model' => App\Models\Setting::class,
+    'casts' => [
+        App\Models\User::class => App\Data\UserData::class,
+        App\Models\Post::class => App\Casts\PostCast::class,
+    ],
+];
+```
 
 ## Testing
 
@@ -141,12 +153,11 @@ composer test:coverage
 
 ## Contributing
 
-Please see [CONTRIBUTING](https://github.com/TheDragonCode/.github/blob/main/CONTRIBUTING.md) for details.
+See [CONTRIBUTING](https://github.com/TheDragonCode/.github/blob/main/CONTRIBUTING.md).
 
 ## Security
 
-If you've found a security bug, mail [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro) instead of using the
-issue tracker.
+Report security vulnerabilities to [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro).
 
 ## Credits
 
@@ -155,7 +166,7 @@ issue tracker.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE) for more information.
+The MIT License (MIT). See [License File](LICENSE).
 
 [badge_downloads]: https://img.shields.io/packagist/dt/dragon-code/laravel-model-settings.svg?style=flat-square
 
