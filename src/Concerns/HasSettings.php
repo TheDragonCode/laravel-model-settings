@@ -11,6 +11,8 @@ use function app;
 /** @mixin \Illuminate\Database\Eloquent\Model */
 trait HasSettings
 {
+    use HasIdentifier;
+
     public function settings(): SettingsService
     {
         return app()->make(SettingsService::class, ['model' => $this]);
@@ -19,7 +21,7 @@ trait HasSettings
     public function defaultSettings(): SettingsService
     {
         $clone = $this->replicateQuietly([$this->getKeyName()]);
-        $clone->setAttribute($clone->getKeyName(), 0);
+        $clone->setAttribute($clone->getKeyName(), $this->defaultId());
 
         return app()->make(SettingsService::class, ['model' => $clone]);
     }

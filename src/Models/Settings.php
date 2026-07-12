@@ -29,6 +29,8 @@ final class Settings extends Model
     protected function casts(): array
     {
         return [
+            'item_id' => 'int',
+
             'payload' => PayloadCast::class,
         ];
     }

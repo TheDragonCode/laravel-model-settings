@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Scopes;
 
+use DragonCode\LaravelModelSettings\Concerns\HasIdentifier;
 use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -11,6 +12,7 @@ use Illuminate\Database\Query\JoinClause;
 class PriorityScope
 {
     use HasModelResolver;
+    use HasIdentifier;
 
     public function __construct(
         protected int|string $id,
@@ -30,7 +32,7 @@ class PriorityScope
             ->where(fn (Builder $query) => $query
                 ->where($this->qualifyColumn('item_id'), $this->id)
                 ->orWhere(fn (Builder $query) => $query
-                    ->where($this->qualifyColumn('item_id'), 0)
+                    ->where($this->qualifyColumn('item_id'), $this->defaultId())
                     ->whereNull('overrides.item_id')
                 )
             )

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Services;
 
+use DragonCode\LaravelModelSettings\Concerns\HasIdentifier;
 use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -13,6 +14,8 @@ use function blank;
 
 class SettingsService
 {
+    use HasIdentifier;
+
     public function __construct(
         protected Model $model,
         protected SettingsRepository $repository,
@@ -44,7 +47,7 @@ class SettingsService
     protected function defaultModel(): Model
     {
         $clone = $this->model->replicateQuietly([$this->model->getKeyName()]);
-        $clone->setAttribute($clone->getKeyName(), 0);
+        $clone->setAttribute($clone->getKeyName(), $this->defaultId());
 
         return $clone;
     }
