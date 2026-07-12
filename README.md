@@ -69,7 +69,7 @@ array.
 Default settings are fallback values shared by models of the same type:
 
 ```php
-(new User)->defaultSettings()->set('timezone', 'UTC');
+$user->defaultSettings()->set('timezone', 'UTC');
 
 $user->settings()->get('timezone'); // 'UTC'
 
@@ -78,6 +78,12 @@ $user->settings()->get('timezone'); // 'Europe/Paris'
 
 $user->settings()->forget('timezone');
 $user->settings()->get('timezone'); // 'UTC'
+```
+
+You can also set default settings by creating a model:
+
+```php
+(new User)->defaultSettings()->set('timezone', 'UTC');
 ```
 
 Model values take priority over defaults.
