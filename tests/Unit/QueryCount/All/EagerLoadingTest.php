@@ -17,18 +17,43 @@ test('success', function (): void {
     $user3 = UserFactory::new()->create();
 
     (new User)->defaultSettings()->set('qwerty', 111);
+    (new User)->defaultSettings()->set('foo', 222);
 
-    $user1->settings()->set('foo', 222);
-    $user2->settings()->set('bar', 333);
-    $user3->settings()->set('baz', 444);
-
-    $users = User::get();
+    $user1->settings()->set('foo', 333);
+    $user2->settings()->set('bar', 444);
+    $user3->settings()->set('baz', 555);
 
     $recorder->start();
 
-    $users->each(
-        fn (User $user) => $user->settings()->all()
-    );
+    $users = User::query()
+        ->with('modelSettings')
+        ->get()
+        ->keyBy('id');
 
-    expect($recorder->calls())->toBe(1);
+    //dd(
+    //    $recorder->queries()
+    //);
+
+    $result1 = $users[$user1->id]->settings()->all()->sortKeys()->toArray();
+    $result2 = $users[$user2->id]->settings()->all()->sortKeys()->toArray();
+    $result3 = $users[$user3->id]->settings()->all()->sortKeys()->toArray();
+
+    expect($result1)->toBe([
+        'foo'    => 333,
+        'qwerty' => 111,
+    ]);
+
+    expect($result2)->toBe([
+        'bar'    => 444,
+        'foo'    => 222,
+        'qwerty' => 111,
+    ]);
+
+    expect($result3)->toBe([
+        'baz'    => 555,
+        'foo'    => 222,
+        'qwerty' => 111,
+    ]);
+
+    expect($recorder->calls())->toBe(2);
 });

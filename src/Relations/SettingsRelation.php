@@ -5,79 +5,65 @@ declare(strict_types=1);
 namespace DragonCode\LaravelModelSettings\Relations;
 
 use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
-use DragonCode\LaravelModelSettings\Scopes\PriorityScope;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Override;
+use Illuminate\Support\Collection as BaseCollection;
 
 class SettingsRelation extends MorphMany
 {
-    #[Override]
-    public function addConstraints(): void
+    protected function whereInMethod(Model $model, $key): string
     {
-        if (static::$constraints) {
-            $this->getRelationQuery()
-                ->where($this->morphType, $this->morphClass)
-                ->tap(new PriorityScope($this->parent, $this->getParentKey()));
-        }
+        return 'whereIn';
     }
 
-    #[Override]
-    public function addEagerConstraints(array $models): void
+    protected function getKeys(array $models, $key = null)
     {
-        $whereIn = $this->whereInMethod($this->parent, $this->localKey);
-
-        $keys = $this->getKeys($models, $this->localKey);
-        array_unshift($keys, IdentifierEnum::Default->value);
-
-        $this->whereInEager($whereIn, $this->foreignKey, $keys);
-        $this->getRelationQuery()->where($this->morphType, $this->morphClass);
+        return (new BaseCollection($models))
+            ->map(fn (Model $value) => $key ? $value->getAttribute($key) : $value->getKey())
+            ->push((int) IdentifierEnum::Default->value)
+            ->values()
+            ->unique(null, true)
+            ->sort()
+            ->all();
     }
 
-    #[Override]
-    public function match(array $models, EloquentCollection $results, $relation): array
+    public function getEager(): Collection
     {
-        $foreignKey = $this->getForeignKeyName();
+        $results = parent::getEager();
 
-        $defaults = $this->newRelatedCollection(
-            $results
-                ->where($foreignKey, IdentifierEnum::Default->value)
-                ->all()
+        $defaults = $results
+            ->where('item_id', IdentifierEnum::Default->value)
+            ->keyBy('key');
+
+        $changed = $results
+            ->where('item_id', '!=', IdentifierEnum::Default->value)
+            ->groupBy('item_id')
+            ->map(function (Collection $items) use ($defaults) {
+                $mapped = $items->keyBy('key');
+                
+                $modelId = $items->first()->getAttribute('item_id');
+
+                return $defaults
+                    ->merge($mapped)
+                    ->dd()
+                    ->map(function (Model $item)  {
+                        if ($item->getKey() !== IdentifierEnum::Default->value) {
+                            return $item;
+                        }
+                        
+                        return $item->setAttribute('item_id', $modelId);
+                    })
+                    ->sortKeys()
+                    ->values();
+            })
+            ->flatten()
+            ->values();
+        
+        dd(
+            $changed->toArray()
         );
 
-        $overrides = $results
-            ->where($foreignKey, '!=', IdentifierEnum::Default->value)
-            ->groupBy($foreignKey);
-
-        foreach ($models as $model) {
-            $settings = $defaults
-                ->merge($overrides->get($this->getDictionaryKey($model->getAttribute($this->localKey)), []))
-                ->keyBy('key')
-                ->values()
-                ->all();
-
-            $model->setRelation($relation, $this->newRelatedCollection($settings));
-        }
-
-        return $models;
-    }
-
-    /**
-     * @param array<int, Model> $models
-     */
-    #[Override]
-    public function initRelation(array $models, $relation): array
-    {
-        foreach ($models as $model) {
-            $model->setRelation($relation, $this->newRelatedCollection());
-        }
-
-        return $models;
-    }
-
-    protected function newRelatedCollection(array $models = []): EloquentCollection
-    {
-        return $this->related->newCollection($models);
+        return new Collection($changed);
     }
 }
