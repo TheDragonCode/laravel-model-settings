@@ -37,7 +37,7 @@ class SettingsRepository
     public function get(Model $model, int|string|UnitEnum $key): mixed
     {
         return $model->modelSettings
-            ->where($this->settingsModel()->qualifyColumn('key'), $key)
+            ->where('key', $key)
             ->value('payload');
     }
 

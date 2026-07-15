@@ -2,33 +2,32 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
 test('success', function (): void {
-    Model::automaticallyEagerLoadRelationships();
-
     $recorder = new QueryRecorder;
 
     $user1 = UserFactory::new()->create();
     $user2 = UserFactory::new()->create();
-    $user3 = UserFactory::new()->create();
 
-    (new User)->defaultSettings()->set('qwerty', 111);
+    (new User)->defaultSettings()->set('foo', 222);
 
-    $user1->settings()->set('foo', 222);
-    $user2->settings()->set('bar', 333);
-    $user3->settings()->set('baz', 444);
-
-    $users = User::get();
+    $user1->settings()->set('foo', 333);
 
     $recorder->start();
 
-    $users->each(
-        fn (User $user) => $user->settings()->get('foo')
-    );
+    $users = User::query()
+        ->with('modelSettings')
+        ->get()
+        ->keyBy('id');
 
-    expect($recorder->calls())->toBe(1);
+    $result1 = $users[$user1->id]->settings()->get('foo');
+    $result2 = $users[$user2->id]->settings()->get('foo');
+
+    expect($result1)->toBe(333);
+    expect($result2)->toBe(222);
+
+    expect($recorder->calls())->toBe(2);
 });

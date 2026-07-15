@@ -8,8 +8,6 @@ use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
 test('success', function (): void {
-    Model::automaticallyEagerLoadRelationships();
-
     $recorder = new QueryRecorder;
 
     $user1 = UserFactory::new()->create();
@@ -29,10 +27,6 @@ test('success', function (): void {
         ->with('modelSettings')
         ->get()
         ->keyBy('id');
-
-    //dd(
-    //    $recorder->queries()
-    //);
 
     $result1 = $users[$user1->id]->settings()->all()->sortKeys()->toArray();
     $result2 = $users[$user2->id]->settings()->all()->sortKeys()->toArray();

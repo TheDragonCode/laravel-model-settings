@@ -30,40 +30,36 @@ class SettingsRelation extends MorphMany
 
     public function getEager(): Collection
     {
-        $results = parent::getEager();
+        $items = parent::getEager()
+            ->groupBy('item_type')
+            ->flatMap(function (Collection $groups) {
+                [$defaults, $specific] = $groups->partition(
+                    fn (Model $item): bool => (string) $item->getAttribute('item_id') === IdentifierEnum::Default->value
+                );
 
-        $defaults = $results
-            ->where('item_id', IdentifierEnum::Default->value)
-            ->keyBy('key');
+                $defaults = $defaults->keyBy('key');
 
-        $changed = $results
-            ->where('item_id', '!=', IdentifierEnum::Default->value)
-            ->groupBy('item_id')
-            ->map(function (Collection $items) use ($defaults) {
-                $mapped = $items->keyBy('key');
-                
-                $modelId = $items->first()->getAttribute('item_id');
+                return $specific
+                    ->groupBy('item_id')
+                    ->flatMap(function (Collection $items) use ($defaults): Collection {
 
-                return $defaults
-                    ->merge($mapped)
-                    ->dd()
-                    ->map(function (Model $item)  {
-                        if ($item->getKey() !== IdentifierEnum::Default->value) {
-                            return $item;
-                        }
-                        
-                        return $item->setAttribute('item_id', $modelId);
-                    })
-                    ->sortKeys()
-                    ->values();
+                        $overrides = $items->keyBy('key');
+
+                        $itemId = $items->first()->getAttribute('item_id');
+
+                        $inherited = $defaults
+                            ->reject(fn (Model $item, string $key): bool => $overrides->has($key))
+                            ->map(
+                                fn (Model $item): Model => $item
+                                    ->replicate(['id', 'item_id'])
+                                    ->setAttribute('item_id', $itemId)
+                            );
+
+                        return $inherited->concat($overrides)->values();
+                    });
             })
-            ->flatten()
             ->values();
-        
-        dd(
-            $changed->toArray()
-        );
 
-        return new Collection($changed);
+        return new Collection($items);
     }
 }
