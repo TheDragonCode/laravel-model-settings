@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Concerns;
 
-use DragonCode\LaravelModelSettings\Models\Settings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -12,28 +11,13 @@ use function config;
 
 trait HasModelResolver
 {
-    protected ?string $parentModelClass = null;
-
     protected ?Model $settingsModel = null;
 
     protected function parentModelClass(Model $model): string
     {
-        if ($this->parentModelClass) {
-            return $this->parentModelClass;
-        }
+        $type = $model->getAttribute('item_type');
 
-        $type = $this->modelTypeColumn($model);
-
-        return $this->parentModelClass = Relation::getMorphedModel($type) ?? $type;
-    }
-
-    protected function modelTypeColumn(Model $model): string
-    {
-        if ($model instanceof Settings) {
-            return $model->getAttribute('item_type');
-        }
-
-        return $model::class;
+        return Relation::getMorphedModel($type) ?? $type;
     }
 
     protected function settingsModel(): Model

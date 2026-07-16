@@ -39,7 +39,7 @@ class SettingsRelation extends MorphMany
     #[Override]
     public function getEager(): Collection
     {
-        $eagerKeys = new BaseCollection($this->eagerKeys);
+        $eagerKeys = new BaseCollection($this->getKeys([]));
 
         $items = parent::getEager()
             ->groupBy($this->getMorphType())
