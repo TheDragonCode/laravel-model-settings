@@ -3,6 +3,9 @@
 .agents/ export-ignore
 .ai-factory/ export-ignore
 .github/ export-ignore
+.run/ export-ignore
+
+docs/ export-ignore
 tests/ export-ignore
 workbench/ export-ignore
 
