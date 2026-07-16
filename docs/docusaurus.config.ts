@@ -18,7 +18,7 @@ const config: Config = {
     },
     i18n: {
         defaultLocale: "en",
-        locales: ["en", "ru"],
+        locales: ["en", "ru", "uk", "be", "fr", "pt-BR", "ko", "zh-CN", "de"],
         localeConfigs: {
             en: {
                 label: "English",
@@ -27,6 +27,34 @@ const config: Config = {
             ru: {
                 label: "Русский",
                 htmlLang: "ru-RU",
+            },
+            uk: {
+                label: "Українська",
+                htmlLang: "uk-UA",
+            },
+            be: {
+                label: "Беларуская",
+                htmlLang: "be-BY",
+            },
+            fr: {
+                label: "Français",
+                htmlLang: "fr-FR",
+            },
+            "pt-BR": {
+                label: "Português (Brasil)",
+                htmlLang: "pt-BR",
+            },
+            ko: {
+                label: "한국어",
+                htmlLang: "ko-KR",
+            },
+            "zh-CN": {
+                label: "简体中文",
+                htmlLang: "zh-CN",
+            },
+            de: {
+                label: "Deutsch",
+                htmlLang: "de-DE",
             },
         },
     },
@@ -38,6 +66,7 @@ const config: Config = {
                     routeBasePath: "/",
                     sidebarPath: "./sidebars.ts",
                     editUrl: `${repositoryUrl}/tree/main/docs/`,
+                    editLocalizedFiles: true,
                     lastVersion: "current",
                     versions: {
                         current: {
