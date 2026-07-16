@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "Поточна",
-    "description": "The label for version current"
-  }
+    "version.label": {
+        "message": "Поточна",
+        "description": "The label for version current"
+    }
 }
