@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "Бягучая",
-    "description": "The label for version current"
-  }
+    "version.label": {
+        "message": "Бягучая",
+        "description": "The label for version current"
+    }
 }
