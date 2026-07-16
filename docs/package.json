@@ -4,7 +4,6 @@
     "private": true,
     "scripts": {
         "start": "docusaurus start",
-        "start:ru": "docusaurus start --locale ru",
         "build": "docusaurus build",
         "serve": "docusaurus serve",
         "clear": "docusaurus clear",
