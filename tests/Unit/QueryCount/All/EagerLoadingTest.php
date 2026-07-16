@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
