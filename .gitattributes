@@ -16,3 +16,5 @@ workbench/ export-ignore
 
 phpunit.xml export-ignore
 testbench.yaml export-ignore
+
+AGENTS.md export-ignore
