@@ -7,8 +7,8 @@ const repositoryUrl = "https://github.com/TheDragonCode/laravel-model-settings";
 const config: Config = {
     title: "Laravel Model Settings",
     tagline: "Model Settings for Laravel applications",
-    url: "https://thedragoncode.github.io",
-    baseUrl: "/laravel-model-settings/",
+    url: "https://model-settings.dragon-code.pro",
+    baseUrl: "/",
     organizationName: "TheDragonCode",
     projectName: "laravel-model-settings",
     trailingSlash: true,
