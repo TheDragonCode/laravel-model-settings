@@ -9,7 +9,7 @@
 [![Total Downloads][badge_downloads]][link_packagist]
 [![License][badge_license]][link_license]
 
-> Persist settings for individual Eloquent models, with defaults shared by each model type.
+> Persist shared defaults and per-model overrides for Eloquent models.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ php artisan migrate
 
 ## Usage
 
-Add `HasSettings` to an Eloquent model:
+Add the trait to an Eloquent model:
 
 ```php
 use DragonCode\LaravelModelSettings\Concerns\HasSettings;
@@ -45,130 +45,75 @@ class User extends Model
 }
 ```
 
-Use settings on a saved model:
-
-```php
-$user = User::query()->findOrFail(123);
-
-$user->settings()->set('timezone', 'UTC');
-$user->settings()->set('notifications', ['email' => true]);
-
-$timezone = $user->settings()->get('timezone');      // UTC
-$timezone = $user->settings()->get('notifications'); // ['email' => true]
-$settings = $user->settings()->all();
-
-$user->settings()->forget('timezone');
-$user->settings()->get('timezone');      // null
-```
-
-Calling `set()` with a blank value removes the setting. Blank values include `null`, an empty string, and an empty
-array.
-
-## Default Settings
-
-Default settings are fallback values shared by models of the same type:
-
-```php
-$user->defaultSettings()->set('timezone', 'UTC');
-
-$user->settings()->get('timezone'); // 'UTC'
-
-$user->settings()->set('timezone', 'Europe/Paris');
-$user->settings()->get('timezone'); // 'Europe/Paris'
-
-$user->settings()->forget('timezone');
-$user->settings()->get('timezone'); // 'UTC'
-```
-
-You can also set default settings by creating a model:
+Set shared defaults and override them for a saved model:
 
 ```php
 (new User)->defaultSettings()->set('timezone', 'UTC');
+
+$user = User::query()->findOrFail(123);
+$user->settings()->set('timezone', 'Europe/Paris');
+$user->settings()->set('notifications', ['email' => true]);
+
+$timezone = $user->settings()->get('timezone');
+$notifications = $user->settings()->get('notifications');
+
+$user->settings()->forget('timezone');
 ```
 
-Model values take priority over defaults.
-Passing a blank value to `set()` removes the setting, exposing the default again.
-Settings support integer, UUID, and ULID model keys, string, integer, and PHP enum setting keys.
+`get()` returns the model override, its default, or `null`. `all()` returns a collection of defaults merged with model
+overrides. After the override above is forgotten, `timezone` resolves to `UTC` again.
 
-Default settings are stored with the model morph class and `item_id = 0`.
+`set()` removes a setting when Laravel's `blank()` helper considers its value blank. Values such as `0` and `false` are
+stored. Setting keys accept strings, integers, and PHP enums. Model keys may be integers, UUIDs, or ULIDs.
+
+## Eager Loading
+
+Eager load `modelSettings` when reading settings for multiple models:
+
+```php
+$users = User::query()->with('modelSettings')->get();
+
+$settings = $users->map(
+    fn (User $user) => $user->settings()->all()
+);
+```
+
+The relation includes inherited defaults and model-specific overrides, avoiding one settings query per model.
 
 ## API
 
-| Method                                          | Returns      | Description                                  |
-|-------------------------------------------------|--------------|----------------------------------------------|
-| `all()`                                         | `Collection` | Returns defaults merged with model settings. |
-| `get(UnitEnum\|string\|int $key)`               | `mixed`      | Returns the model value, default, or `null`. |
-| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Creates, updates, or removes a setting.      |
-| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a setting.                           |
-
-## Setting Keys
-
-Keys can be strings, integers, or PHP enums:
-
-```php
-enum UserSetting: string { case Timezone = 'timezone'; }
-
-$user->settings()->set(UserSetting::Timezone, 'UTC');
-
-$timezone = $user->settings()->get(UserSetting::Timezone);
-```
+| Method                                          | Returns      | Description                           |
+|-------------------------------------------------|--------------|---------------------------------------|
+| `all()`                                         | `Collection` | Defaults merged with model overrides. |
+| `get(UnitEnum\|string\|int $key)`               | `mixed`      | Override, default, or `null`.         |
+| `set(UnitEnum\|string\|int $key, mixed $value)` | `void`       | Stores or removes a setting.          |
+| `forget(UnitEnum\|string\|int $key)`            | `void`       | Removes a setting.                    |
 
 ## Payload Casts
 
-Without a custom cast, payloads are decoded as arrays, scalar values, or `null`. Configure a cast per model in
+Without a custom cast, payloads are decoded to arrays, scalar values, or `null`. Configure casts by parent model in
 `config/model_settings.php`:
 
 ```php
-return ['casts' => [App\Models\User::class => App\Data\UserSettingsData::class]];
+'casts' => [
+    App\Models\User::class => App\Data\UserSettingsData::class,
+],
 ```
 
-The class may implement Laravel's `CastsAttributes` contract. [
-`spatie/laravel-data`](https://spatie.be/docs/laravel-data) `Data` classes are also supported when installed.
+A cast may implement Laravel's `CastsAttributes` contract. [Spatie Laravel Data](https://spatie.be/docs/laravel-data)
+classes are also supported when that package is installed.
 
-## Configuration
+The published config lets you replace the settings model, database connection, table, and payload casts. Use
+`MODEL_SETTINGS_DATABASE_CONNECTION` and `MODEL_SETTINGS_DATABASE_TABLE` to override database defaults.
 
-Published `config/model_settings.php` accepts these options:
+## Development
 
-| Option       | Default                                           | Purpose                                |
-|--------------|---------------------------------------------------|----------------------------------------|
-| `model`      | `DragonCode\LaravelModelSettings\Models\Settings` | Eloquent model for persisted settings. |
-| `connection` | `env('DATABASE_CONNECTION')`                      | Database connection.                   |
-| `table`      | `settings`                                        | Settings table.                        |
-| `casts`      | `[]`                                              | Payload casts by parent model class.   |
-
-`MODEL_SETTINGS_DATABASE_CONNECTION` and `MODEL_SETTINGS_DATABASE_TABLE` override the connection and table.
-A `payload` cast may implement Laravel's `CastsAttributes` contract. Spatie Laravel Data classes are also supported when
-installed.
-
-```php
-return [
-    'model' => App\Models\Setting::class,
-    'casts' => [
-        App\Models\User::class => App\Data\UserData::class,
-        App\Models\Post::class => App\Casts\PostCast::class,
-    ],
-];
-```
-
-## Testing
-
-```bash
-composer test
-composer test:coverage
-```
-
-## Contributing
-
-See [CONTRIBUTING](https://github.com/TheDragonCode/.github/blob/main/CONTRIBUTING.md).
-
-## Security
-
-Report security vulnerabilities to [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro).
-
-## Credits
-
-- [Andrey Helldar](https://github.com/andrey-helldar)
-- [All Contributors](../../graphs/contributors)
+- Tests: `composer test`
+- Coverage: `composer test:coverage`
+- Contributions: [contribution guide](https://github.com/TheDragonCode/.github/blob/main/CONTRIBUTING.md)
+- Security: [helldar@dragon-code.pro](mailto:helldar@dragon-code.pro)
+- Credits: [Andrey Helldar](https://github.com/andrey-helldar)
+  and [all contributors](https://github.com/TheDragonCode/laravel-model-settings/graphs/contributors)
 
 ## License
 
