@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Builder;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
-test('success', function (): void {
+test('success', function (bool $with, int $queries): void {
     $recorder = new QueryRecorder;
 
     $user1 = UserFactory::new()->create();
@@ -20,7 +21,7 @@ test('success', function (): void {
     $recorder->start();
 
     $users = User::query()
-        ->with('modelSettings')
+        ->when($with, fn (Builder $query) => $query->with('modelSettings'))
         ->get()
         ->keyBy('id');
 
@@ -32,5 +33,8 @@ test('success', function (): void {
     expect($result2)->toBe(222);
     expect($result3)->toBeNull();
 
-    expect($recorder->calls())->toBe(2);
-});
+    expect($recorder->calls())->toBe($queries);
+})->with([
+    'eager' => [true, 2],
+    'lazy'  => [false, 4],
+]);
