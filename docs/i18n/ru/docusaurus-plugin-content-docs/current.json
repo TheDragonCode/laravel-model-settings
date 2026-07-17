@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "Текущая",
-    "description": "Метка текущей версии"
-  }
+    "version.label": {
+        "message": "Текущая",
+        "description": "Метка текущей версии"
+    }
 }

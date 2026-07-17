@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "Поточна",
-    "description": "Позначка поточної версії"
-  }
+    "version.label": {
+        "message": "Поточна",
+        "description": "Позначка поточної версії"
+    }
 }

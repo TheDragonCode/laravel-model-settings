@@ -1,10 +1,10 @@
 {
-  "title": {
-    "message": "Laravel Model Settings",
-    "description": "Título na barra de navegação"
-  },
-  "item.label.GitHub": {
-    "message": "GitHub",
-    "description": "Item da barra de navegação com o rótulo GitHub"
-  }
+    "title": {
+        "message": "Laravel Model Settings",
+        "description": "Título na barra de navegação"
+    },
+    "item.label.GitHub": {
+        "message": "GitHub",
+        "description": "Item da barra de navegação com o rótulo GitHub"
+    }
 }

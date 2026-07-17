@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "当前版本",
-    "description": "当前版本的标签"
-  }
+    "version.label": {
+        "message": "当前版本",
+        "description": "当前版本的标签"
+    }
 }

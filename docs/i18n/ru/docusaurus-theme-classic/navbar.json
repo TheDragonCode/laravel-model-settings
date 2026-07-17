@@ -1,10 +1,10 @@
 {
-  "title": {
-    "message": "Laravel Model Settings",
-    "description": "Заголовок в панели навигации"
-  },
-  "item.label.GitHub": {
-    "message": "GitHub",
-    "description": "Пункт панели навигации с меткой GitHub"
-  }
+    "title": {
+        "message": "Laravel Model Settings",
+        "description": "Заголовок в панели навигации"
+    },
+    "item.label.GitHub": {
+        "message": "GitHub",
+        "description": "Пункт панели навигации с меткой GitHub"
+    }
 }
