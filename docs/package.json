@@ -4,11 +4,12 @@
     "private": true,
     "scripts": {
         "start": "docusaurus start",
-        "build": "docusaurus build",
+        "build": "npm run check:i18n && docusaurus build",
         "serve": "docusaurus serve",
         "clear": "docusaurus clear",
         "typecheck": "tsc --noEmit",
         "docs:version": "docusaurus docs:version",
+        "check:i18n": "node scripts/check-i18n.mjs",
         "translate": "npm run translate:en && npm run translate:ru && npm run translate:uk && npm run translate:be && npm run translate:fr && npm run translate:pt-BR && npm run translate:ko && npm run translate:zh-CN && npm run translate:de",
         "translate:en": "docusaurus write-translations --locale en",
         "translate:ru": "docusaurus write-translations --locale ru",

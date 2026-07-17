@@ -53,12 +53,17 @@ npm ci
 |------|---------|
 | Start the local site | `npm run start` |
 | Check TypeScript | `npm run typecheck` |
+| Check translations | `npm run check:i18n` |
 | Create a production build | `npm run build` |
 
 The production build validates internal links for every configured locale.
 
 Keep documentation pages in `docs/docs`. Each page uses front matter for sidebar order, a navigation
 line at the top, relative links between guides, and a `See Also` section at the end.
+
+Keep each non-default locale in
+`docs/i18n/<locale>/docusaurus-plugin-content-docs/current`. Every locale must contain the same page
+paths as `docs/docs`. The `npm run check:i18n` command enforces this before a production build.
 
 ## Contributing
 
