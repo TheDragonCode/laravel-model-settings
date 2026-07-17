@@ -1,329 +1,329 @@
 {
-  "theme.ErrorPageContent.title": {
-    "message": "На сторінці стався збій.",
-    "description": "Заголовок резервної сторінки, яка відображається після збою"
-  },
-  "theme.blog.archive.title": {
-    "message": "Архів",
-    "description": "Заголовок сторінки й головного блоку архіву блогу"
-  },
-  "theme.blog.archive.description": {
-    "message": "Архів",
-    "description": "Опис сторінки й головного блоку архіву блогу"
-  },
-  "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Прокрутити до початку",
-    "description": "ARIA-позначка кнопки повернення на початок сторінки"
-  },
-  "theme.blog.paginator.navAriaLabel": {
-    "message": "Навігація по сторінці списку блогів",
-    "description": "ARIA-позначка посторінкової навігації блогу"
-  },
-  "theme.blog.paginator.newerEntries": {
-    "message": "Новіші записи",
-    "description": "Позначка переходу до новіших дописів блогу (попередня сторінка)"
-  },
-  "theme.blog.paginator.olderEntries": {
-    "message": "Старіші записи",
-    "description": "Позначка переходу до старіших дописів блогу (наступна сторінка)"
-  },
-  "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Навігація по сторінці посту блогу",
-    "description": "ARIA-позначка посторінкової навігації дописами блогу"
-  },
-  "theme.blog.post.paginator.newerPost": {
-    "message": "Новіший допис",
-    "description": "Позначка кнопки переходу до новішого або попереднього допису блогу"
-  },
-  "theme.blog.post.paginator.olderPost": {
-    "message": "Старіший допис",
-    "description": "Позначка кнопки переходу до старішого або наступного допису блогу"
-  },
-  "theme.tags.tagsPageLink": {
-    "message": "Переглянути всі теги",
-    "description": "Позначка посилання на сторінку зі списком тегів"
-  },
-  "theme.colorToggle.ariaLabel.mode.system": {
-    "message": "Автоматичний режим",
-    "description": "Назва системного колірного режиму"
-  },
-  "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "Світлий режим",
-    "description": "Назва світлого колірного режиму"
-  },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "Темний режим",
-    "description": "Назва темного колірного режиму"
-  },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Перемикання між темним та світлим режимом (зараз використовується {mode})",
-    "description": "ARIA-позначка перемикача колірного режиму"
-  },
-  "theme.docs.breadcrumbs.navAriaLabel": {
-    "message": "Навігаційний ланцюжок поточної сторінки",
-    "description": "ARIA-позначка навігаційного ланцюжка"
-  },
-  "theme.docs.paginator.navAriaLabel": {
-    "message": "Сторінка документації",
-    "description": "ARIA-позначка посторінкової навігації документації"
-  },
-  "theme.docs.paginator.previous": {
-    "message": "Попередня сторінка",
-    "description": "Позначка переходу до попереднього документа"
-  },
-  "theme.docs.paginator.next": {
-    "message": "Наступна сторінка",
-    "description": "Позначка переходу до наступного документа"
-  },
-  "theme.docs.tagDocListPageTitle.nDocsTagged": {
-    "message": "Одна сторінка|{count} сторінки|{count} сторінок",
-    "description": "Позначка «{count} документів із тегом» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.docs.tagDocListPageTitle": {
-    "message": "{nDocsTagged} з тегом \"{tagName}\"",
-    "description": "Заголовок сторінки з тегом документації"
-  },
-  "theme.docs.versionBadge.label": {
-    "message": "Версія: {versionLabel}"
-  },
-  "theme.docs.versions.unreleasedVersionLabel": {
-    "message": "Це документація для майбутньої версії {siteTitle} {versionLabel}.",
-    "description": "Позначка, яка повідомляє про перегляд неопублікованої версії документації"
-  },
-  "theme.docs.versions.unmaintainedVersionLabel": {
-    "message": "Це документація {siteTitle} для версії {versionLabel}, яка вже не підтримується.",
-    "description": "Позначка, яка повідомляє про перегляд непідтримуваної версії документації"
-  },
-  "theme.docs.versions.latestVersionSuggestionLabel": {
-    "message": "Актуальна документація знаходиться на сторінці {latestVersionLink} ({versionLabel}).",
-    "description": "Позначка з пропозицією перейти до останньої версії"
-  },
-  "theme.docs.versions.latestVersionLinkLabel": {
-    "message": "останньої версії",
-    "description": "Позначка посилання на останню версію"
-  },
-  "theme.common.editThisPage": {
-    "message": "Відредагувати цю сторінку",
-    "description": "Позначка посилання для редагування поточної сторінки"
-  },
-  "theme.common.headingLinkTitle": {
-    "message": "Пряме посилання на {heading}",
-    "description": "Заголовок посилання на розділ"
-  },
-  "theme.lastUpdated.atDate": {
-    "message": " {date}",
-    "description": "Слова, що вказують дату останнього оновлення сторінки"
-  },
-  "theme.lastUpdated.byUser": {
-    "message": " від {user}",
-    "description": "Слова, що вказують автора останнього оновлення сторінки"
-  },
-  "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Останнє оновлення{atDate}{byUser}",
-    "description": "Фраза з датою та автором останнього оновлення сторінки"
-  },
-  "theme.navbar.mobileVersionsDropdown.label": {
-    "message": "Версії",
-    "description": "Позначка випадного списку версій у мобільній панелі навігації"
-  },
-  "theme.NotFound.title": {
-    "message": "Сторінку не знайдено",
-    "description": "Заголовок сторінки 404"
-  },
-  "theme.tags.tagsListLabel": {
-    "message": "Теги:",
-    "description": "Позначка поруч зі списком тегів"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Закрити",
-    "description": "ARIA-позначка кнопки закриття панелі оголошень"
-  },
-  "theme.admonition.caution": {
-    "message": "обережно",
-    "description": "Стандартна позначка блоку Caution (:::caution)"
-  },
-  "theme.admonition.danger": {
-    "message": "небезпека",
-    "description": "Стандартна позначка блоку Danger (:::danger)"
-  },
-  "theme.admonition.info": {
-    "message": "інформація",
-    "description": "Стандартна позначка блоку Info (:::info)"
-  },
-  "theme.admonition.note": {
-    "message": "примітка",
-    "description": "Стандартна позначка блоку Note (:::note)"
-  },
-  "theme.admonition.tip": {
-    "message": "порада",
-    "description": "Стандартна позначка блоку Tip (:::tip)"
-  },
-  "theme.admonition.warning": {
-    "message": "попередження",
-    "description": "Стандартна позначка блоку Warning (:::warning)"
-  },
-  "theme.blog.sidebar.navAriaLabel": {
-    "message": "Навігація за останніми постами у блозі",
-    "description": "ARIA-позначка останніх дописів у бічній панелі блогу"
-  },
-  "theme.DocSidebarItem.expandCategoryAriaLabel": {
-    "message": "Розгорнути категорію в сайдбарі '{label}'",
-    "description": "ARIA-позначка розгортання категорії бічної панелі"
-  },
-  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
-    "message": "Згорнути категорію в сайдбарі '{label}'",
-    "description": "ARIA-позначка згортання категорії бічної панелі"
-  },
-  "theme.IconExternalLink.ariaLabel": {
-    "message": "(відкривається в новій вкладці)",
-    "description": "ARIA-позначка значка зовнішнього посилання"
-  },
-  "theme.NavBar.navAriaLabel": {
-    "message": "Головна",
-    "description": "ARIA-позначка основної навігації"
-  },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Мови",
-    "description": "Позначка випадного списку вибору мови на мобільних пристроях"
-  },
-  "theme.NotFound.p1": {
-    "message": "На жаль, ми не змогли знайти сторінку, яку ви запитували.",
-    "description": "Перший абзац сторінки 404"
-  },
-  "theme.NotFound.p2": {
-    "message": "Будь ласка, зверніться до власника сайту, з якого ви перейшли на це посилання, щоб повідомити, що посилання не працює.",
-    "description": "Другий абзац сторінки 404"
-  },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "Зміст цієї сторінки",
-    "description": "Позначка кнопки згортаного змісту"
-  },
-  "theme.blog.post.readMore": {
-    "message": "Читати далі",
-    "description": "Позначка посилання з уривка допису на повний текст"
-  },
-  "theme.blog.post.readMoreLabel": {
-    "message": "Докладніше про {title}",
-    "description": "ARIA-позначка посилання з уривка на повний допис блогу"
-  },
-  "theme.blog.post.readingTime.plurals": {
-    "message": "{readingTime} хв. читання|{readingTime} хв. читання|{readingTime} хв. читання",
-    "description": "Позначка «{readingTime} хвилин читання» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.CodeBlock.copy": {
-    "message": "Копіювати",
-    "description": "Позначка кнопки копіювання в блоках коду"
-  },
-  "theme.CodeBlock.copied": {
-    "message": "Скопійовано",
-    "description": "Позначка кнопки після копіювання в блоках коду"
-  },
-  "theme.CodeBlock.copyButtonAriaLabel": {
-    "message": "Копіювати в буфер обміну",
-    "description": "ARIA-позначка кнопки копіювання блоку коду"
-  },
-  "theme.CodeBlock.wordWrapToggle": {
-    "message": "Перемкнути перенесення рядків",
-    "description": "Атрибут title кнопки перемикання перенесення рядків у блоці коду"
-  },
-  "theme.docs.breadcrumbs.home": {
-    "message": "Головна сторінка",
-    "description": "ARIA-позначка головної сторінки в навігаційному ланцюжку"
-  },
-  "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Згорнути сайдбар",
-    "description": "Атрибут title кнопки згортання бічної панелі документації"
-  },
-  "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Згорнути сайдбар",
-    "description": "Атрибут title кнопки згортання бічної панелі документації"
-  },
-  "theme.docs.sidebar.navAriaLabel": {
-    "message": "Сайдбар документації",
-    "description": "ARIA-позначка навігації в бічній панелі"
-  },
-  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Закрити сайдбар",
-    "description": "ARIA-позначка кнопки закриття мобільної бічної панелі"
-  },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Перейти до головного меню",
-    "description": "Позначка кнопки повернення до головного меню з додаткового меню мобільної панелі навігації, яке використовується для бічної панелі документації"
-  },
-  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Перемкнути сайдбар",
-    "description": "ARIA-позначка кнопки меню мобільної навігації"
-  },
-  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
-    "message": "Розгорнути випадаючий список",
-    "description": "ARIA-позначка кнопки розгортання випадного пункту мобільної панелі навігації"
-  },
-  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
-    "message": "Згорнути випадаючий список",
-    "description": "ARIA-позначка кнопки згортання випадного пункту мобільної панелі навігації"
-  },
-  "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Розгорнути сайдбар",
-    "description": "ARIA-позначка й атрибут title кнопки розгортання бічної панелі документації"
-  },
-  "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Розгорнути сайдбар",
-    "description": "ARIA-позначка й атрибут title кнопки розгортання бічної панелі документації"
-  },
-  "theme.blog.post.plurals": {
-    "message": "{count} запис|{count} записи|{count} записів",
-    "description": "Позначка «{count} дописів» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.blog.tagTitle": {
-    "message": "{nPosts} з тегом \"{tagName}\"",
-    "description": "Заголовок сторінки з тегом блогу"
-  },
-  "theme.blog.author.pageTitle": {
-    "message": "{authorName} - {nPosts}",
-    "description": "Заголовок сторінки автора блогу"
-  },
-  "theme.blog.authorsList.pageTitle": {
-    "message": "Автори",
-    "description": "Заголовок сторінки авторів"
-  },
-  "theme.blog.authorsList.viewAll": {
-    "message": "Переглянути всіх авторів",
-    "description": "Позначка посилання на сторінку авторів блогу"
-  },
-  "theme.blog.author.noPosts": {
-    "message": "Цей автор ще не написав жодної публікації.",
-    "description": "Текст для авторів без дописів у блозі"
-  },
-  "theme.contentVisibility.unlistedBanner.title": {
-    "message": "Непублічна сторінка",
-    "description": "Заголовок банера прихованого вмісту"
-  },
-  "theme.contentVisibility.unlistedBanner.message": {
-    "message": "Ця сторінка є непублічною. Пошукові системи її не індексуватимуть, і доступ до неї матимуть лише користувачі з прямим посиланням.",
-    "description": "Повідомлення банера прихованого вмісту"
-  },
-  "theme.contentVisibility.draftBanner.title": {
-    "message": "Чернетка",
-    "description": "Заголовок банера чернетки"
-  },
-  "theme.contentVisibility.draftBanner.message": {
-    "message": "Це чернетка. Ця сторінка видима лише в режимі розробки й буде виключена з фінальної збірки.",
-    "description": "Повідомлення банера чернетки"
-  },
-  "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "{count} елемент|{count} елементи|{count} елементів",
-    "description": "Стандартний опис картки категорії у створеному індексі з кількістю елементів"
-  },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Спробуйте ще раз",
-    "description": "Позначка кнопки повторного рендерингу після перехоплення помилки межею помилок React"
-  },
-  "theme.common.skipToMainContent": {
-    "message": "Перейти до основного вмісту",
-    "description": "Позначка швидкого переходу до основного вмісту з клавіатури Tab/Enter для доступності"
-  },
-  "theme.tags.tagsPageTitle": {
-    "message": "Теги",
-    "description": "Заголовок сторінки зі списком тегів"
-  }
+    "theme.ErrorPageContent.title": {
+        "message": "На сторінці стався збій.",
+        "description": "Заголовок резервної сторінки, яка відображається після збою"
+    },
+    "theme.blog.archive.title": {
+        "message": "Архів",
+        "description": "Заголовок сторінки й головного блоку архіву блогу"
+    },
+    "theme.blog.archive.description": {
+        "message": "Архів",
+        "description": "Опис сторінки й головного блоку архіву блогу"
+    },
+    "theme.BackToTopButton.buttonAriaLabel": {
+        "message": "Прокрутити до початку",
+        "description": "ARIA-позначка кнопки повернення на початок сторінки"
+    },
+    "theme.blog.paginator.navAriaLabel": {
+        "message": "Навігація по сторінці списку блогів",
+        "description": "ARIA-позначка посторінкової навігації блогу"
+    },
+    "theme.blog.paginator.newerEntries": {
+        "message": "Новіші записи",
+        "description": "Позначка переходу до новіших дописів блогу (попередня сторінка)"
+    },
+    "theme.blog.paginator.olderEntries": {
+        "message": "Старіші записи",
+        "description": "Позначка переходу до старіших дописів блогу (наступна сторінка)"
+    },
+    "theme.blog.post.paginator.navAriaLabel": {
+        "message": "Навігація по сторінці посту блогу",
+        "description": "ARIA-позначка посторінкової навігації дописами блогу"
+    },
+    "theme.blog.post.paginator.newerPost": {
+        "message": "Новіший допис",
+        "description": "Позначка кнопки переходу до новішого або попереднього допису блогу"
+    },
+    "theme.blog.post.paginator.olderPost": {
+        "message": "Старіший допис",
+        "description": "Позначка кнопки переходу до старішого або наступного допису блогу"
+    },
+    "theme.tags.tagsPageLink": {
+        "message": "Переглянути всі теги",
+        "description": "Позначка посилання на сторінку зі списком тегів"
+    },
+    "theme.colorToggle.ariaLabel.mode.system": {
+        "message": "Автоматичний режим",
+        "description": "Назва системного колірного режиму"
+    },
+    "theme.colorToggle.ariaLabel.mode.light": {
+        "message": "Світлий режим",
+        "description": "Назва світлого колірного режиму"
+    },
+    "theme.colorToggle.ariaLabel.mode.dark": {
+        "message": "Темний режим",
+        "description": "Назва темного колірного режиму"
+    },
+    "theme.colorToggle.ariaLabel": {
+        "message": "Перемикання між темним та світлим режимом (зараз використовується {mode})",
+        "description": "ARIA-позначка перемикача колірного режиму"
+    },
+    "theme.docs.breadcrumbs.navAriaLabel": {
+        "message": "Навігаційний ланцюжок поточної сторінки",
+        "description": "ARIA-позначка навігаційного ланцюжка"
+    },
+    "theme.docs.paginator.navAriaLabel": {
+        "message": "Сторінка документації",
+        "description": "ARIA-позначка посторінкової навігації документації"
+    },
+    "theme.docs.paginator.previous": {
+        "message": "Попередня сторінка",
+        "description": "Позначка переходу до попереднього документа"
+    },
+    "theme.docs.paginator.next": {
+        "message": "Наступна сторінка",
+        "description": "Позначка переходу до наступного документа"
+    },
+    "theme.docs.tagDocListPageTitle.nDocsTagged": {
+        "message": "Одна сторінка|{count} сторінки|{count} сторінок",
+        "description": "Позначка «{count} документів із тегом» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.docs.tagDocListPageTitle": {
+        "message": "{nDocsTagged} з тегом \"{tagName}\"",
+        "description": "Заголовок сторінки з тегом документації"
+    },
+    "theme.docs.versionBadge.label": {
+        "message": "Версія: {versionLabel}"
+    },
+    "theme.docs.versions.unreleasedVersionLabel": {
+        "message": "Це документація для майбутньої версії {siteTitle} {versionLabel}.",
+        "description": "Позначка, яка повідомляє про перегляд неопублікованої версії документації"
+    },
+    "theme.docs.versions.unmaintainedVersionLabel": {
+        "message": "Це документація {siteTitle} для версії {versionLabel}, яка вже не підтримується.",
+        "description": "Позначка, яка повідомляє про перегляд непідтримуваної версії документації"
+    },
+    "theme.docs.versions.latestVersionSuggestionLabel": {
+        "message": "Актуальна документація знаходиться на сторінці {latestVersionLink} ({versionLabel}).",
+        "description": "Позначка з пропозицією перейти до останньої версії"
+    },
+    "theme.docs.versions.latestVersionLinkLabel": {
+        "message": "останньої версії",
+        "description": "Позначка посилання на останню версію"
+    },
+    "theme.common.editThisPage": {
+        "message": "Відредагувати цю сторінку",
+        "description": "Позначка посилання для редагування поточної сторінки"
+    },
+    "theme.common.headingLinkTitle": {
+        "message": "Пряме посилання на {heading}",
+        "description": "Заголовок посилання на розділ"
+    },
+    "theme.lastUpdated.atDate": {
+        "message": " {date}",
+        "description": "Слова, що вказують дату останнього оновлення сторінки"
+    },
+    "theme.lastUpdated.byUser": {
+        "message": " від {user}",
+        "description": "Слова, що вказують автора останнього оновлення сторінки"
+    },
+    "theme.lastUpdated.lastUpdatedAtBy": {
+        "message": "Останнє оновлення{atDate}{byUser}",
+        "description": "Фраза з датою та автором останнього оновлення сторінки"
+    },
+    "theme.navbar.mobileVersionsDropdown.label": {
+        "message": "Версії",
+        "description": "Позначка випадного списку версій у мобільній панелі навігації"
+    },
+    "theme.NotFound.title": {
+        "message": "Сторінку не знайдено",
+        "description": "Заголовок сторінки 404"
+    },
+    "theme.tags.tagsListLabel": {
+        "message": "Теги:",
+        "description": "Позначка поруч зі списком тегів"
+    },
+    "theme.AnnouncementBar.closeButtonAriaLabel": {
+        "message": "Закрити",
+        "description": "ARIA-позначка кнопки закриття панелі оголошень"
+    },
+    "theme.admonition.caution": {
+        "message": "обережно",
+        "description": "Стандартна позначка блоку Caution (:::caution)"
+    },
+    "theme.admonition.danger": {
+        "message": "небезпека",
+        "description": "Стандартна позначка блоку Danger (:::danger)"
+    },
+    "theme.admonition.info": {
+        "message": "інформація",
+        "description": "Стандартна позначка блоку Info (:::info)"
+    },
+    "theme.admonition.note": {
+        "message": "примітка",
+        "description": "Стандартна позначка блоку Note (:::note)"
+    },
+    "theme.admonition.tip": {
+        "message": "порада",
+        "description": "Стандартна позначка блоку Tip (:::tip)"
+    },
+    "theme.admonition.warning": {
+        "message": "попередження",
+        "description": "Стандартна позначка блоку Warning (:::warning)"
+    },
+    "theme.blog.sidebar.navAriaLabel": {
+        "message": "Навігація за останніми постами у блозі",
+        "description": "ARIA-позначка останніх дописів у бічній панелі блогу"
+    },
+    "theme.DocSidebarItem.expandCategoryAriaLabel": {
+        "message": "Розгорнути категорію в сайдбарі '{label}'",
+        "description": "ARIA-позначка розгортання категорії бічної панелі"
+    },
+    "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+        "message": "Згорнути категорію в сайдбарі '{label}'",
+        "description": "ARIA-позначка згортання категорії бічної панелі"
+    },
+    "theme.IconExternalLink.ariaLabel": {
+        "message": "(відкривається в новій вкладці)",
+        "description": "ARIA-позначка значка зовнішнього посилання"
+    },
+    "theme.NavBar.navAriaLabel": {
+        "message": "Головна",
+        "description": "ARIA-позначка основної навігації"
+    },
+    "theme.navbar.mobileLanguageDropdown.label": {
+        "message": "Мови",
+        "description": "Позначка випадного списку вибору мови на мобільних пристроях"
+    },
+    "theme.NotFound.p1": {
+        "message": "На жаль, ми не змогли знайти сторінку, яку ви запитували.",
+        "description": "Перший абзац сторінки 404"
+    },
+    "theme.NotFound.p2": {
+        "message": "Будь ласка, зверніться до власника сайту, з якого ви перейшли на це посилання, щоб повідомити, що посилання не працює.",
+        "description": "Другий абзац сторінки 404"
+    },
+    "theme.TOCCollapsible.toggleButtonLabel": {
+        "message": "Зміст цієї сторінки",
+        "description": "Позначка кнопки згортаного змісту"
+    },
+    "theme.blog.post.readMore": {
+        "message": "Читати далі",
+        "description": "Позначка посилання з уривка допису на повний текст"
+    },
+    "theme.blog.post.readMoreLabel": {
+        "message": "Докладніше про {title}",
+        "description": "ARIA-позначка посилання з уривка на повний допис блогу"
+    },
+    "theme.blog.post.readingTime.plurals": {
+        "message": "{readingTime} хв. читання|{readingTime} хв. читання|{readingTime} хв. читання",
+        "description": "Позначка «{readingTime} хвилин читання» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.CodeBlock.copy": {
+        "message": "Копіювати",
+        "description": "Позначка кнопки копіювання в блоках коду"
+    },
+    "theme.CodeBlock.copied": {
+        "message": "Скопійовано",
+        "description": "Позначка кнопки після копіювання в блоках коду"
+    },
+    "theme.CodeBlock.copyButtonAriaLabel": {
+        "message": "Копіювати в буфер обміну",
+        "description": "ARIA-позначка кнопки копіювання блоку коду"
+    },
+    "theme.CodeBlock.wordWrapToggle": {
+        "message": "Перемкнути перенесення рядків",
+        "description": "Атрибут title кнопки перемикання перенесення рядків у блоці коду"
+    },
+    "theme.docs.breadcrumbs.home": {
+        "message": "Головна сторінка",
+        "description": "ARIA-позначка головної сторінки в навігаційному ланцюжку"
+    },
+    "theme.docs.sidebar.collapseButtonTitle": {
+        "message": "Згорнути сайдбар",
+        "description": "Атрибут title кнопки згортання бічної панелі документації"
+    },
+    "theme.docs.sidebar.collapseButtonAriaLabel": {
+        "message": "Згорнути сайдбар",
+        "description": "Атрибут title кнопки згортання бічної панелі документації"
+    },
+    "theme.docs.sidebar.navAriaLabel": {
+        "message": "Сайдбар документації",
+        "description": "ARIA-позначка навігації в бічній панелі"
+    },
+    "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+        "message": "Закрити сайдбар",
+        "description": "ARIA-позначка кнопки закриття мобільної бічної панелі"
+    },
+    "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+        "message": "← Перейти до головного меню",
+        "description": "Позначка кнопки повернення до головного меню з додаткового меню мобільної панелі навігації, яке використовується для бічної панелі документації"
+    },
+    "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+        "message": "Перемкнути сайдбар",
+        "description": "ARIA-позначка кнопки меню мобільної навігації"
+    },
+    "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+        "message": "Розгорнути випадаючий список",
+        "description": "ARIA-позначка кнопки розгортання випадного пункту мобільної панелі навігації"
+    },
+    "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+        "message": "Згорнути випадаючий список",
+        "description": "ARIA-позначка кнопки згортання випадного пункту мобільної панелі навігації"
+    },
+    "theme.docs.sidebar.expandButtonTitle": {
+        "message": "Розгорнути сайдбар",
+        "description": "ARIA-позначка й атрибут title кнопки розгортання бічної панелі документації"
+    },
+    "theme.docs.sidebar.expandButtonAriaLabel": {
+        "message": "Розгорнути сайдбар",
+        "description": "ARIA-позначка й атрибут title кнопки розгортання бічної панелі документації"
+    },
+    "theme.blog.post.plurals": {
+        "message": "{count} запис|{count} записи|{count} записів",
+        "description": "Позначка «{count} дописів» із формами множини, розділеними знаком «|». Використовуйте стільки форм, скільки підтримує мова (див. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.blog.tagTitle": {
+        "message": "{nPosts} з тегом \"{tagName}\"",
+        "description": "Заголовок сторінки з тегом блогу"
+    },
+    "theme.blog.author.pageTitle": {
+        "message": "{authorName} - {nPosts}",
+        "description": "Заголовок сторінки автора блогу"
+    },
+    "theme.blog.authorsList.pageTitle": {
+        "message": "Автори",
+        "description": "Заголовок сторінки авторів"
+    },
+    "theme.blog.authorsList.viewAll": {
+        "message": "Переглянути всіх авторів",
+        "description": "Позначка посилання на сторінку авторів блогу"
+    },
+    "theme.blog.author.noPosts": {
+        "message": "Цей автор ще не написав жодної публікації.",
+        "description": "Текст для авторів без дописів у блозі"
+    },
+    "theme.contentVisibility.unlistedBanner.title": {
+        "message": "Непублічна сторінка",
+        "description": "Заголовок банера прихованого вмісту"
+    },
+    "theme.contentVisibility.unlistedBanner.message": {
+        "message": "Ця сторінка є непублічною. Пошукові системи її не індексуватимуть, і доступ до неї матимуть лише користувачі з прямим посиланням.",
+        "description": "Повідомлення банера прихованого вмісту"
+    },
+    "theme.contentVisibility.draftBanner.title": {
+        "message": "Чернетка",
+        "description": "Заголовок банера чернетки"
+    },
+    "theme.contentVisibility.draftBanner.message": {
+        "message": "Це чернетка. Ця сторінка видима лише в режимі розробки й буде виключена з фінальної збірки.",
+        "description": "Повідомлення банера чернетки"
+    },
+    "theme.docs.DocCard.categoryDescription.plurals": {
+        "message": "{count} елемент|{count} елементи|{count} елементів",
+        "description": "Стандартний опис картки категорії у створеному індексі з кількістю елементів"
+    },
+    "theme.ErrorPageContent.tryAgain": {
+        "message": "Спробуйте ще раз",
+        "description": "Позначка кнопки повторного рендерингу після перехоплення помилки межею помилок React"
+    },
+    "theme.common.skipToMainContent": {
+        "message": "Перейти до основного вмісту",
+        "description": "Позначка швидкого переходу до основного вмісту з клавіатури Tab/Enter для доступності"
+    },
+    "theme.tags.tagsPageTitle": {
+        "message": "Теги",
+        "description": "Заголовок сторінки зі списком тегів"
+    }
 }

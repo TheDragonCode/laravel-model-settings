@@ -1,329 +1,329 @@
 {
-  "theme.ErrorPageContent.title": {
-    "message": "На гэтай старонцы адбыўся збой.",
-    "description": "Загаловак рэзервовай старонкі, якая паказваецца пасля збою"
-  },
-  "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Пракруціць уверх",
-    "description": "ARIA-пазнака кнопкі вяртання ў пачатак старонкі"
-  },
-  "theme.blog.archive.title": {
-    "message": "Архіў",
-    "description": "Загаловак старонкі і галоўнага блока архіва блога"
-  },
-  "theme.blog.archive.description": {
-    "message": "Архіў",
-    "description": "Апісанне старонкі і галоўнага блока архіва блога"
-  },
-  "theme.blog.paginator.navAriaLabel": {
-    "message": "Навігацыя па спісе допісаў блога",
-    "description": "ARIA-пазнака пастаронкавай навігацыі блога"
-  },
-  "theme.blog.paginator.newerEntries": {
-    "message": "Навейшыя допісы",
-    "description": "Пазнака пераходу да навейшых допісаў блога (папярэдняя старонка)"
-  },
-  "theme.blog.paginator.olderEntries": {
-    "message": "Старэйшыя допісы",
-    "description": "Пазнака пераходу да старэйшых допісаў блога (наступная старонка)"
-  },
-  "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Навігацыя па допісах блога",
-    "description": "ARIA-пазнака пастаронкавай навігацыі па допісах блога"
-  },
-  "theme.blog.post.paginator.newerPost": {
-    "message": "Навейшы допіс",
-    "description": "Пазнака кнопкі пераходу да навейшага або папярэдняга допісу блога"
-  },
-  "theme.blog.post.paginator.olderPost": {
-    "message": "Старэйшы допіс",
-    "description": "Пазнака кнопкі пераходу да старэйшага або наступнага допісу блога"
-  },
-  "theme.tags.tagsPageLink": {
-    "message": "Паглядзець усе тэгі",
-    "description": "Пазнака спасылкі на старонку са спісам тэгаў"
-  },
-  "theme.colorToggle.ariaLabel.mode.system": {
-    "message": "сістэмны рэжым",
-    "description": "Назва сістэмнага каляровага рэжыму"
-  },
-  "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "светлы рэжым",
-    "description": "Назва светлага каляровага рэжыму"
-  },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "цёмны рэжым",
-    "description": "Назва цёмнага каляровага рэжыму"
-  },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Пераключыць цёмны і светлы рэжымы (цяпер {mode})",
-    "description": "ARIA-пазнака пераключальніка каляровага рэжыму"
-  },
-  "theme.docs.breadcrumbs.navAriaLabel": {
-    "message": "Навігацыйны ланцужок",
-    "description": "ARIA-пазнака навігацыйнага ланцужка"
-  },
-  "theme.docs.paginator.navAriaLabel": {
-    "message": "Старонкі дакументацыі",
-    "description": "ARIA-пазнака пастаронкавай навігацыі дакументацыі"
-  },
-  "theme.docs.paginator.previous": {
-    "message": "Папярэдняя",
-    "description": "Пазнака пераходу да папярэдняга дакумента"
-  },
-  "theme.docs.paginator.next": {
-    "message": "Наступная",
-    "description": "Пазнака пераходу да наступнага дакумента"
-  },
-  "theme.docs.tagDocListPageTitle.nDocsTagged": {
-    "message": "Адзін дакумент з тэгам|{count} дакументы з тэгам|{count} дакументаў з тэгам",
-    "description": "Пазнака \"{count} дакументаў з тэгам\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.docs.tagDocListPageTitle": {
-    "message": "{nDocsTagged} \"{tagName}\"",
-    "description": "Загаловак старонкі з тэгам дакументацыі"
-  },
-  "theme.docs.versionBadge.label": {
-    "message": "Версія: {versionLabel}"
-  },
-  "theme.docs.versions.unreleasedVersionLabel": {
-    "message": "Гэта яшчэ не апублікаваная дакументацыя для версіі {siteTitle} {versionLabel}.",
-    "description": "Пазнака, якая паведамляе пра прагляд неапублікаванай версіі дакументацыі"
-  },
-  "theme.docs.versions.unmaintainedVersionLabel": {
-    "message": "Гэта дакументацыя для {siteTitle} {versionLabel}, якая больш актыўна не падтрымліваецца.",
-    "description": "Пазнака, якая паведамляе пра прагляд версіі дакументацыі без падтрымкі"
-  },
-  "theme.docs.versions.latestVersionSuggestionLabel": {
-    "message": "Актуальную дакументацыю глядзіце ў раздзеле {latestVersionLink} ({versionLabel}).",
-    "description": "Пазнака з прапановай перайсці да апошняй версіі"
-  },
-  "theme.docs.versions.latestVersionLinkLabel": {
-    "message": "апошняя версія",
-    "description": "Пазнака спасылкі на апошнюю версію"
-  },
-  "theme.common.editThisPage": {
-    "message": "Рэдагаваць гэтую старонку",
-    "description": "Пазнака спасылкі для рэдагавання бягучай старонкі"
-  },
-  "theme.common.headingLinkTitle": {
-    "message": "Прамая спасылка на {heading}",
-    "description": "Загаловак спасылкі на раздзел"
-  },
-  "theme.lastUpdated.atDate": {
-    "message": " {date}",
-    "description": "Словы, якія паказваюць дату апошняга абнаўлення старонкі"
-  },
-  "theme.lastUpdated.byUser": {
-    "message": " карыстальнікам {user}",
-    "description": "Словы, якія паказваюць аўтара апошняга абнаўлення старонкі"
-  },
-  "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Апошняе абнаўленне{atDate}{byUser}",
-    "description": "Сказ з датай і аўтарам апошняга абнаўлення старонкі"
-  },
-  "theme.navbar.mobileVersionsDropdown.label": {
-    "message": "Версіі",
-    "description": "Пазнака выпаднога спіса версій у мабільнай панэлі навігацыі"
-  },
-  "theme.NotFound.title": {
-    "message": "Старонка не знойдзена",
-    "description": "Загаловак старонкі 404"
-  },
-  "theme.tags.tagsListLabel": {
-    "message": "Тэгі:",
-    "description": "Пазнака каля спіса тэгаў"
-  },
-  "theme.admonition.caution": {
-    "message": "асцярожна",
-    "description": "Стандартная пазнака блока Caution (:::caution)"
-  },
-  "theme.admonition.danger": {
-    "message": "небяспека",
-    "description": "Стандартная пазнака блока Danger (:::danger)"
-  },
-  "theme.admonition.info": {
-    "message": "інфармацыя",
-    "description": "Стандартная пазнака блока Info (:::info)"
-  },
-  "theme.admonition.note": {
-    "message": "нататка",
-    "description": "Стандартная пазнака блока Note (:::note)"
-  },
-  "theme.admonition.tip": {
-    "message": "парада",
-    "description": "Стандартная пазнака блока Tip (:::tip)"
-  },
-  "theme.admonition.warning": {
-    "message": "папярэджанне",
-    "description": "Стандартная пазнака блока Warning (:::warning)"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Закрыць",
-    "description": "ARIA-пазнака кнопкі закрыцця панэлі аб'яў"
-  },
-  "theme.blog.sidebar.navAriaLabel": {
-    "message": "Навігацыя па апошніх допісах блога",
-    "description": "ARIA-пазнака апошніх допісаў у бакавой панэлі блога"
-  },
-  "theme.DocSidebarItem.expandCategoryAriaLabel": {
-    "message": "Разгарнуць катэгорыю бакавой панэлі '{label}'",
-    "description": "ARIA-пазнака разгортвання катэгорыі бакавой панэлі"
-  },
-  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
-    "message": "Згарнуць катэгорыю бакавой панэлі '{label}'",
-    "description": "ARIA-пазнака згортвання катэгорыі бакавой панэлі"
-  },
-  "theme.IconExternalLink.ariaLabel": {
-    "message": "(адкрываецца ў новай укладцы)",
-    "description": "ARIA-пазнака значка знешняй спасылкі"
-  },
-  "theme.NavBar.navAriaLabel": {
-    "message": "Галоўная",
-    "description": "ARIA-пазнака галоўнай навігацыі"
-  },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Мовы",
-    "description": "Пазнака выпаднога спіса выбару мовы на мабільных прыладах"
-  },
-  "theme.NotFound.p1": {
-    "message": "Не ўдалося знайсці тое, што вы шукалі.",
-    "description": "Першы абзац старонкі 404"
-  },
-  "theme.NotFound.p2": {
-    "message": "Звяжыцеся з уладальнікам сайта, які спасылаўся на зыходны URL, і паведаміце яму, што спасылка не працуе.",
-    "description": "Другі абзац старонкі 404"
-  },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "На гэтай старонцы",
-    "description": "Пазнака кнопкі згортваемага зместу"
-  },
-  "theme.blog.post.readMore": {
-    "message": "Чытаць далей",
-    "description": "Пазнака спасылкі з урыўка допісу на поўны тэкст"
-  },
-  "theme.blog.post.readMoreLabel": {
-    "message": "Больш пра {title}",
-    "description": "ARIA-пазнака спасылкі з урыўка на поўны допіс блога"
-  },
-  "theme.blog.post.readingTime.plurals": {
-    "message": "{readingTime} хвіліна чытання|{readingTime} хвіліны чытання|{readingTime} хвілін чытання",
-    "description": "Пазнака \"{readingTime} хвілін чытання\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.CodeBlock.copy": {
-    "message": "Капіяваць",
-    "description": "Пазнака кнопкі капіявання ў блоках кода"
-  },
-  "theme.CodeBlock.copied": {
-    "message": "Скапіявана",
-    "description": "Пазнака кнопкі пасля капіявання ў блоках кода"
-  },
-  "theme.CodeBlock.copyButtonAriaLabel": {
-    "message": "Капіяваць код у буфер абмену",
-    "description": "ARIA-пазнака кнопкі капіявання блока кода"
-  },
-  "theme.CodeBlock.wordWrapToggle": {
-    "message": "Пераключыць перанос радкоў",
-    "description": "Атрыбут title кнопкі пераключэння пераносу радкоў у блоку кода"
-  },
-  "theme.docs.breadcrumbs.home": {
-    "message": "Галоўная старонка",
-    "description": "ARIA-пазнака галоўнай старонкі ў навігацыйным ланцужку"
-  },
-  "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Згарнуць бакавую панэль",
-    "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
-  },
-  "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Згарнуць бакавую панэль",
-    "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
-  },
-  "theme.docs.sidebar.navAriaLabel": {
-    "message": "Бакавое меню дакументацыі",
-    "description": "ARIA-пазнака навігацыі ў бакавой панэлі"
-  },
-  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Закрыць панэль навігацыі",
-    "description": "ARIA-пазнака кнопкі закрыцця мабільнай бакавой панэлі"
-  },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Назад у галоўнае меню",
-    "description": "Пазнака кнопкі вяртання ў галоўнае меню з дадатковага меню мабільнай панэлі навігацыі, якое выкарыстоўваецца для бакавой панэлі дакументацыі"
-  },
-  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Пераключыць панэль навігацыі",
-    "description": "ARIA-пазнака кнопкі меню мабільнай навігацыі"
-  },
-  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
-    "message": "Разгарнуць выпадны спіс",
-    "description": "ARIA-пазнака кнопкі разгортвання выпаднога пункта мабільнай панэлі навігацыі"
-  },
-  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
-    "message": "Згарнуць выпадны спіс",
-    "description": "ARIA-пазнака кнопкі згортвання выпаднога пункта мабільнай панэлі навігацыі"
-  },
-  "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Разгарнуць бакавую панэль",
-    "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
-  },
-  "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Разгарнуць бакавую панэль",
-    "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
-  },
-  "theme.blog.post.plurals": {
-    "message": "Адзін допіс|{count} допісы|{count} допісаў",
-    "description": "Пазнака \"{count} допісаў\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.blog.tagTitle": {
-    "message": "{nPosts} з тэгам \"{tagName}\"",
-    "description": "Загаловак старонкі з тэгам блога"
-  },
-  "theme.blog.author.pageTitle": {
-    "message": "{authorName} — {nPosts}",
-    "description": "Загаловак старонкі аўтара блога"
-  },
-  "theme.blog.authorsList.pageTitle": {
-    "message": "Аўтары",
-    "description": "Загаловак старонкі аўтараў"
-  },
-  "theme.blog.authorsList.viewAll": {
-    "message": "Паглядзець усіх аўтараў",
-    "description": "Пазнака спасылкі на старонку аўтараў блога"
-  },
-  "theme.blog.author.noPosts": {
-    "message": "Гэты аўтар яшчэ не напісаў ніводнага допісу.",
-    "description": "Тэкст для аўтараў без допісаў у блогу"
-  },
-  "theme.contentVisibility.unlistedBanner.title": {
-    "message": "Схаваная старонка",
-    "description": "Загаловак банера схаванага змесціва"
-  },
-  "theme.contentVisibility.unlistedBanner.message": {
-    "message": "Гэта старонка не ўваходзіць у спіс. Пошукавыя сістэмы не будуць яе індэксаваць, і доступ атрымаюць толькі карыстальнікі з прамой спасылкай.",
-    "description": "Паведамленне банера схаванага змесціва"
-  },
-  "theme.contentVisibility.draftBanner.title": {
-    "message": "Чарнавік старонкі",
-    "description": "Загаловак банера чарнавіка"
-  },
-  "theme.contentVisibility.draftBanner.message": {
-    "message": "Гэта старонка з'яўляецца чарнавіком. Яна бачная толькі ў асяроддзі распрацоўкі і не ўваходзіць у вытворчую зборку.",
-    "description": "Паведамленне банера чарнавіка"
-  },
-  "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "1 элемент|{count} элементы|{count} элементаў",
-    "description": "Стандартнае апісанне карткі катэгорыі ў створаным індэксе з колькасцю элементаў"
-  },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Паспрабаваць яшчэ раз",
-    "description": "Пазнака кнопкі паўторнага рэндэрынгу пасля перахопу памылкі абмежавальнікам памылак React"
-  },
-  "theme.common.skipToMainContent": {
-    "message": "Перайсці да асноўнага змесціва",
-    "description": "Пазнака хуткага пераходу да асноўнага змесціва з клавіятуры для даступнасці"
-  },
-  "theme.tags.tagsPageTitle": {
-    "message": "Тэгі",
-    "description": "Загаловак старонкі са спісам тэгаў"
-  }
+    "theme.ErrorPageContent.title": {
+        "message": "На гэтай старонцы адбыўся збой.",
+        "description": "Загаловак рэзервовай старонкі, якая паказваецца пасля збою"
+    },
+    "theme.BackToTopButton.buttonAriaLabel": {
+        "message": "Пракруціць уверх",
+        "description": "ARIA-пазнака кнопкі вяртання ў пачатак старонкі"
+    },
+    "theme.blog.archive.title": {
+        "message": "Архіў",
+        "description": "Загаловак старонкі і галоўнага блока архіва блога"
+    },
+    "theme.blog.archive.description": {
+        "message": "Архіў",
+        "description": "Апісанне старонкі і галоўнага блока архіва блога"
+    },
+    "theme.blog.paginator.navAriaLabel": {
+        "message": "Навігацыя па спісе допісаў блога",
+        "description": "ARIA-пазнака пастаронкавай навігацыі блога"
+    },
+    "theme.blog.paginator.newerEntries": {
+        "message": "Навейшыя допісы",
+        "description": "Пазнака пераходу да навейшых допісаў блога (папярэдняя старонка)"
+    },
+    "theme.blog.paginator.olderEntries": {
+        "message": "Старэйшыя допісы",
+        "description": "Пазнака пераходу да старэйшых допісаў блога (наступная старонка)"
+    },
+    "theme.blog.post.paginator.navAriaLabel": {
+        "message": "Навігацыя па допісах блога",
+        "description": "ARIA-пазнака пастаронкавай навігацыі па допісах блога"
+    },
+    "theme.blog.post.paginator.newerPost": {
+        "message": "Навейшы допіс",
+        "description": "Пазнака кнопкі пераходу да навейшага або папярэдняга допісу блога"
+    },
+    "theme.blog.post.paginator.olderPost": {
+        "message": "Старэйшы допіс",
+        "description": "Пазнака кнопкі пераходу да старэйшага або наступнага допісу блога"
+    },
+    "theme.tags.tagsPageLink": {
+        "message": "Паглядзець усе тэгі",
+        "description": "Пазнака спасылкі на старонку са спісам тэгаў"
+    },
+    "theme.colorToggle.ariaLabel.mode.system": {
+        "message": "сістэмны рэжым",
+        "description": "Назва сістэмнага каляровага рэжыму"
+    },
+    "theme.colorToggle.ariaLabel.mode.light": {
+        "message": "светлы рэжым",
+        "description": "Назва светлага каляровага рэжыму"
+    },
+    "theme.colorToggle.ariaLabel.mode.dark": {
+        "message": "цёмны рэжым",
+        "description": "Назва цёмнага каляровага рэжыму"
+    },
+    "theme.colorToggle.ariaLabel": {
+        "message": "Пераключыць цёмны і светлы рэжымы (цяпер {mode})",
+        "description": "ARIA-пазнака пераключальніка каляровага рэжыму"
+    },
+    "theme.docs.breadcrumbs.navAriaLabel": {
+        "message": "Навігацыйны ланцужок",
+        "description": "ARIA-пазнака навігацыйнага ланцужка"
+    },
+    "theme.docs.paginator.navAriaLabel": {
+        "message": "Старонкі дакументацыі",
+        "description": "ARIA-пазнака пастаронкавай навігацыі дакументацыі"
+    },
+    "theme.docs.paginator.previous": {
+        "message": "Папярэдняя",
+        "description": "Пазнака пераходу да папярэдняга дакумента"
+    },
+    "theme.docs.paginator.next": {
+        "message": "Наступная",
+        "description": "Пазнака пераходу да наступнага дакумента"
+    },
+    "theme.docs.tagDocListPageTitle.nDocsTagged": {
+        "message": "Адзін дакумент з тэгам|{count} дакументы з тэгам|{count} дакументаў з тэгам",
+        "description": "Пазнака \"{count} дакументаў з тэгам\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.docs.tagDocListPageTitle": {
+        "message": "{nDocsTagged} \"{tagName}\"",
+        "description": "Загаловак старонкі з тэгам дакументацыі"
+    },
+    "theme.docs.versionBadge.label": {
+        "message": "Версія: {versionLabel}"
+    },
+    "theme.docs.versions.unreleasedVersionLabel": {
+        "message": "Гэта яшчэ не апублікаваная дакументацыя для версіі {siteTitle} {versionLabel}.",
+        "description": "Пазнака, якая паведамляе пра прагляд неапублікаванай версіі дакументацыі"
+    },
+    "theme.docs.versions.unmaintainedVersionLabel": {
+        "message": "Гэта дакументацыя для {siteTitle} {versionLabel}, якая больш актыўна не падтрымліваецца.",
+        "description": "Пазнака, якая паведамляе пра прагляд версіі дакументацыі без падтрымкі"
+    },
+    "theme.docs.versions.latestVersionSuggestionLabel": {
+        "message": "Актуальную дакументацыю глядзіце ў раздзеле {latestVersionLink} ({versionLabel}).",
+        "description": "Пазнака з прапановай перайсці да апошняй версіі"
+    },
+    "theme.docs.versions.latestVersionLinkLabel": {
+        "message": "апошняя версія",
+        "description": "Пазнака спасылкі на апошнюю версію"
+    },
+    "theme.common.editThisPage": {
+        "message": "Рэдагаваць гэтую старонку",
+        "description": "Пазнака спасылкі для рэдагавання бягучай старонкі"
+    },
+    "theme.common.headingLinkTitle": {
+        "message": "Прамая спасылка на {heading}",
+        "description": "Загаловак спасылкі на раздзел"
+    },
+    "theme.lastUpdated.atDate": {
+        "message": " {date}",
+        "description": "Словы, якія паказваюць дату апошняга абнаўлення старонкі"
+    },
+    "theme.lastUpdated.byUser": {
+        "message": " карыстальнікам {user}",
+        "description": "Словы, якія паказваюць аўтара апошняга абнаўлення старонкі"
+    },
+    "theme.lastUpdated.lastUpdatedAtBy": {
+        "message": "Апошняе абнаўленне{atDate}{byUser}",
+        "description": "Сказ з датай і аўтарам апошняга абнаўлення старонкі"
+    },
+    "theme.navbar.mobileVersionsDropdown.label": {
+        "message": "Версіі",
+        "description": "Пазнака выпаднога спіса версій у мабільнай панэлі навігацыі"
+    },
+    "theme.NotFound.title": {
+        "message": "Старонка не знойдзена",
+        "description": "Загаловак старонкі 404"
+    },
+    "theme.tags.tagsListLabel": {
+        "message": "Тэгі:",
+        "description": "Пазнака каля спіса тэгаў"
+    },
+    "theme.admonition.caution": {
+        "message": "асцярожна",
+        "description": "Стандартная пазнака блока Caution (:::caution)"
+    },
+    "theme.admonition.danger": {
+        "message": "небяспека",
+        "description": "Стандартная пазнака блока Danger (:::danger)"
+    },
+    "theme.admonition.info": {
+        "message": "інфармацыя",
+        "description": "Стандартная пазнака блока Info (:::info)"
+    },
+    "theme.admonition.note": {
+        "message": "нататка",
+        "description": "Стандартная пазнака блока Note (:::note)"
+    },
+    "theme.admonition.tip": {
+        "message": "парада",
+        "description": "Стандартная пазнака блока Tip (:::tip)"
+    },
+    "theme.admonition.warning": {
+        "message": "папярэджанне",
+        "description": "Стандартная пазнака блока Warning (:::warning)"
+    },
+    "theme.AnnouncementBar.closeButtonAriaLabel": {
+        "message": "Закрыць",
+        "description": "ARIA-пазнака кнопкі закрыцця панэлі аб'яў"
+    },
+    "theme.blog.sidebar.navAriaLabel": {
+        "message": "Навігацыя па апошніх допісах блога",
+        "description": "ARIA-пазнака апошніх допісаў у бакавой панэлі блога"
+    },
+    "theme.DocSidebarItem.expandCategoryAriaLabel": {
+        "message": "Разгарнуць катэгорыю бакавой панэлі '{label}'",
+        "description": "ARIA-пазнака разгортвання катэгорыі бакавой панэлі"
+    },
+    "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+        "message": "Згарнуць катэгорыю бакавой панэлі '{label}'",
+        "description": "ARIA-пазнака згортвання катэгорыі бакавой панэлі"
+    },
+    "theme.IconExternalLink.ariaLabel": {
+        "message": "(адкрываецца ў новай укладцы)",
+        "description": "ARIA-пазнака значка знешняй спасылкі"
+    },
+    "theme.NavBar.navAriaLabel": {
+        "message": "Галоўная",
+        "description": "ARIA-пазнака галоўнай навігацыі"
+    },
+    "theme.navbar.mobileLanguageDropdown.label": {
+        "message": "Мовы",
+        "description": "Пазнака выпаднога спіса выбару мовы на мабільных прыладах"
+    },
+    "theme.NotFound.p1": {
+        "message": "Не ўдалося знайсці тое, што вы шукалі.",
+        "description": "Першы абзац старонкі 404"
+    },
+    "theme.NotFound.p2": {
+        "message": "Звяжыцеся з уладальнікам сайта, які спасылаўся на зыходны URL, і паведаміце яму, што спасылка не працуе.",
+        "description": "Другі абзац старонкі 404"
+    },
+    "theme.TOCCollapsible.toggleButtonLabel": {
+        "message": "На гэтай старонцы",
+        "description": "Пазнака кнопкі згортваемага зместу"
+    },
+    "theme.blog.post.readMore": {
+        "message": "Чытаць далей",
+        "description": "Пазнака спасылкі з урыўка допісу на поўны тэкст"
+    },
+    "theme.blog.post.readMoreLabel": {
+        "message": "Больш пра {title}",
+        "description": "ARIA-пазнака спасылкі з урыўка на поўны допіс блога"
+    },
+    "theme.blog.post.readingTime.plurals": {
+        "message": "{readingTime} хвіліна чытання|{readingTime} хвіліны чытання|{readingTime} хвілін чытання",
+        "description": "Пазнака \"{readingTime} хвілін чытання\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.CodeBlock.copy": {
+        "message": "Капіяваць",
+        "description": "Пазнака кнопкі капіявання ў блоках кода"
+    },
+    "theme.CodeBlock.copied": {
+        "message": "Скапіявана",
+        "description": "Пазнака кнопкі пасля капіявання ў блоках кода"
+    },
+    "theme.CodeBlock.copyButtonAriaLabel": {
+        "message": "Капіяваць код у буфер абмену",
+        "description": "ARIA-пазнака кнопкі капіявання блока кода"
+    },
+    "theme.CodeBlock.wordWrapToggle": {
+        "message": "Пераключыць перанос радкоў",
+        "description": "Атрыбут title кнопкі пераключэння пераносу радкоў у блоку кода"
+    },
+    "theme.docs.breadcrumbs.home": {
+        "message": "Галоўная старонка",
+        "description": "ARIA-пазнака галоўнай старонкі ў навігацыйным ланцужку"
+    },
+    "theme.docs.sidebar.collapseButtonTitle": {
+        "message": "Згарнуць бакавую панэль",
+        "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
+    },
+    "theme.docs.sidebar.collapseButtonAriaLabel": {
+        "message": "Згарнуць бакавую панэль",
+        "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
+    },
+    "theme.docs.sidebar.navAriaLabel": {
+        "message": "Бакавое меню дакументацыі",
+        "description": "ARIA-пазнака навігацыі ў бакавой панэлі"
+    },
+    "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+        "message": "Закрыць панэль навігацыі",
+        "description": "ARIA-пазнака кнопкі закрыцця мабільнай бакавой панэлі"
+    },
+    "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+        "message": "← Назад у галоўнае меню",
+        "description": "Пазнака кнопкі вяртання ў галоўнае меню з дадатковага меню мабільнай панэлі навігацыі, якое выкарыстоўваецца для бакавой панэлі дакументацыі"
+    },
+    "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+        "message": "Пераключыць панэль навігацыі",
+        "description": "ARIA-пазнака кнопкі меню мабільнай навігацыі"
+    },
+    "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+        "message": "Разгарнуць выпадны спіс",
+        "description": "ARIA-пазнака кнопкі разгортвання выпаднога пункта мабільнай панэлі навігацыі"
+    },
+    "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+        "message": "Згарнуць выпадны спіс",
+        "description": "ARIA-пазнака кнопкі згортвання выпаднога пункта мабільнай панэлі навігацыі"
+    },
+    "theme.docs.sidebar.expandButtonTitle": {
+        "message": "Разгарнуць бакавую панэль",
+        "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
+    },
+    "theme.docs.sidebar.expandButtonAriaLabel": {
+        "message": "Разгарнуць бакавую панэль",
+        "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
+    },
+    "theme.blog.post.plurals": {
+        "message": "Адзін допіс|{count} допісы|{count} допісаў",
+        "description": "Пазнака \"{count} допісаў\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    },
+    "theme.blog.tagTitle": {
+        "message": "{nPosts} з тэгам \"{tagName}\"",
+        "description": "Загаловак старонкі з тэгам блога"
+    },
+    "theme.blog.author.pageTitle": {
+        "message": "{authorName} — {nPosts}",
+        "description": "Загаловак старонкі аўтара блога"
+    },
+    "theme.blog.authorsList.pageTitle": {
+        "message": "Аўтары",
+        "description": "Загаловак старонкі аўтараў"
+    },
+    "theme.blog.authorsList.viewAll": {
+        "message": "Паглядзець усіх аўтараў",
+        "description": "Пазнака спасылкі на старонку аўтараў блога"
+    },
+    "theme.blog.author.noPosts": {
+        "message": "Гэты аўтар яшчэ не напісаў ніводнага допісу.",
+        "description": "Тэкст для аўтараў без допісаў у блогу"
+    },
+    "theme.contentVisibility.unlistedBanner.title": {
+        "message": "Схаваная старонка",
+        "description": "Загаловак банера схаванага змесціва"
+    },
+    "theme.contentVisibility.unlistedBanner.message": {
+        "message": "Гэта старонка не ўваходзіць у спіс. Пошукавыя сістэмы не будуць яе індэксаваць, і доступ атрымаюць толькі карыстальнікі з прамой спасылкай.",
+        "description": "Паведамленне банера схаванага змесціва"
+    },
+    "theme.contentVisibility.draftBanner.title": {
+        "message": "Чарнавік старонкі",
+        "description": "Загаловак банера чарнавіка"
+    },
+    "theme.contentVisibility.draftBanner.message": {
+        "message": "Гэта старонка з'яўляецца чарнавіком. Яна бачная толькі ў асяроддзі распрацоўкі і не ўваходзіць у вытворчую зборку.",
+        "description": "Паведамленне банера чарнавіка"
+    },
+    "theme.docs.DocCard.categoryDescription.plurals": {
+        "message": "1 элемент|{count} элементы|{count} элементаў",
+        "description": "Стандартнае апісанне карткі катэгорыі ў створаным індэксе з колькасцю элементаў"
+    },
+    "theme.ErrorPageContent.tryAgain": {
+        "message": "Паспрабаваць яшчэ раз",
+        "description": "Пазнака кнопкі паўторнага рэндэрынгу пасля перахопу памылкі абмежавальнікам памылак React"
+    },
+    "theme.common.skipToMainContent": {
+        "message": "Перайсці да асноўнага змесціва",
+        "description": "Пазнака хуткага пераходу да асноўнага змесціва з клавіятуры для даступнасці"
+    },
+    "theme.tags.tagsPageTitle": {
+        "message": "Тэгі",
+        "description": "Загаловак старонкі са спісам тэгаў"
+    }
 }

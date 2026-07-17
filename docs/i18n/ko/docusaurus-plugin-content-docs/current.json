@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "현재",
-    "description": "현재 버전의 레이블"
-  }
+    "version.label": {
+        "message": "현재",
+        "description": "현재 버전의 레이블"
+    }
 }
