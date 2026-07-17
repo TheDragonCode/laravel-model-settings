@@ -9,7 +9,16 @@
         "clear": "docusaurus clear",
         "typecheck": "tsc --noEmit",
         "docs:version": "docusaurus docs:version",
-        "i18n:write": "docusaurus write-translations"
+        "translate": "npm run translate:en && npm run translate:ru && npm run translate:uk && npm run translate:be && npm run translate:fr && npm run translate:pt-BR && npm run translate:ko && npm run translate:zh-CN && npm run translate:de",
+        "translate:en": "docusaurus write-translations --locale en",
+        "translate:ru": "docusaurus write-translations --locale ru",
+        "translate:uk": "docusaurus write-translations --locale uk",
+        "translate:be": "docusaurus write-translations --locale be",
+        "translate:fr": "docusaurus write-translations --locale fr",
+        "translate:pt-BR": "docusaurus write-translations --locale pt-BR",
+        "translate:ko": "docusaurus write-translations --locale ko",
+        "translate:zh-CN": "docusaurus write-translations --locale zh-CN",
+        "translate:de": "docusaurus write-translations --locale de"
     },
     "dependencies": {
         "@docusaurus/core": "3.10.2",
