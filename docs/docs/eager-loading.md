@@ -42,19 +42,31 @@ $settings = $users->map(
 
 ## Query behavior
 
-For a single model, lazy loading is usually sufficient. For a collection, eager loading changes the
-common query pattern from one model query plus one settings query per model to:
+When parent models are fetched and their settings are then read, lazy loading and eager loading have
+the same cost for one model. For a collection, the difference is visible:
+
+| Loaded parent models | Lazy loading | Eager loading |
+|----------------------|--------------|---------------|
+| 1 | 2 queries | 2 queries |
+| N | 1 + N queries | 2 queries |
+
+The eager-loading path uses:
 
 1. One query for the parent models.
 2. One query for their defaults and overrides.
 
-The package resolves inherited values in the relation results, including for integer, UUID, and ULID
-primary keys.
+The settings query includes the class defaults and every requested model identifier. The relation
+then copies inherited defaults into each model's loaded result and replaces matching keys with that
+model's overrides.
+
+This behavior is covered for integer, UUID, and ULID primary keys.
 
 ## Changes after eager loading
 
 `set()` and `forget()` clear the loaded `modelSettings` relation on that model. The next read reloads
 the relation, so it does not return the stale value.
+
+Mutation still performs its own write queries. Eager loading only changes subsequent reads.
 
 ## See Also
 

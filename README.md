@@ -11,9 +11,21 @@
 
 > Persist shared defaults and per-model overrides for Eloquent models.
 
+Laravel Model Settings keeps configurable values outside your model tables. Define a default once,
+override it for individual records, and read the effective value through one API.
+
 Requires PHP 8.3+ and Laravel 12 or 13.
 
-## Installation
+## Key Features
+
+- Shared defaults are isolated by Eloquent model class.
+- Per-model values override defaults without changing other records.
+- `get()` and `all()` resolve the effective values automatically.
+- Eager loading avoids one settings query per model in a collection.
+- Integer, UUID, and ULID primary keys work with or without a Laravel morph map.
+- Payloads use JSON by default and may use custom value objects.
+
+## Quick Start
 
 ```bash
 composer require dragon-code/laravel-model-settings
@@ -22,7 +34,7 @@ php artisan vendor:publish --tag="model_settings"
 php artisan migrate
 ```
 
-## Quick Usage
+## Example
 
 Add the trait to an Eloquent model:
 
@@ -43,12 +55,27 @@ Set a shared default, override it for a saved model, and read the effective valu
 
 $user->settings()->set('timezone', 'Europe/Paris');
 
-$timezone = $user->settings()->get('timezone');
+assert($user->settings()->get('timezone') === 'Europe/Paris');
+
+$user->settings()->forget('timezone');
+
+assert($user->settings()->get('timezone') === 'UTC');
 ```
 
 ## Documentation
 
-You will find full documentation on the dedicated [documentation](https://model-settings.dragon-code.pro) site.
+Read the [documentation site](https://model-settings.dragon-code.pro) or open a guide in the repository:
+
+| Guide | Description |
+|-------|-------------|
+| [Overview](docs/docs/index.md) | Resolution rules and supported models |
+| [Getting Started](docs/docs/getting-started.md) | Installation and first setting |
+| [Working with Settings](docs/docs/settings.md) | Defaults, overrides, keys, and blank values |
+| [Eager Loading](docs/docs/eager-loading.md) | Avoiding settings N+1 queries |
+| [Configuration](docs/docs/configuration.md) | Connection, schema, and storage model |
+| [Payload Casts](docs/docs/payload-casts.md) | JSON, custom casts, and data objects |
+| [API Reference](docs/docs/api-reference.md) | Public methods and return values |
+| [Development](docs/docs/development.md) | Tests, documentation, and security |
 
 ## License
 

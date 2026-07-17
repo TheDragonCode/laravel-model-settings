@@ -29,7 +29,7 @@ The package reads these environment variables:
 
 | Variable | Default |
 |----------|---------|
-| `MODEL_SETTINGS_DATABASE_CONNECTION` | `DATABASE_CONNECTION`, then the application default |
+| `MODEL_SETTINGS_DATABASE_CONNECTION` | `DATABASE_CONNECTION`, then Laravel's default connection |
 | `MODEL_SETTINGS_DATABASE_TABLE` | `settings` |
 
 Set the connection and table before running the migration:
@@ -51,10 +51,16 @@ The published migration creates these columns:
 | `item_type` | Parent model morph class or alias |
 | `item_id` | Parent identifier, stored as a string up to 36 characters |
 | `key` | Setting key |
-| `payload` | JSON payload |
+| `payload` | Payload declared by the migration as `jsonb` |
 | `created_at` and `updated_at` | Laravel timestamps |
 
 The combination of `item_type`, `item_id`, and `key` is unique.
+
+The default `item_id` column stores at most 36 characters. Integer, UUID, and ULID identifiers fit
+this schema. A longer custom primary key requires a matching migration change.
+
+The value `0` is reserved in `item_id` for class defaults. Changing the database connection, table
+name, or morph-map aliases after data exists requires moving or updating the existing rows yourself.
 
 ## Replace the storage model
 
@@ -101,6 +107,15 @@ Then update the config:
 
 The replacement must remain compatible with the published schema. Keep the fillable attributes and
 the `PayloadCast` unless the replacement implements equivalent serialization.
+
+At minimum, the replacement model must preserve these behaviors:
+
+| Requirement | Reason |
+|-------------|--------|
+| Fill `item_type`, `item_id`, `key`, and `payload` | `updateOrCreate()` writes these attributes |
+| Use the configured connection and table | The migration and repository must address the same rows |
+| Cast `item_id` to `string` | Integer, UUID, and ULID identifiers share one column |
+| Cast `payload` with `PayloadCast` or an equivalent | Reads and writes must preserve JSON behavior |
 
 ## See Also
 
