@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="i18n:write" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="translate" type="js.build_tools.npm">
     <package-json value="$PROJECT_DIR$/docs/package.json" />
     <command value="run" />
     <scripts>
-      <script value="i18n:write" />
+      <script value="translate" />
     </scripts>
     <node-interpreter value="project" />
     <envs />
