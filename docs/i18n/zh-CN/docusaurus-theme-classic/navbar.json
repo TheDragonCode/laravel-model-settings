@@ -1,10 +1,10 @@
 {
   "title": {
     "message": "Laravel Model Settings",
-    "description": "The title in the navbar"
+    "description": "导航栏中的标题"
   },
   "item.label.GitHub": {
     "message": "GitHub",
-    "description": "Navbar item with label GitHub"
+    "description": "标签为 GitHub 的导航栏项目"
   }
 }

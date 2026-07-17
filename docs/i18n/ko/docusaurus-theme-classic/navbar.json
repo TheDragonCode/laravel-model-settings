@@ -1,10 +1,10 @@
 {
   "title": {
     "message": "Laravel Model Settings",
-    "description": "The title in the navbar"
+    "description": "탐색 모음의 제목"
   },
   "item.label.GitHub": {
     "message": "GitHub",
-    "description": "Navbar item with label GitHub"
+    "description": "GitHub 레이블이 있는 탐색 모음 항목"
   }
 }

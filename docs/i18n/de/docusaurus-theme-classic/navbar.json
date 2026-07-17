@@ -1,10 +1,10 @@
 {
   "title": {
     "message": "Laravel Model Settings",
-    "description": "The title in the navbar"
+    "description": "Titel in der Navigationsleiste"
   },
   "item.label.GitHub": {
     "message": "GitHub",
-    "description": "Navbar item with label GitHub"
+    "description": "Eintrag der Navigationsleiste mit dem Label GitHub"
   }
 }
