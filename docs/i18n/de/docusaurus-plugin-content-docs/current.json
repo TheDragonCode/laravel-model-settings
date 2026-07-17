@@ -1,6 +1,6 @@
 {
-  "version.label": {
-    "message": "Aktuell",
-    "description": "Label der aktuellen Version"
-  }
+    "version.label": {
+        "message": "Aktuell",
+        "description": "Label der aktuellen Version"
+    }
 }
