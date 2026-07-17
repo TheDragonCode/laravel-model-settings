@@ -9,6 +9,7 @@ const config: Config = {
     tagline: "Model Settings for Laravel applications",
     url: "https://model-settings.dragon-code.pro",
     baseUrl: "/",
+    favicon: "img/logo-64.png",
     organizationName: "TheDragonCode",
     projectName: "laravel-model-settings",
     trailingSlash: true,
@@ -81,6 +82,7 @@ const config: Config = {
         ],
     ],
     themeConfig: {
+        image: "img/preview.jpg",
         colorMode: {
             defaultMode: "light",
             disableSwitch: false,
@@ -88,6 +90,10 @@ const config: Config = {
         },
         navbar: {
             title: "Laravel Model Settings",
+            logo: {
+                alt: "Laravel Model Settings",
+                src: "img/logo-64.png",
+            },
             items: [
                 {
                     type: "docsVersionDropdown",
