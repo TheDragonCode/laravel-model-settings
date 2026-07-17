@@ -46,7 +46,11 @@ html[data-theme="dark"] {
 
 body {
     background-image:
-        radial-gradient(circle at 92% 4%, rgb(239 68 81 / 7%), transparent 24rem),
+        radial-gradient(
+            circle at 92% 4%,
+            rgb(239 68 81 / 7%),
+            transparent 24rem
+        ),
         radial-gradient(circle at 7% 58%, rgb(48 24 61 / 5%), transparent 28rem);
 }
 
@@ -71,7 +75,12 @@ body {
     bottom: -1px;
     left: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--docs-purple), var(--docs-coral), transparent 78%);
+    background: linear-gradient(
+        90deg,
+        var(--docs-purple),
+        var(--docs-coral),
+        transparent 78%
+    );
     content: "";
     opacity: 0.72;
 }
@@ -87,12 +96,19 @@ body {
 }
 
 .theme-doc-sidebar-container {
-    background: linear-gradient(180deg, var(--docs-purple-tint), transparent 18rem);
+    background: linear-gradient(
+        180deg,
+        var(--docs-purple-tint),
+        transparent 18rem
+    );
 }
 
 .menu__link {
     border-radius: 0.65rem;
-    transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+    transition:
+        background-color 160ms ease,
+        color 160ms ease,
+        transform 160ms ease;
 }
 
 .menu__link:hover {
@@ -100,7 +116,11 @@ body {
 }
 
 .menu__link--active:not(.menu__link--sublist) {
-    background: linear-gradient(90deg, var(--docs-tint), var(--docs-purple-tint));
+    background: linear-gradient(
+        90deg,
+        var(--docs-tint),
+        var(--docs-purple-tint)
+    );
     box-shadow: inset 3px 0 var(--docs-coral);
     color: var(--ifm-color-primary-dark);
 }
@@ -114,7 +134,11 @@ html[data-theme="dark"] .menu__link--active:not(.menu__link--sublist) {
     padding: 0.65rem 0.9rem;
     border: 1px solid var(--docs-border);
     border-radius: 0.75rem;
-    background: linear-gradient(110deg, var(--docs-purple-tint), var(--docs-tint));
+    background: linear-gradient(
+        110deg,
+        var(--docs-purple-tint),
+        var(--docs-tint)
+    );
     color: var(--ifm-color-content-secondary);
     font-size: 0.88rem;
 }
@@ -195,7 +219,12 @@ html[data-theme="dark"] .theme-doc-markdown :not(pre) > code {
     right: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--docs-coral), var(--docs-purple), transparent 82%);
+    background: linear-gradient(
+        90deg,
+        var(--docs-coral),
+        var(--docs-purple),
+        transparent 82%
+    );
     content: "";
     pointer-events: none;
 }
@@ -207,7 +236,11 @@ html[data-theme="dark"] .theme-doc-markdown :not(pre) > code {
 }
 
 .theme-doc-markdown table thead {
-    background: linear-gradient(110deg, var(--docs-purple-tint), var(--docs-tint));
+    background: linear-gradient(
+        110deg,
+        var(--docs-purple-tint),
+        var(--docs-tint)
+    );
 }
 
 .theme-doc-markdown table th {
@@ -247,9 +280,16 @@ html[data-theme="dark"] .theme-doc-markdown table tr:nth-child(2n) td {
 
 .pagination-nav__link {
     border-color: var(--docs-border);
-    background: linear-gradient(135deg, var(--ifm-background-surface-color), var(--docs-purple-tint));
+    background: linear-gradient(
+        135deg,
+        var(--ifm-background-surface-color),
+        var(--docs-purple-tint)
+    );
     box-shadow: 0 8px 22px rgb(48 24 61 / 6%);
-    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
 }
 
 .pagination-nav__link:hover {
@@ -266,7 +306,11 @@ html[data-theme="dark"] .theme-doc-markdown table tr:nth-child(2n) td {
 
 @media (max-width: 996px) {
     .navbar::after {
-        background: linear-gradient(90deg, var(--docs-purple), var(--docs-coral));
+        background: linear-gradient(
+            90deg,
+            var(--docs-purple),
+            var(--docs-coral)
+        );
     }
 
     .theme-doc-sidebar-container {

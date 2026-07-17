@@ -4,7 +4,8 @@ import { themes as prismThemes } from "prism-react-renderer";
 
 const repositoryUrl = "https://github.com/TheDragonCode/laravel-model-settings";
 const siteUrl = "https://model-settings.dragon-code.pro";
-const siteDescription = "Shared defaults and per-model setting overrides for Laravel Eloquent models.";
+const siteDescription =
+    "Shared defaults and per-model setting overrides for Laravel Eloquent models.";
 
 const structuredData = {
     "@context": "https://schema.org",
@@ -117,7 +118,8 @@ const config: Config = {
         metadata: [
             {
                 name: "keywords",
-                content: "Laravel, Eloquent, model settings, Laravel settings, PHP",
+                content:
+                    "Laravel, Eloquent, model settings, Laravel settings, PHP",
             },
             {
                 name: "twitter:card",
