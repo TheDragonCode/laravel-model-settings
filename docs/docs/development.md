@@ -29,6 +29,17 @@ Apply the configured code style:
 composer style
 ```
 
+The Pest suites cover different contracts:
+
+| Suite | Coverage |
+|-------|----------|
+| `tests/Feature` | Defaults, overrides, deletion, missing data, and ownership |
+| `tests/Unit/Casts` | Default JSON, custom casts, morph maps, and Laravel Data |
+| `tests/Unit/KeyTypes` | String, integer, backed enum, and pure unit enum keys |
+| `tests/Unit/PrimaryKeyTypes` | Integer, UUID, and ULID parent identifiers |
+| `tests/Unit/QueryCount` | Read and write query counts, including eager loading |
+| `tests/Architecture` | Namespace, type, strictness, and Laravel architecture rules |
+
 ## Documentation checks
 
 The Docusaurus site requires Node.js 20 or newer. Install its dependencies from the `docs`
@@ -45,6 +56,9 @@ npm ci
 | Create a production build | `npm run build` |
 
 The production build validates internal links for every configured locale.
+
+Keep documentation pages in `docs/docs`. Each page uses front matter for sidebar order, a navigation
+line at the top, relative links between guides, and a `See Also` section at the end.
 
 ## Contributing
 

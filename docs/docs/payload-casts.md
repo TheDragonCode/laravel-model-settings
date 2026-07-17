@@ -37,6 +37,21 @@ Custom casts are configured by parent model class:
 One configured cast handles every setting payload owned by that parent model class. Laravel morph
 map aliases are resolved back to the model class before the cast is selected.
 
+A configured class must implement `CastsAttributes` or extend `Spatie\LaravelData\Data`. Other class
+names do not receive custom handling and values use the default JSON path.
+
+## Cast lifecycle
+
+For a `CastsAttributes` implementation, the package runs this sequence:
+
+| Direction | Sequence |
+|-----------|----------|
+| Write | Call the custom `set()`, then JSON-encode its result |
+| Read | Pass the stored JSON string to the custom `get()` |
+
+The `$model` argument is the configured settings storage model, not the parent `User` or `Post`.
+The package creates the cast with no constructor arguments.
+
 ## Eloquent attribute cast
 
 The cast may implement Laravel's `CastsAttributes` contract:
@@ -61,8 +76,7 @@ final class UserSettingsPayloadCast implements CastsAttributes
 }
 ```
 
-The package creates this cast without constructor arguments. Its `set()` result must remain
-JSON-serializable.
+The custom `set()` result must remain JSON-serializable. JSON encoding errors are not suppressed.
 
 ## Spatie Laravel Data
 
@@ -78,8 +92,8 @@ composer require spatie/laravel-data:^4.23
 ],
 ```
 
-Pass either data accepted by the class or a `Data` instance to `set()`. `get()` and `all()` then
-return instances created by that data class.
+Pass either data accepted by the class or a `Data` instance to `set()`. `get()` returns a data
+instance, and `all()` returns a collection containing data instances.
 
 ```php
 $preferences = UserSettingsData::from([

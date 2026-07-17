@@ -28,7 +28,8 @@ php artisan vendor:publish --tag="model_settings"
 php artisan migrate
 ```
 
-The default migration creates a `settings` table on the application's default database connection.
+The `model_settings` tag publishes both `config/model_settings.php` and the package migration. The
+default migration creates a `settings` table on the application's default database connection.
 
 ## Add the trait
 
@@ -46,7 +47,13 @@ class User extends Authenticatable
 }
 ```
 
-The trait adds `settings()`, `defaultSettings()`, and the `modelSettings` Eloquent relation.
+The trait adds this public surface:
+
+| Member | Use |
+|--------|-----|
+| `settings()` | Read or change effective settings for one saved model |
+| `defaultSettings()` | Read or change defaults for the model class |
+| `modelSettings()` | Eloquent relation used for eager loading |
 
 ## Store the first setting
 
@@ -66,6 +73,14 @@ $user->settings()->set('timezone', 'Europe/Paris');
 assert($user->settings()->get('timezone') === 'Europe/Paris');
 ```
 
+Read all effective settings as a collection keyed by setting name:
+
+```php
+$settings = $user->settings()->all();
+
+assert($settings->get('timezone') === 'Europe/Paris');
+```
+
 Remove the override to fall back to `UTC`:
 
 ```php
@@ -77,7 +92,8 @@ assert($user->settings()->get('timezone') === 'UTC');
 ## Persist models first
 
 Use `settings()->set()` only after the parent model has been saved. An unsaved model has no primary
-key, does not inherit defaults, and returns an empty collection from `settings()->all()`.
+key. Its `settings()->get()` returns `null`, and `settings()->all()` returns an empty collection even
+when class defaults exist.
 
 ## See Also
 
