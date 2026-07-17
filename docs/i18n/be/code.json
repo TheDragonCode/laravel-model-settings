@@ -1,329 +1,329 @@
 {
   "theme.ErrorPageContent.title": {
-    "message": "This page crashed.",
-    "description": "The title of the fallback page when the page crashed"
+    "message": "На гэтай старонцы адбыўся збой.",
+    "description": "Загаловак рэзервовай старонкі, якая паказваецца пасля збою"
   },
   "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Scroll back to top",
-    "description": "The ARIA label for the back to top button"
+    "message": "Пракруціць уверх",
+    "description": "ARIA-пазнака кнопкі вяртання ў пачатак старонкі"
   },
   "theme.blog.archive.title": {
-    "message": "Archive",
-    "description": "The page & hero title of the blog archive page"
+    "message": "Архіў",
+    "description": "Загаловак старонкі і галоўнага блока архіва блога"
   },
   "theme.blog.archive.description": {
-    "message": "Archive",
-    "description": "The page & hero description of the blog archive page"
+    "message": "Архіў",
+    "description": "Апісанне старонкі і галоўнага блока архіва блога"
   },
   "theme.blog.paginator.navAriaLabel": {
-    "message": "Blog list page navigation",
-    "description": "The ARIA label for the blog pagination"
+    "message": "Навігацыя па спісе допісаў блога",
+    "description": "ARIA-пазнака пастаронкавай навігацыі блога"
   },
   "theme.blog.paginator.newerEntries": {
-    "message": "Newer entries",
-    "description": "The label used to navigate to the newer blog posts page (previous page)"
+    "message": "Навейшыя допісы",
+    "description": "Пазнака пераходу да навейшых допісаў блога (папярэдняя старонка)"
   },
   "theme.blog.paginator.olderEntries": {
-    "message": "Older entries",
-    "description": "The label used to navigate to the older blog posts page (next page)"
+    "message": "Старэйшыя допісы",
+    "description": "Пазнака пераходу да старэйшых допісаў блога (наступная старонка)"
   },
   "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Blog post page navigation",
-    "description": "The ARIA label for the blog posts pagination"
+    "message": "Навігацыя па допісах блога",
+    "description": "ARIA-пазнака пастаронкавай навігацыі па допісах блога"
   },
   "theme.blog.post.paginator.newerPost": {
-    "message": "Newer post",
-    "description": "The blog post button label to navigate to the newer/previous post"
+    "message": "Навейшы допіс",
+    "description": "Пазнака кнопкі пераходу да навейшага або папярэдняга допісу блога"
   },
   "theme.blog.post.paginator.olderPost": {
-    "message": "Older post",
-    "description": "The blog post button label to navigate to the older/next post"
+    "message": "Старэйшы допіс",
+    "description": "Пазнака кнопкі пераходу да старэйшага або наступнага допісу блога"
   },
   "theme.tags.tagsPageLink": {
-    "message": "View all tags",
-    "description": "The label of the link targeting the tag list page"
+    "message": "Паглядзець усе тэгі",
+    "description": "Пазнака спасылкі на старонку са спісам тэгаў"
   },
   "theme.colorToggle.ariaLabel.mode.system": {
-    "message": "system mode",
-    "description": "The name for the system color mode"
+    "message": "сістэмны рэжым",
+    "description": "Назва сістэмнага каляровага рэжыму"
   },
   "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "light mode",
-    "description": "The name for the light color mode"
+    "message": "светлы рэжым",
+    "description": "Назва светлага каляровага рэжыму"
   },
   "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "dark mode",
-    "description": "The name for the dark color mode"
+    "message": "цёмны рэжым",
+    "description": "Назва цёмнага каляровага рэжыму"
   },
   "theme.colorToggle.ariaLabel": {
-    "message": "Switch between dark and light mode (currently {mode})",
-    "description": "The ARIA label for the color mode toggle"
+    "message": "Пераключыць цёмны і светлы рэжымы (цяпер {mode})",
+    "description": "ARIA-пазнака пераключальніка каляровага рэжыму"
   },
   "theme.docs.breadcrumbs.navAriaLabel": {
-    "message": "Breadcrumbs",
-    "description": "The ARIA label for the breadcrumbs"
+    "message": "Навігацыйны ланцужок",
+    "description": "ARIA-пазнака навігацыйнага ланцужка"
   },
   "theme.docs.paginator.navAriaLabel": {
-    "message": "Docs pages",
-    "description": "The ARIA label for the docs pagination"
+    "message": "Старонкі дакументацыі",
+    "description": "ARIA-пазнака пастаронкавай навігацыі дакументацыі"
   },
   "theme.docs.paginator.previous": {
-    "message": "Previous",
-    "description": "The label used to navigate to the previous doc"
+    "message": "Папярэдняя",
+    "description": "Пазнака пераходу да папярэдняга дакумента"
   },
   "theme.docs.paginator.next": {
-    "message": "Next",
-    "description": "The label used to navigate to the next doc"
+    "message": "Наступная",
+    "description": "Пазнака пераходу да наступнага дакумента"
   },
   "theme.docs.tagDocListPageTitle.nDocsTagged": {
-    "message": "One doc tagged|{count} docs tagged",
-    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "message": "Адзін дакумент з тэгам|{count} дакументы з тэгам|{count} дакументаў з тэгам",
+    "description": "Пазнака \"{count} дакументаў з тэгам\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
   },
   "theme.docs.tagDocListPageTitle": {
-    "message": "{nDocsTagged} with \"{tagName}\"",
-    "description": "The title of the page for a docs tag"
+    "message": "{nDocsTagged} \"{tagName}\"",
+    "description": "Загаловак старонкі з тэгам дакументацыі"
   },
   "theme.docs.versionBadge.label": {
-    "message": "Version: {versionLabel}"
+    "message": "Версія: {versionLabel}"
   },
   "theme.docs.versions.unreleasedVersionLabel": {
-    "message": "This is unreleased documentation for {siteTitle} {versionLabel} version.",
-    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+    "message": "Гэта яшчэ не апублікаваная дакументацыя для версіі {siteTitle} {versionLabel}.",
+    "description": "Пазнака, якая паведамляе пра прагляд неапублікаванай версіі дакументацыі"
   },
   "theme.docs.versions.unmaintainedVersionLabel": {
-    "message": "This is documentation for {siteTitle} {versionLabel}, which is no longer actively maintained.",
-    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+    "message": "Гэта дакументацыя для {siteTitle} {versionLabel}, якая больш актыўна не падтрымліваецца.",
+    "description": "Пазнака, якая паведамляе пра прагляд версіі дакументацыі без падтрымкі"
   },
   "theme.docs.versions.latestVersionSuggestionLabel": {
-    "message": "For up-to-date documentation, see the {latestVersionLink} ({versionLabel}).",
-    "description": "The label used to tell the user to check the latest version"
+    "message": "Актуальную дакументацыю глядзіце ў раздзеле {latestVersionLink} ({versionLabel}).",
+    "description": "Пазнака з прапановай перайсці да апошняй версіі"
   },
   "theme.docs.versions.latestVersionLinkLabel": {
-    "message": "latest version",
-    "description": "The label used for the latest version suggestion link label"
+    "message": "апошняя версія",
+    "description": "Пазнака спасылкі на апошнюю версію"
   },
   "theme.common.editThisPage": {
-    "message": "Edit this page",
-    "description": "The link label to edit the current page"
+    "message": "Рэдагаваць гэтую старонку",
+    "description": "Пазнака спасылкі для рэдагавання бягучай старонкі"
   },
   "theme.common.headingLinkTitle": {
-    "message": "Direct link to {heading}",
-    "description": "Title for link to heading"
+    "message": "Прамая спасылка на {heading}",
+    "description": "Загаловак спасылкі на раздзел"
   },
   "theme.lastUpdated.atDate": {
-    "message": " on {date}",
-    "description": "The words used to describe on which date a page has been last updated"
+    "message": " {date}",
+    "description": "Словы, якія паказваюць дату апошняга абнаўлення старонкі"
   },
   "theme.lastUpdated.byUser": {
-    "message": " by {user}",
-    "description": "The words used to describe by who the page has been last updated"
+    "message": " карыстальнікам {user}",
+    "description": "Словы, якія паказваюць аўтара апошняга абнаўлення старонкі"
   },
   "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Last updated{atDate}{byUser}",
-    "description": "The sentence used to display when a page has been last updated, and by who"
+    "message": "Апошняе абнаўленне{atDate}{byUser}",
+    "description": "Сказ з датай і аўтарам апошняга абнаўлення старонкі"
   },
   "theme.navbar.mobileVersionsDropdown.label": {
-    "message": "Versions",
-    "description": "The label for the navbar versions dropdown on mobile view"
+    "message": "Версіі",
+    "description": "Пазнака выпаднога спіса версій у мабільнай панэлі навігацыі"
   },
   "theme.NotFound.title": {
-    "message": "Page Not Found",
-    "description": "The title of the 404 page"
+    "message": "Старонка не знойдзена",
+    "description": "Загаловак старонкі 404"
   },
   "theme.tags.tagsListLabel": {
-    "message": "Tags:",
-    "description": "The label alongside a tag list"
+    "message": "Тэгі:",
+    "description": "Пазнака каля спіса тэгаў"
   },
   "theme.admonition.caution": {
-    "message": "caution",
-    "description": "The default label used for the Caution admonition (:::caution)"
+    "message": "асцярожна",
+    "description": "Стандартная пазнака блока Caution (:::caution)"
   },
   "theme.admonition.danger": {
-    "message": "danger",
-    "description": "The default label used for the Danger admonition (:::danger)"
+    "message": "небяспека",
+    "description": "Стандартная пазнака блока Danger (:::danger)"
   },
   "theme.admonition.info": {
-    "message": "info",
-    "description": "The default label used for the Info admonition (:::info)"
+    "message": "інфармацыя",
+    "description": "Стандартная пазнака блока Info (:::info)"
   },
   "theme.admonition.note": {
-    "message": "note",
-    "description": "The default label used for the Note admonition (:::note)"
+    "message": "нататка",
+    "description": "Стандартная пазнака блока Note (:::note)"
   },
   "theme.admonition.tip": {
-    "message": "tip",
-    "description": "The default label used for the Tip admonition (:::tip)"
+    "message": "парада",
+    "description": "Стандартная пазнака блока Tip (:::tip)"
   },
   "theme.admonition.warning": {
-    "message": "warning",
-    "description": "The default label used for the Warning admonition (:::warning)"
+    "message": "папярэджанне",
+    "description": "Стандартная пазнака блока Warning (:::warning)"
   },
   "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Close",
-    "description": "The ARIA label for close button of announcement bar"
+    "message": "Закрыць",
+    "description": "ARIA-пазнака кнопкі закрыцця панэлі аб'яў"
   },
   "theme.blog.sidebar.navAriaLabel": {
-    "message": "Blog recent posts navigation",
-    "description": "The ARIA label for recent posts in the blog sidebar"
+    "message": "Навігацыя па апошніх допісах блога",
+    "description": "ARIA-пазнака апошніх допісаў у бакавой панэлі блога"
   },
   "theme.DocSidebarItem.expandCategoryAriaLabel": {
-    "message": "Expand sidebar category '{label}'",
-    "description": "The ARIA label to expand the sidebar category"
+    "message": "Разгарнуць катэгорыю бакавой панэлі '{label}'",
+    "description": "ARIA-пазнака разгортвання катэгорыі бакавой панэлі"
   },
   "theme.DocSidebarItem.collapseCategoryAriaLabel": {
-    "message": "Collapse sidebar category '{label}'",
-    "description": "The ARIA label to collapse the sidebar category"
+    "message": "Згарнуць катэгорыю бакавой панэлі '{label}'",
+    "description": "ARIA-пазнака згортвання катэгорыі бакавой панэлі"
   },
   "theme.IconExternalLink.ariaLabel": {
-    "message": "(opens in new tab)",
-    "description": "The ARIA label for the external link icon"
+    "message": "(адкрываецца ў новай укладцы)",
+    "description": "ARIA-пазнака значка знешняй спасылкі"
   },
   "theme.NavBar.navAriaLabel": {
-    "message": "Main",
-    "description": "The ARIA label for the main navigation"
+    "message": "Галоўная",
+    "description": "ARIA-пазнака галоўнай навігацыі"
   },
   "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Languages",
-    "description": "The label for the mobile language switcher dropdown"
+    "message": "Мовы",
+    "description": "Пазнака выпаднога спіса выбару мовы на мабільных прыладах"
   },
   "theme.NotFound.p1": {
-    "message": "We could not find what you were looking for.",
-    "description": "The first paragraph of the 404 page"
+    "message": "Не ўдалося знайсці тое, што вы шукалі.",
+    "description": "Першы абзац старонкі 404"
   },
   "theme.NotFound.p2": {
-    "message": "Please contact the owner of the site that linked you to the original URL and let them know their link is broken.",
-    "description": "The 2nd paragraph of the 404 page"
+    "message": "Звяжыцеся з уладальнікам сайта, які спасылаўся на зыходны URL, і паведаміце яму, што спасылка не працуе.",
+    "description": "Другі абзац старонкі 404"
   },
   "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "On this page",
-    "description": "The label used by the button on the collapsible TOC component"
+    "message": "На гэтай старонцы",
+    "description": "Пазнака кнопкі згортваемага зместу"
   },
   "theme.blog.post.readMore": {
-    "message": "Read more",
-    "description": "The label used in blog post item excerpts to link to full blog posts"
+    "message": "Чытаць далей",
+    "description": "Пазнака спасылкі з урыўка допісу на поўны тэкст"
   },
   "theme.blog.post.readMoreLabel": {
-    "message": "Read more about {title}",
-    "description": "The ARIA label for the link to full blog posts from excerpts"
+    "message": "Больш пра {title}",
+    "description": "ARIA-пазнака спасылкі з урыўка на поўны допіс блога"
   },
   "theme.blog.post.readingTime.plurals": {
-    "message": "One min read|{readingTime} min read",
-    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "message": "{readingTime} хвіліна чытання|{readingTime} хвіліны чытання|{readingTime} хвілін чытання",
+    "description": "Пазнака \"{readingTime} хвілін чытання\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
   },
   "theme.CodeBlock.copy": {
-    "message": "Copy",
-    "description": "The copy button label on code blocks"
+    "message": "Капіяваць",
+    "description": "Пазнака кнопкі капіявання ў блоках кода"
   },
   "theme.CodeBlock.copied": {
-    "message": "Copied",
-    "description": "The copied button label on code blocks"
+    "message": "Скапіявана",
+    "description": "Пазнака кнопкі пасля капіявання ў блоках кода"
   },
   "theme.CodeBlock.copyButtonAriaLabel": {
-    "message": "Copy code to clipboard",
-    "description": "The ARIA label for copy code blocks button"
+    "message": "Капіяваць код у буфер абмену",
+    "description": "ARIA-пазнака кнопкі капіявання блока кода"
   },
   "theme.CodeBlock.wordWrapToggle": {
-    "message": "Toggle word wrap",
-    "description": "The title attribute for toggle word wrapping button of code block lines"
+    "message": "Пераключыць перанос радкоў",
+    "description": "Атрыбут title кнопкі пераключэння пераносу радкоў у блоку кода"
   },
   "theme.docs.breadcrumbs.home": {
-    "message": "Home page",
-    "description": "The ARIA label for the home page in the breadcrumbs"
+    "message": "Галоўная старонка",
+    "description": "ARIA-пазнака галоўнай старонкі ў навігацыйным ланцужку"
   },
   "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Collapse sidebar",
-    "description": "The title attribute for collapse button of doc sidebar"
+    "message": "Згарнуць бакавую панэль",
+    "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
   },
   "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Collapse sidebar",
-    "description": "The title attribute for collapse button of doc sidebar"
+    "message": "Згарнуць бакавую панэль",
+    "description": "Атрыбут title кнопкі згортвання бакавой панэлі дакументацыі"
   },
   "theme.docs.sidebar.navAriaLabel": {
-    "message": "Docs sidebar",
-    "description": "The ARIA label for the sidebar navigation"
+    "message": "Бакавое меню дакументацыі",
+    "description": "ARIA-пазнака навігацыі ў бакавой панэлі"
   },
   "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Close navigation bar",
-    "description": "The ARIA label for close button of mobile sidebar"
+    "message": "Закрыць панэль навігацыі",
+    "description": "ARIA-пазнака кнопкі закрыцця мабільнай бакавой панэлі"
   },
   "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Back to main menu",
-    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
+    "message": "← Назад у галоўнае меню",
+    "description": "Пазнака кнопкі вяртання ў галоўнае меню з дадатковага меню мабільнай панэлі навігацыі, якое выкарыстоўваецца для бакавой панэлі дакументацыі"
   },
   "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Toggle navigation bar",
-    "description": "The ARIA label for hamburger menu button of mobile navigation"
+    "message": "Пераключыць панэль навігацыі",
+    "description": "ARIA-пазнака кнопкі меню мабільнай навігацыі"
   },
   "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
-    "message": "Expand the dropdown",
-    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+    "message": "Разгарнуць выпадны спіс",
+    "description": "ARIA-пазнака кнопкі разгортвання выпаднога пункта мабільнай панэлі навігацыі"
   },
   "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
-    "message": "Collapse the dropdown",
-    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+    "message": "Згарнуць выпадны спіс",
+    "description": "ARIA-пазнака кнопкі згортвання выпаднога пункта мабільнай панэлі навігацыі"
   },
   "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Expand sidebar",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+    "message": "Разгарнуць бакавую панэль",
+    "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
   },
   "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Expand sidebar",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+    "message": "Разгарнуць бакавую панэль",
+    "description": "ARIA-пазнака і атрыбут title кнопкі разгортвання бакавой панэлі дакументацыі"
   },
   "theme.blog.post.plurals": {
-    "message": "One post|{count} posts",
-    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "message": "Адзін допіс|{count} допісы|{count} допісаў",
+    "description": "Пазнака \"{count} допісаў\" з формамі множнага ліку, падзеленымі знакам \"|\". Выкарыстоўвайце столькі форм, колькі падтрымлівае мова (гл. https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
   },
   "theme.blog.tagTitle": {
-    "message": "{nPosts} tagged with \"{tagName}\"",
-    "description": "The title of the page for a blog tag"
+    "message": "{nPosts} з тэгам \"{tagName}\"",
+    "description": "Загаловак старонкі з тэгам блога"
   },
   "theme.blog.author.pageTitle": {
-    "message": "{authorName} - {nPosts}",
-    "description": "The title of the page for a blog author"
+    "message": "{authorName} — {nPosts}",
+    "description": "Загаловак старонкі аўтара блога"
   },
   "theme.blog.authorsList.pageTitle": {
-    "message": "Authors",
-    "description": "The title of the authors page"
+    "message": "Аўтары",
+    "description": "Загаловак старонкі аўтараў"
   },
   "theme.blog.authorsList.viewAll": {
-    "message": "View all authors",
-    "description": "The label of the link targeting the blog authors page"
+    "message": "Паглядзець усіх аўтараў",
+    "description": "Пазнака спасылкі на старонку аўтараў блога"
   },
   "theme.blog.author.noPosts": {
-    "message": "This author has not written any posts yet.",
-    "description": "The text for authors with 0 blog post"
+    "message": "Гэты аўтар яшчэ не напісаў ніводнага допісу.",
+    "description": "Тэкст для аўтараў без допісаў у блогу"
   },
   "theme.contentVisibility.unlistedBanner.title": {
-    "message": "Unlisted page",
-    "description": "The unlisted content banner title"
+    "message": "Схаваная старонка",
+    "description": "Загаловак банера схаванага змесціва"
   },
   "theme.contentVisibility.unlistedBanner.message": {
-    "message": "This page is unlisted. Search engines will not index it, and only users having a direct link can access it.",
-    "description": "The unlisted content banner message"
+    "message": "Гэта старонка не ўваходзіць у спіс. Пошукавыя сістэмы не будуць яе індэксаваць, і доступ атрымаюць толькі карыстальнікі з прамой спасылкай.",
+    "description": "Паведамленне банера схаванага змесціва"
   },
   "theme.contentVisibility.draftBanner.title": {
-    "message": "Draft page",
-    "description": "The draft content banner title"
+    "message": "Чарнавік старонкі",
+    "description": "Загаловак банера чарнавіка"
   },
   "theme.contentVisibility.draftBanner.message": {
-    "message": "This page is a draft. It will only be visible in dev and be excluded from the production build.",
-    "description": "The draft content banner message"
+    "message": "Гэта старонка з'яўляецца чарнавіком. Яна бачная толькі ў асяроддзі распрацоўкі і не ўваходзіць у вытворчую зборку.",
+    "description": "Паведамленне банера чарнавіка"
   },
   "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "1 item|{count} items",
-    "description": "The default description for a category card in the generated index about how many items this category includes"
+    "message": "1 элемент|{count} элементы|{count} элементаў",
+    "description": "Стандартнае апісанне карткі катэгорыі ў створаным індэксе з колькасцю элементаў"
   },
   "theme.ErrorPageContent.tryAgain": {
-    "message": "Try again",
-    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+    "message": "Паспрабаваць яшчэ раз",
+    "description": "Пазнака кнопкі паўторнага рэндэрынгу пасля перахопу памылкі абмежавальнікам памылак React"
   },
   "theme.common.skipToMainContent": {
-    "message": "Skip to main content",
-    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+    "message": "Перайсці да асноўнага змесціва",
+    "description": "Пазнака хуткага пераходу да асноўнага змесціва з клавіятуры для даступнасці"
   },
   "theme.tags.tagsPageTitle": {
-    "message": "Tags",
-    "description": "The title of the tag list page"
+    "message": "Тэгі",
+    "description": "Загаловак старонкі са спісам тэгаў"
   }
 }
