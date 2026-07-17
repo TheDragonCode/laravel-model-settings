@@ -123,6 +123,8 @@ Site: `https://model-settings.dragon-code.pro`
 
 Source: `docs/docs/`
 
+Localizations: `docs/i18n/<locale>/docusaurus-plugin-content-docs/current/`
+
 Vendor: `Docusaurus` (https://docusaurus.io)
 
 | Document              | Path                           | Description                          |

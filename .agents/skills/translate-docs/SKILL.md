@@ -1,60 +1,102 @@
 ---
 name: translate-docs
 description: >-
-  Translates Docusaurus JSON localization entries under docs/i18n into the
-  language declared by docs/docusaurus.config.ts while preserving paths,
-  translation keys, entry schemas, and protected tokens. Use when translating,
-  completing, correcting, or reviewing documentation UI localization for one
-  or more locales.
-argument-hint: "[locale-code ... | all]"
-allowed-tools: Read Grep Glob Write Edit Bash(git status *) Bash(git diff *) Bash(python *) Bash(python3 *) Bash(py *)
-disable-model-invocation: false
-user-invocable: true
-compatibility: Requires Python 3.9+ and the project Docusaurus layout.
-metadata:
-  author: TheDragonCode
-  version: "1.0"
-  category: documentation
+  Translate, complete, and audit Docusaurus localization under docs/i18n for
+  both UI JSON catalogs and documentation Markdown/MDX pages. Use when adding
+  or correcting locales, when a language switcher translates only theme labels
+  while page content stays in the default language, or when verifying that
+  non-default locales do not fall back to source documentation.
 ---
 
 # Docusaurus Documentation Translation
 
-Translate the locales requested in `$ARGUMENTS`.
+Translate the locale codes requested in `$ARGUMENTS`.
 
-If no locale is supplied, process every direct locale directory under
-`docs/i18n`. Treat `all` the same way. Never create a missing locale directory.
+When no locale is supplied, process every configured non-default locale whose
+root directory already exists below `docs/i18n`. Treat `all` the same way. Use
+the default locale only as the semantic source.
+
+## Translation Surfaces
+
+Treat localization as two separate surfaces:
+
+1. UI catalogs: existing JSON files below `docs/i18n/<locale>`.
+2. Page content: Markdown and MDX files below
+   `docs/i18n/<locale>/docusaurus-plugin-content-docs/current`, matched by
+   relative path to `docs/docs`.
+
+`docusaurus write-translations` generates UI catalogs. It does not prove that
+page content is localized. Missing content pages cause Docusaurus to use the
+default-language pages.
 
 ## Ownership
 
-This skill may edit only existing JSON files below the selected locale
-directories in `docs/i18n`.
+For each selected non-default locale, edit only:
 
-Treat these files as read-only context:
+- string values of `message` and existing `description` fields in existing
+  JSON localization files;
+- localized `.md` and `.mdx` files below
+  `docusaurus-plugin-content-docs/current`.
+
+Create the localized content directory and missing page files when the locale
+root exists. Never create a missing locale root or invent JSON catalogs.
+
+Treat these paths as read-only context:
 
 - `docs/docusaurus.config.ts`
-- every Markdown file below `docs/docs`
-- localization directories outside the selected locale
+- every source page below `docs/docs`
+- the default locale
+- locales outside the selected scope
+- generated output such as `docs/build`
 
 Preserve pre-existing user changes. Never use `git checkout`, `git restore`,
 `git reset`, or file-wide regeneration to undo them.
 
 ## Hard Invariants
 
-For every selected locale:
+Apply these rules to every translated value:
 
-1. Keep every filename unchanged.
-2. Keep every relative path and directory unchanged.
-3. Keep every translation key unchanged and in its original order.
-4. Keep every entry's fields, field order, nesting, and value types unchanged.
-5. Edit only string values of `message` and existing `description` fields.
-6. Do not add `description` when an entry does not already contain it.
-7. Keep placeholders, URLs, inline code, markup tokens, commands, paths,
-   identifiers, package names, class names, and method names intact.
-8. Preserve the file's encoding, indentation, line endings, and final newline.
-9. Write each locale only in the language and regional variant declared for
-   that locale in `i18n.localeConfigs`.
+- use only the language and regional variant declared in
+  `i18n.localeConfigs`;
+- preserve placeholders, URLs, inline code, commands, paths, identifiers,
+  package names, class names, method names, HTML/JSX tags, and MDX expressions;
+- preserve intentional leading or trailing whitespace;
+- translate meaning rather than source-language word order;
+- keep existing correct translations instead of rewriting them for style.
 
-The JSON key is an identifier, not text. Never translate it.
+For JSON catalogs:
+
+1. Keep filenames, relative paths, translation keys, and key order unchanged.
+2. Keep entry fields, field order, nesting, and value types unchanged.
+3. Edit only `message` and an existing `description`.
+4. Never add a missing `description`.
+5. Preserve Docusaurus plural syntax and every placeholder. Allow repeated
+   placeholders only when the target locale needs a different number of plural
+   forms.
+6. Preserve encoding, indentation, line endings, and the final newline.
+
+The JSON key is an identifier. Never translate it.
+
+For Markdown and MDX pages:
+
+1. Match the complete source page set and relative paths from `docs/docs`.
+2. Translate prose, headings, table text, list text, navigation labels, link
+   labels, image alt text, and translatable front matter.
+3. In front matter, translate only `title`, `description`, `sidebar_label`, and
+   `pagination_label`. Keep every other field and value unchanged.
+4. Preserve fenced code blocks and their language markers exactly, apart from
+   file-wide newline normalization.
+5. Preserve heading hierarchy, table shape, list shape, link destinations,
+   reference-link identifiers, imports, exports, and component structure.
+6. Keep relative links relative. Never rewrite a destination merely because
+   its label is translated.
+7. Do not leave ordinary source-language prose or copy an entire source page
+   unchanged into a non-default locale.
+8. Preserve an existing file's encoding, line endings, and final newline. Use
+   UTF-8 with a final newline for a new localized page.
+
+Do not delete unexpected locale-only pages automatically. Report them and do
+not claim the locale is complete until the mismatch is resolved.
 
 ## Workflow
 
@@ -66,32 +108,36 @@ Read `docs/docusaurus.config.ts` and locate:
 - `i18n.locales`
 - `i18n.localeConfigs`
 - each locale's `label` and `htmlLang`
+- the docs source path and content plugin instance
 
 Use `localeConfigs` as the authority for the target language. Respect regional
 variants such as Brazilian Portuguese and Simplified Chinese.
 
-Resolve the requested locale codes against both `docs/i18n/<locale>` and
-`i18n.localeConfigs`. If either side is missing, report the mismatch and do not
-edit that locale. Do not infer a language from a folder name alone.
+Resolve requested locale codes against both configuration and
+`docs/i18n/<locale>`. If a configured locale root is missing, report and skip
+it. Do not infer a language from a directory name alone.
 
 Record `git status --short` before editing so existing changes remain visible.
 
-### 2. Read All Translation Context
+### 2. Inventory Both Surfaces
 
-Before editing any JSON file:
+Before editing a locale:
 
-1. Enumerate every `docs/docs/**/*.md` file recursively.
-2. Read every discovered Markdown file in full.
-3. Build a consistent glossary for project concepts, public API names, and UI
-   terms from that content.
-4. Read every JSON file in the selected locale recursively.
-5. Read matching files and keys from the `defaultLocale` directory when it
-   exists. Use them as the semantic source, not as permission to copy English
-   text into another locale.
+1. Enumerate every source `.md` and `.mdx` page recursively below `docs/docs`.
+2. Enumerate every JSON file in the locale recursively.
+3. Enumerate localized pages below
+   `docusaurus-plugin-content-docs/current`.
+4. Compare source and localized relative page paths.
+5. Treat a missing page or a page identical to the source as incomplete
+   localization, even if all JSON catalogs are translated.
 
-If a matching default-locale entry does not exist, derive meaning from the
-translation key, current fields, and Markdown context. Do not invent product
-behavior.
+Read every source page in full and build a consistent glossary for project
+concepts and public API names. Then read the selected locale's existing JSON
+and localized pages before changing them.
+
+Use matching default-locale JSON entries when they exist. Otherwise derive UI
+meaning from the translation key and documentation context. Never invent
+product behavior.
 
 ### 3. Capture the Structural Baseline
 
@@ -102,35 +148,35 @@ command that reports Python 3.
 Create one baseline per locale immediately before editing it:
 
 ```text
-python .agents/skills/translate-docs/scripts/i18n_guard.py snapshot --root docs/i18n --locale <locale>
+python .agents/skills/translate-docs/scripts/i18n_guard.py snapshot --root docs/i18n --source-root docs/docs --locale <locale>
 ```
 
 Replace `python` with the resolved interpreter command when needed. Record the
-exact path printed after `Snapshot:`. If snapshot creation fails, do not edit
-the locale.
+exact path printed after `Snapshot:`. Snapshot creation is valid when localized
+Markdown pages are missing; those pages become required outputs. If snapshot
+creation fails, do not edit the locale.
 
 ### 4. Translate One Locale
 
-Process all JSON files in the locale recursively. Use targeted edits rather
-than serializing whole files.
+Process one locale completely before starting another.
 
-For each translation entry:
+For JSON entries:
 
-1. Keep the entry key untouched.
-2. Translate `message` into the target locale's language.
-3. Translate `description` into the same language when that field exists.
-4. Keep proper names and stable technical identifiers unchanged.
-5. Preserve every protected token such as `{count}`, `{versionLabel}`, URLs,
-   inline code, HTML tags, and admonition markers.
-6. Preserve Docusaurus plural syntax. Use the number and wording of plural
-   forms required by the target locale; repeated placeholders are allowed.
-7. Keep intentional leading or trailing whitespace when strings are composed
-   at runtime, unless the target grammar requires a different boundary.
-8. Keep text already correct for the target locale instead of rewriting it for
-   style alone.
+- translate every `message`;
+- translate an existing `description` with the same UI meaning;
+- preserve placeholders and use the plural forms required by the target
+  locale;
+- use targeted edits instead of serializing whole files.
 
-Use natural UI wording. Translate meaning rather than English word order.
-`description` must explain the same UI purpose as its source after translation.
+For documentation pages:
+
+- create each missing target page at the matching relative path;
+- use the matching source page as semantic and structural input;
+- translate all reader-visible prose while preserving code and technical
+  contracts;
+- keep terminology consistent with the locale's JSON catalogs and all other
+  pages;
+- use targeted edits for existing translations.
 
 ### 5. Validate Before Moving On
 
@@ -141,27 +187,28 @@ python .agents/skills/translate-docs/scripts/i18n_guard.py validate --root docs/
 ```
 
 The guard must pass. It checks directory and file paths, JSON validity,
-translation keys and order, entry schemas, non-translatable values, and
-protected tokens. On failure, it retains the snapshot. Fix only the changes
-made by this skill and rerun validation.
+translation keys and order, entry schemas, non-translatable values, protected
+tokens, source and localized page sets, front matter, code blocks, heading
+hierarchy, links, tables, lists, and MDX statements. On failure, it retains the
+snapshot. Fix only changes made during this workflow and rerun validation.
 
-Then inspect:
+Then:
 
-```text
-git diff -- docs/i18n/<locale>
-```
+1. Inspect `git diff -- docs/i18n/<locale>` and reject formatting churn.
+2. Run `npm run check:i18n` from `docs` when the script exists.
+3. Run the project's TypeScript check when configured.
+4. Run a production Docusaurus build for all configured locales.
+5. Inspect built HTML for at least one unique translated sentence per locale
+   and confirm the source-language sentence is absent.
 
-Confirm that every semantic change is confined to `message` or an existing
-`description`. Reject whole-file formatting churn.
+Perform a language review across every changed value and page:
 
-Perform a language review across every changed value:
-
-- the language and regional variant match `localeConfigs`;
-- no ordinary source-language prose remains accidentally;
-- terminology is consistent with `docs/docs`;
-- placeholders still fit the translated grammar;
-- plural forms are valid for the target language;
-- punctuation and accessibility wording are natural for the locale.
+- language and regional variant match `localeConfigs`;
+- ordinary source-language prose does not remain;
+- terminology is consistent across UI and page content;
+- grammar fits placeholders and plural forms;
+- punctuation, navigation wording, and accessibility text are natural;
+- technical claims still match the source documentation.
 
 Only after structural and language review pass may processing continue to the
 next locale.
@@ -172,21 +219,9 @@ Report:
 
 - processed locale codes and their configured language labels;
 - changed JSON files;
-- whether both structural and language review passed for each locale;
-- any locale skipped because its directory or config entry was missing.
+- created and changed Markdown/MDX files;
+- structural, language, completeness, and production-build results;
+- skipped locales and the exact reason for each skip.
 
-Do not claim a locale is complete when any file was skipped or any validation
-failed.
-
-## Example
-
-For locale `be`, this is valid because only the two text values change:
-
-```json
-"theme.blog.archive.title": {
-    "message": "Архіў",
-    "description": "Назва старонкі і галоўнага блока архіва блога"
-}
-```
-
-The key, field names, field order, and object shape remain unchanged.
+Never claim a locale is complete when a source page is missing, a page still
+falls back to the source language, or any validation failed.
