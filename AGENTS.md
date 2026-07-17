@@ -127,6 +127,8 @@ Localizations: `docs/i18n/<locale>/docusaurus-plugin-content-docs/current/`
 
 Vendor: `Docusaurus` (https://docusaurus.io)
 
+Theme: `docs/src/css/custom.css`
+
 SEO metadata and JSON-LD: `docs/docusaurus.config.ts`
 
 Crawler policy: `docs/static/robots.txt`
