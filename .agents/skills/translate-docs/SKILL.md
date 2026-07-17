@@ -192,6 +192,10 @@ tokens, source and localized page sets, front matter, code blocks, heading
 hierarchy, links, tables, lists, and MDX statements. On failure, it retains the
 snapshot. Fix only changes made during this workflow and rerun validation.
 
+The guard proves structural preservation and full page coverage. It cannot
+prove that every prose fragment uses the target language. Treat the language
+review and built-HTML inspection below as separate required gates.
+
 Then:
 
 1. Inspect `git diff -- docs/i18n/<locale>` and reject formatting churn.
