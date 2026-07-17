@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://model-settings.dragon-code.pro/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/ru/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/uk/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/be/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/fr/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/pt-BR/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/ko/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/zh-CN/sitemap.xml
+Sitemap: https://model-settings.dragon-code.pro/de/sitemap.xml
