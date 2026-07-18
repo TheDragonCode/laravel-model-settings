@@ -11,5 +11,9 @@ pest()
     ->in('Architecture');
 
 pest()
+    ->uses(TestCase::class, WithWorkbench::class)
+    ->in('Migration');
+
+pest()
     ->uses(TestCase::class, WithWorkbench::class, RefreshDatabase::class)
     ->in('Feature', 'Unit');

@@ -192,9 +192,10 @@ returns `null`, and `all()` returns an empty collection without querying model o
 `set()`, `setMany()`, `forget()`, `forgetMany()`, and `purge()` methods throw
 `InvalidSettingsOwnerException` before a storage query or iterable consumption occurs.
 
-The integer `0` and string `'0'` are reserved for shared defaults in 1.x. A persisted model with
-either key can read class defaults, but every mutation method throws
-`InvalidSettingsOwnerException`. Other string keys, including `'00'`, remain valid.
+Persisted models with integer `0` or string `'0'` identifiers support the same reads and mutations
+as every other saved owner. The storage discriminator keeps their overrides separate from class
+defaults even though both rows retain `item_id = '0'`. Other string keys, including `'00'`, remain
+valid.
 
 Settings are stored against the model's current morph class. Introducing or changing a morph-map
 alias after settings have been written requires updating existing `item_type` values.

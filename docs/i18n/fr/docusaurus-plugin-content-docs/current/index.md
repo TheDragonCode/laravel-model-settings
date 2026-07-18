@@ -88,12 +88,13 @@ que d’utiliser `modelSettings` ou le dépôt interne comme API d’extension.
 
 ## Limites du stockage
 
-Chaque ligne est identifiée par trois valeurs :
+Chaque ligne est identifiée par quatre valeurs :
 
 | Valeur | Signification |
 |--------|---------------|
 | `item_type` | Classe morph du modèle parent ou alias de la morph map |
-| `item_id` | Clé primaire du parent, ou valeur réservée `0` pour les valeurs par défaut de la classe |
+| `item_id` | Clé primaire du parent ; les valeurs par défaut de la classe conservent la valeur physique `0` |
+| `is_default` | `true` pour une valeur par défaut de classe, `false` pour une surcharge de modèle |
 | `key` | Nom du paramètre |
 
 Les valeurs par défaut sont ainsi indépendantes pour chaque classe de modèle. Une valeur par défaut
@@ -103,7 +104,9 @@ même clé de paramètre.
 ## Modèles pris en charge
 
 Le paquet prend en charge les modèles Eloquent dont la clé primaire est un entier, une chaîne, un
-UUID ou un ULID. Les modèles peuvent aussi utiliser une morph map Laravel.
+UUID ou un ULID. Les modèles enregistrés avec l’identifiant entier `0` ou la chaîne `'0'` peuvent
+stocker des surcharges sans entrer en conflit avec les valeurs par défaut de la classe. Les modèles
+peuvent aussi utiliser une morph map Laravel.
 
 Les paramètres propres à un modèle nécessitent un modèle enregistré. Un modèle non enregistré
 n’hérite pas des valeurs par défaut : `get()` renvoie `null` et `all()` une collection vide. Appeler

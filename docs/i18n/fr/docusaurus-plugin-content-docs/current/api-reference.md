@@ -81,10 +81,10 @@ $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
 La méthode valide le propriétaire, puis effectue une opération update-or-create pour le type de
-modèle, son identifiant et la clé. Une valeur considérée comme vide par Laravel supprime la ligne.
-La validation a lieu avant la sélection du traitement des valeurs vides. Dans les deux cas, la
-relation `modelSettings` chargée est effacée afin que la prochaine lecture ne réutilise pas
-d’anciennes données.
+modèle, son identifiant, le discriminateur de portée et la clé. Une valeur considérée comme vide par
+Laravel supprime la ligne. La validation a lieu avant la sélection du traitement des valeurs vides.
+Dans les deux cas, la relation `modelSettings` chargée est effacée afin que la prochaine lecture ne
+réutilise pas d’anciennes données.
 
 ## setMany
 
@@ -153,19 +153,15 @@ $defaults->purge();
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` étend la classe PHP
 `DomainException`. Toute méthode de modification via `settings()` la lève avant une requête de
-stockage lorsque l’une des conditions suivantes est remplie :
-
-- Le modèle propriétaire n’est pas enregistré, y compris lorsqu’une clé lui a été attribuée à
-  l’avance.
-- La clé du propriétaire enregistré est l’entier `0` ou la chaîne `'0'`, ce qui entre en conflit
-  avec la valeur sentinelle des paramètres par défaut de la classe dans la version 1.x.
+stockage lorsque le modèle propriétaire n’est pas enregistré, y compris lorsqu’une clé lui a été
+attribuée à l’avance.
 
 Cette validation a aussi lieu avant la consommation d’un iterable groupé. Les modifications par
 `defaultSettings()` restent valides, car ce service sélectionne explicitement la portée des valeurs
 par défaut de la classe. La lecture reste déterministe : un propriétaire non enregistré renvoie
-`null` ou une collection vide sans interroger les surcharges, tandis qu’un propriétaire enregistré
-avec la clé `0` peut lire les valeurs par défaut de la classe, mais pas les modifier comme surcharges
-du modèle.
+`null` ou une collection vide sans interroger les surcharges. Un propriétaire enregistré avec la clé
+entière `0` ou la chaîne `'0'` peut lire et modifier ses surcharges ; `is_default` sépare ces lignes
+des valeurs par défaut de la classe.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` est levée lorsqu’une conversion
 configurée pour un modèle ou une clé est absente, d’un type invalide, n’implémente aucun contrat pris

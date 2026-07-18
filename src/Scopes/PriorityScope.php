@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DragonCode\LaravelModelSettings\Scopes;
 
 use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
-use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
@@ -29,17 +28,22 @@ class PriorityScope
                     ->on('overrides.item_type', $this->qualifyColumn('item_type'))
                     ->on('overrides.key', $this->qualifyColumn('key'))
                     ->where('overrides.item_id', $this->id)
+                    ->where('overrides.is_default', false)
             )
             ->where(
                 fn (Builder $query) => $query
-                    ->where($this->qualifyColumn('item_id'), $this->id)
+                    ->where(
+                        fn (Builder $query) => $query
+                            ->where($this->qualifyColumn('item_id'), $this->id)
+                            ->where($this->qualifyColumn('is_default'), false)
+                    )
                     ->orWhere(
                         fn (Builder $query) => $query
-                            ->where($this->qualifyColumn('item_id'), IdentifierEnum::Default->value)
+                            ->where($this->qualifyColumn('is_default'), true)
                             ->whereNull('overrides.item_id')
                     )
             )
-            ->orderByDesc($this->qualifyColumn('item_id'))
+            ->orderBy($this->qualifyColumn('is_default'))
             ->orderBy($this->qualifyColumn('key'));
     }
 

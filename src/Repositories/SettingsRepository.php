@@ -29,9 +29,10 @@ class SettingsRepository
         $scope->ensureMutable();
 
         return $this->modelClass::query()->updateOrCreate([
-            'item_type' => $scope->itemType(),
-            'item_id'   => $scope->requiredItemId(),
-            'key'       => SettingKey::normalize($key),
+            'item_type'  => $scope->itemType(),
+            'item_id'    => $scope->requiredItemId(),
+            'is_default' => $scope->isDefault(),
+            'key'        => SettingKey::normalize($key),
         ], ['payload' => $value]);
     }
 
@@ -72,6 +73,7 @@ class SettingsRepository
         $this->modelClass::query()
             ->where('item_type', $scope->itemType())
             ->where('item_id', $scope->requiredItemId())
+            ->where('is_default', $scope->isDefault())
             ->where('key', SettingKey::normalize($key))
             ->delete();
     }
@@ -111,6 +113,7 @@ class SettingsRepository
         if ($scope->isDefault()) {
             return $query
                 ->where('item_id', $scope->requiredItemId())
+                ->where('is_default', true)
                 ->orderBy('key');
         }
 
@@ -128,6 +131,7 @@ class SettingsRepository
 
             $model->setAttribute('item_type', $scope->itemType());
             $model->setAttribute('item_id', $scope->requiredItemId());
+            $model->setAttribute('is_default', $scope->isDefault());
             $model->setAttribute('key', (string) $key);
             $model->setAttribute('payload', $value);
 
@@ -145,7 +149,7 @@ class SettingsRepository
 
         $this->modelClass::query()->upsert(
             $rows,
-            ['item_type', 'item_id', 'key'],
+            ['item_type', 'item_id', 'is_default', 'key'],
             ['payload']
         );
     }
@@ -165,6 +169,7 @@ class SettingsRepository
     {
         return $this->modelClass::query()
             ->where('item_type', $scope->itemType())
-            ->where('item_id', $scope->requiredItemId());
+            ->where('item_id', $scope->requiredItemId())
+            ->where('is_default', $scope->isDefault());
     }
 }

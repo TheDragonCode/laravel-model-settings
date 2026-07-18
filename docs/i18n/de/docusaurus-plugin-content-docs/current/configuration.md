@@ -79,11 +79,13 @@ Die veröffentlichte Migration erstellt folgende Spalten:
 | `id` | Primärschlüssel der Einstellungszeile |
 | `item_type` | Morph-Klasse oder Alias des übergeordneten Modells |
 | `item_id` | ID des übergeordneten Modells als Zeichenfolge mit bis zu 36 Zeichen |
+| `is_default` | Unterscheidet Klassenstandards von Modellüberschreibungen |
 | `key` | Einstellungsschlüssel |
 | `payload` | In der Migration als `jsonb` deklarierter Payload |
 | `created_at` und `updated_at` | Laravel-Zeitstempel |
 
-Die Kombination aus `item_type`, `item_id` und `key` ist eindeutig.
+Die Kombination aus `item_type`, `item_id`, `is_default` und `key` ist eindeutig. Ein Suchindex auf
+`item_type`, `is_default` und `item_id` unterstützt Lesevorgänge für Standard- und Besitzerbereiche.
 
 Klassenstandards und Modellüberschreibungen verwenden dieselbe Tabelle. Das Paket erstellt weder eine
 zweite Standardwerttabelle noch Spalten für Verschlüsselungsmetadaten.
@@ -92,11 +94,42 @@ Die Standardspalte `item_id` speichert höchstens 36 Zeichen. Ganzzahlige IDs, Z
 und ULIDs passen in dieses Schema, wenn ihre Zeichenfolgendarstellung höchstens 36 Zeichen lang ist.
 Ein längerer benutzerdefinierter Primärschlüssel erfordert eine entsprechende Änderung der Migration.
 
-Der Wert `0` ist in `item_id` für Klassenstandards reserviert. In 1.x lehnt jede Änderung über
-`settings()` einen gespeicherten Besitzer mit der Ganzzahl `0` oder der Zeichenfolge `'0'` als
-Schlüssel ab und löst vor einer Abfrage dieser Tabelle eine `InvalidSettingsOwnerException` aus.
-Werden Datenbankverbindung, Tabellenname oder Morph-Map-Aliase geändert, nachdem Daten vorhanden sind,
-müssen die bestehenden Zeilen selbst verschoben oder aktualisiert werden.
+Klassenstandards verwenden `item_id = '0'` mit `is_default = true`. Ein gespeicherter Besitzer mit
+der Ganzzahl `0` oder der Zeichenfolge `'0'` als Schlüssel verwendet dieselbe physische `item_id` mit
+`is_default = false`. Dadurch können beide Zeilen für denselben Modelltyp und Einstellungsschlüssel
+nebeneinander bestehen. Werden Datenbankverbindung, Tabellenname oder Morph-Map-Aliase geändert,
+nachdem Daten vorhanden sind, müssen die bestehenden Zeilen selbst verschoben oder aktualisiert
+werden.
+
+## Upgrade von einer früheren 1.x-Version
+
+Veröffentliche nach dem Paket-Update die neue Migration und führe sie aus, während sich die Anwendung
+im Wartungsmodus befindet:
+
+```bash
+php artisan vendor:publish --tag="model_settings"
+php artisan migrate
+```
+
+Die Upgrade-Migration fügt `is_default` hinzu, klassifiziert jede bestehende Zeile mit
+`item_id = '0'` als Klassenstandard, erstellt Diskriminator-basierte Indizes und entfernt danach den
+alten eindeutigen Index. Sie schreibt keine Einstellungsschlüssel oder Payloads in die Ausgabe.
+
+Frühere 1.x-Schemata kodierten Klassenstandards und echte Besitzerzeilen mit ID `0` identisch. Die
+Migration kann daher eine manuell eingefügte Besitzerüberschreibung nicht von einem Standardwert
+unterscheiden und klassifiziert beide als Standards. Prüfe nach der Migration bekannte Altdaten für
+Besitzer-ID `0` und setze `is_default = false` für Zeilen, die tatsächliche Modellüberschreibungen
+sind.
+
+Führe die alte Paketversion nicht gegen das aktualisierte Schema aus. Sie schreibt den Diskriminator
+nicht und würde Standards als Überschreibungen speichern. Stelle Migration und kompatible
+Paketversion innerhalb desselben Wartungsfensters bereit.
+
+Ein Rollback ist nur sicher, bevor eine echte Überschreibung für Besitzer-ID `0` existiert. Die
+Migration stoppt vor einer Schemaänderung, wenn sie `item_id = '0'` mit `is_default = false` findet,
+weil das alte Schema diese Zeile nicht ohne Bedeutungsänderung darstellen kann. Entferne oder
+exportiere diese Überschreibungen vor dem Rollback. Ein sicherer Rollback stellt den alten
+eindeutigen Index wieder her und entfernt `is_default`.
 
 ## Speichermodell ersetzen
 
@@ -113,6 +146,7 @@ final class ApplicationSetting extends Model
     protected $fillable = [
         'item_type',
         'item_id',
+        'is_default',
         'key',
         'payload',
     ];
@@ -128,8 +162,9 @@ final class ApplicationSetting extends Model
     protected function casts(): array
     {
         return [
-            'item_id' => 'string',
-            'payload' => PayloadCast::class,
+            'item_id'    => 'string',
+            'is_default' => 'boolean',
+            'payload'    => PayloadCast::class,
         ];
     }
 }
@@ -148,9 +183,10 @@ Das Ersatzmodell muss mindestens folgende Verhaltensweisen erhalten:
 
 | Anforderung | Grund |
 |-------------|-------|
-| `item_type`, `item_id`, `key` und `payload` befüllen | `updateOrCreate()` schreibt diese Attribute |
+| `item_type`, `item_id`, `is_default`, `key` und `payload` befüllen | Der Speicher schreibt diese Attribute |
 | Konfigurierte Verbindung und Tabelle verwenden | Migration und Repository müssen dieselben Zeilen ansprechen |
 | `item_id` als `string` casten | Ganzzahlen, Zeichenfolgen, UUIDs und ULIDs teilen sich eine Spalte |
+| `is_default` als `boolean` casten | Lazy und Eager Resolution müssen denselben Bereichsdiskriminator lesen |
 | `payload` mit `PayloadCast` oder gleichwertig casten | Lesen und Schreiben müssen das JSON-Verhalten erhalten |
 
 ## Siehe auch

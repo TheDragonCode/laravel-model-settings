@@ -75,20 +75,45 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 | `id` | 设置记录的主键 |
 | `item_type` | 父模型的 morph 类或别名 |
 | `item_id` | 父模型标识符，以最多 36 个字符的字符串存储 |
+| `is_default` | 区分类默认值和模型覆盖值 |
 | `key` | 设置键 |
 | `payload` | 迁移中声明为 `jsonb` 的数据 |
 | `created_at` 和 `updated_at` | Laravel 时间戳 |
 
-`item_type`、`item_id` 和 `key` 的组合是唯一的。
+`item_type`、`item_id`、`is_default` 和 `key` 的组合是唯一的。`item_type`、`is_default` 和
+`item_id` 上的查询索引支持读取默认值和所有者作用域。
 
 类默认值和模型覆盖值共用此表。软件包不会创建第二个默认值表，也不会添加加密元数据字段。
 
 默认 `item_id` 字段最多存储 36 个字符。字符串表示不超过 36 个字符的整数、字符串、UUID 和 ULID 标识符
 都适用于此结构。更长的自定义主键需要对迁移进行相应修改。
 
-`item_id` 中的值 `0` 保留给类默认值。在 1.x 中，通过 `settings()` 执行的每个修改都会拒绝主键为整数
-`0` 或字符串 `'0'` 的已持久化所有者，并在查询此表前抛出 `InvalidSettingsOwnerException`。如果数据已经
-存在，修改数据库连接、表名或 morph map 别名时，需要自行移动或更新现有记录。
+类默认值使用 `item_id = '0'` 和 `is_default = true`。主键为整数 `0` 或字符串 `'0'` 的已持久化所有者
+使用相同的物理 `item_id`，但 `is_default = false`。因此，同一模型类型和设置键可以同时存在这两条记录。
+如果数据已经存在，修改数据库连接、表名或 morph map 别名时，需要自行移动或更新现有记录。
+
+## 从早期 1.x 版本升级
+
+更新软件包后，在应用程序维护模式下发布并运行新迁移：
+
+```bash
+php artisan vendor:publish --tag="model_settings"
+php artisan migrate
+```
+
+升级迁移会添加 `is_default`，将所有旧的 `item_id = '0'` 记录归类为类默认值，创建包含判别字段的索引，
+然后删除旧的唯一索引。迁移输出绝不会写入设置键或数据。
+
+早期 1.x 结构以相同方式编码类默认值和真实所有者 ID `0` 的记录。因此，迁移无法区分手动插入的所有者
+覆盖值和默认值，并会将两者都归类为默认值。迁移后，请检查已知的旧所有者 ID `0` 数据，并对实际属于
+模型覆盖值的记录设置 `is_default = false`。
+
+不要在升级后的结构上运行旧版软件包。旧运行时不会写入判别字段，并会把默认值存储为覆盖值。请在同一
+维护窗口内部署迁移和兼容的运行时。
+
+只有在尚未出现真实所有者 ID `0` 覆盖值时，回滚才安全。如果迁移发现 `item_id = '0'` 且
+`is_default = false`，它会在修改结构前停止，因为旧结构无法在不改变含义的情况下表示该记录。回滚前请
+删除或导出这些覆盖值。安全回滚会恢复旧的唯一索引并删除 `is_default`。
 
 ## 替换存储模型
 
@@ -105,6 +130,7 @@ final class ApplicationSetting extends Model
     protected $fillable = [
         'item_type',
         'item_id',
+        'is_default',
         'key',
         'payload',
     ];
@@ -120,8 +146,9 @@ final class ApplicationSetting extends Model
     protected function casts(): array
     {
         return [
-            'item_id' => 'string',
-            'payload' => PayloadCast::class,
+            'item_id'    => 'string',
+            'is_default' => 'boolean',
+            'payload'    => PayloadCast::class,
         ];
     }
 }
@@ -139,9 +166,10 @@ final class ApplicationSetting extends Model
 
 | 要求 | 原因 |
 |------|------|
-| 填充 `item_type`、`item_id`、`key` 和 `payload` | `updateOrCreate()` 会写入这些属性 |
+| 填充 `item_type`、`item_id`、`is_default`、`key` 和 `payload` | 存储层会写入这些属性 |
 | 使用配置的连接和数据表 | 迁移和仓库必须访问相同记录 |
 | 将 `item_id` 转换为 `string` | 整数、字符串、UUID 和 ULID 共用一个字段 |
+| 将 `is_default` 转换为 `boolean` | 延迟和预加载解析必须读取相同的作用域判别字段 |
 | 使用 `PayloadCast` 或等效方式转换 `payload` | 读写必须保持 JSON 行为 |
 
 ## 另请参阅

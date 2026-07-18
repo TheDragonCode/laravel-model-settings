@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Workbench\App\Models\SomeInteger;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
@@ -54,3 +56,40 @@ test('success', function (bool $with, int $queries): void {
     'eager' => [true, 2],
     'lazy'  => [false, 4],
 ]);
+
+test('zero-valued owner keeps the two-query eager-loading contract', function (): void {
+    DB::table('some_integers')->insert([
+        ['id' => 0],
+        ['id' => 1],
+    ]);
+
+    $zero = SomeInteger::query()->findOrFail(0);
+    $one  = SomeInteger::query()->findOrFail(1);
+
+    (new SomeInteger)->defaultSettings()->setMany([
+        'foo' => 111,
+        'bar' => 222,
+    ]);
+
+    $zero->settings()->set('foo', 333);
+    $one->settings()->set('bar', 444);
+
+    $recorder = new QueryRecorder;
+    $recorder->start();
+
+    $owners = SomeInteger::query()
+        ->with('modelSettings')
+        ->get()
+        ->keyBy('id');
+
+    $zeroSettings = $owners[0]->settings()->all()->sortKeys()->all();
+    $oneSettings  = $owners[1]->settings()->all()->sortKeys()->all();
+
+    expect($zeroSettings)->toBe([
+        'bar' => 222,
+        'foo' => 333,
+    ])->and($oneSettings)->toBe([
+        'bar' => 444,
+        'foo' => 111,
+    ])->and($recorder->calls())->toBe(2);
+});

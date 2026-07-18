@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException;
+use DragonCode\LaravelModelSettings\Models\Settings;
 use Illuminate\Support\Facades\DB;
 use Workbench\App\Models\SomeInteger;
 use Workbench\App\Models\SomeString;
@@ -51,41 +52,7 @@ test('forget rejects unsaved owners before a query', function (bool $hasKey): vo
     'preassigned key' => true,
 ]);
 
-test('set rejects reserved owner identifiers before a query', function (
-    string $modelClass,
-    string $table,
-    string $keyName,
-    int|string $identifier,
-    mixed $value,
-): void {
-    DB::table($table)->insert([$keyName => $identifier]);
-
-    $owner = $modelClass::query()->findOrFail($identifier);
-
-    expect($owner->getKey())->toBe($identifier);
-
-    (new $modelClass)->defaultSettings()->set('foo', 111);
-
-    $recorder = new QueryRecorder;
-    $recorder->start();
-
-    expect(fn () => $owner->settings()->set('foo', $value))
-        ->toThrow(
-            InvalidSettingsOwnerException::class,
-            InvalidSettingsOwnerException::reservedIdentifier($owner)->getMessage()
-        );
-
-    expect($recorder->calls())->toBe(0);
-    expect((new $modelClass)->defaultSettings()->get('foo'))->toBe(111);
-})->with([
-    'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
-    'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],
-])->with([
-    'filled value' => 222,
-    'blank value'  => null,
-]);
-
-test('forget rejects reserved owner identifiers before a query', function (
+test('zero-valued owners can override defaults lazily and eagerly', function (
     string $modelClass,
     string $table,
     string $keyName,
@@ -97,49 +64,54 @@ test('forget rejects reserved owner identifiers before a query', function (
 
     expect($owner->getKey())->toBe($identifier);
 
-    (new $modelClass)->defaultSettings()->set('foo', 111);
+    $defaults = (new $modelClass)->defaultSettings();
 
-    $recorder = new QueryRecorder;
-    $recorder->start();
+    $defaults->set('foo', 111);
+    $defaults->set('bar', 222);
 
-    expect(fn () => $owner->settings()->forget('foo'))
-        ->toThrow(
-            InvalidSettingsOwnerException::class,
-            InvalidSettingsOwnerException::reservedIdentifier($owner)->getMessage()
-        );
+    $owner->settings()->set('foo', 333);
 
-    expect($recorder->calls())->toBe(0);
-    expect((new $modelClass)->defaultSettings()->get('foo'))->toBe(111);
-})->with([
-    'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
-    'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],
-]);
+    $rows = Settings::query()
+        ->where('item_type', $owner->getMorphClass())
+        ->where('item_id', '0')
+        ->where('key', 'foo')
+        ->orderBy('is_default')
+        ->get();
 
-test('reserved owner identifiers can read defaults lazily and eagerly', function (
-    string $modelClass,
-    string $table,
-    string $keyName,
-    int|string $identifier,
-): void {
-    DB::table($table)->insert([$keyName => $identifier]);
+    expect($rows)->toHaveCount(2)
+        ->and($rows[0]->getAttribute('is_default'))->toBeFalse()
+        ->and($rows[0]->getAttribute('payload'))->toBe(333)
+        ->and($rows[1]->getAttribute('is_default'))->toBeTrue()
+        ->and($rows[1]->getAttribute('payload'))->toBe(111)
+        ->and($defaults->get('foo'))->toBe(111)
+        ->and($owner->settings()->get('foo'))->toBe(333);
 
-    (new $modelClass)->defaultSettings()->set('foo', 111);
-
-    $owner = $modelClass::query()->findOrFail($identifier);
-
-    expect($owner->getKey())->toBe($identifier);
+    $owner->settings()->set('foo', null);
 
     expect($owner->settings()->get('foo'))->toBe(111);
-    expect($owner->settings()->all()->all())->toBe(['foo' => 111]);
-    expect($owner->relationLoaded('modelSettings'))->toBeFalse();
+
+    $owner->settings()->set('foo', 444);
+
+    $lazy = $owner->settings()->all()->sortKeys()->all();
 
     $eagerOwner = $modelClass::query()
         ->with('modelSettings')
         ->findOrFail($identifier);
 
-    expect($eagerOwner->settings()->get('foo'))->toBe(111);
-    expect($eagerOwner->settings()->all()->all())->toBe(['foo' => 111]);
-    expect($eagerOwner->modelSettings)->toHaveCount(1);
+    expect($lazy)->toBe(['bar' => 222, 'foo' => 444])
+        ->and($eagerOwner->settings()->all()->sortKeys()->all())->toBe($lazy)
+        ->and($eagerOwner->modelSettings)->toHaveCount(2)
+        ->and($eagerOwner->modelSettings->pluck('is_default')->sort()->values()->all())->toBe([false, true]);
+
+    $owner->settings()->forget('foo');
+
+    expect($owner->settings()->get('foo'))->toBe(111)
+        ->and(Settings::query()
+            ->where('item_type', $owner->getMorphClass())
+            ->where('item_id', '0')
+            ->where('is_default', false)
+            ->where('key', 'foo')
+            ->exists())->toBeFalse();
 })->with([
     'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
     'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],

@@ -182,8 +182,9 @@ $address = $user->settings()->get('mail.from.address');
 `all()` 不查询模型覆盖值并返回空集合。它的 `set()`、`setMany()`、`forget()`、`forgetMany()` 和
 `purge()` 会在执行存储查询或读取 iterable 前抛出 `InvalidSettingsOwnerException`。
 
-在 1.x 中，整数 `0` 和字符串 `'0'` 保留给共享默认值。使用任一主键的已持久化模型可以读取类默认值，但
-所有修改方法都会抛出 `InvalidSettingsOwnerException`。其他字符串主键（包括 `'00'`）仍然有效。
+标识符为整数 `0` 或字符串 `'0'` 的已持久化模型支持与其他已保存所有者相同的读取和修改操作。作用域判别
+字段将它们的覆盖值与类默认值分开，即使两条记录都保留 `item_id = '0'`。其他字符串主键（包括 `'00'`）
+仍然有效。
 
 设置按模型当前的 morph 类存储。在设置写入后新增或修改 morph map 别名时，需要更新现有的 `item_type` 值。
 

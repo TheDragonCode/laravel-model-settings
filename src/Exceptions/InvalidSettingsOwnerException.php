@@ -18,12 +18,4 @@ final class InvalidSettingsOwnerException extends DomainException
             $model::class
         ));
     }
-
-    public static function reservedIdentifier(Model $model): self
-    {
-        return new self(sprintf(
-            'Settings cannot be mutated for [%s] with key [0] because [0] is reserved for class defaults in 1.x.',
-            $model::class
-        ));
-    }
 }
