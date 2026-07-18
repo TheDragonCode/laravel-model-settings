@@ -52,6 +52,17 @@ test('non-string cast configuration throws a typed exception', function (): void
         ->toThrow(InvalidPayloadCast::class, 'must be a class-string');
 });
 
+test('bulk writes preserve invalid payload cast exceptions', function (): void {
+    config()->set('model_settings.casts.' . User::class, [
+        'foo' => null,
+    ]);
+
+    $user = UserFactory::new()->create();
+
+    expect(fn () => $user->settings()->setMany(['foo' => 'value']))
+        ->toThrow(InvalidPayloadCast::class, 'must be a class-string');
+});
+
 test('unresolvable cast dependency throws a typed exception', function (): void {
     $cast = new class ('dependency') implements CastsAttributes {
         public function __construct(string $dependency) {}

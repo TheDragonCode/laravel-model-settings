@@ -175,8 +175,8 @@ cas. Utilisez la même clé ou le même cas pour lire, remplacer ou supprimer un
 
 Les clés vides ou composées uniquement d’espaces lèvent
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. La validation s’effectue après la
-normalisation des entiers et des énumérations vers la chaîne stockée. L’exception et les journaux du
-paquet ne contiennent jamais la clé rejetée ni les données du paramètre.
+normalisation des entiers et des énumérations vers la chaîne stockée. L’exception ne contient jamais
+la clé rejetée ni les données du paramètre.
 
 Les points sont des caractères littéraux. La clé `mail.from.address` est une seule clé opaque et ne
 représente jamais un chemin imbriqué :

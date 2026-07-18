@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Services;
 
+use DragonCode\LaravelModelSettings\Exceptions\BulkMutationException;
+use DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast;
+use DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey;
+use DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException;
 use DragonCode\LaravelModelSettings\Internal\SettingKey;
 use DragonCode\LaravelModelSettings\Internal\SettingsScope;
 use DragonCode\LaravelModelSettings\Repositories\SettingsRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 use UnitEnum;
 
 use function array_values;
-use function count;
 
 class SettingsService
 {
@@ -56,31 +58,17 @@ class SettingsService
 
     public function setMany(iterable $values): void
     {
-        $operation = 'setMany';
-
-        Log::debug('Model settings bulk mutation started.', $this->logContext($operation));
-
         try {
             $this->scope->ensureMutable();
 
             $stored = $this->normalizeValues($values);
 
-            Log::debug('Model settings bulk mutation prepared.', $this->logContext($operation, [
-                'stored_count' => count($stored),
-            ]));
-
             $this->repository->storeMany($this->scope, $stored);
             $this->model->unsetRelation('modelSettings');
-
-            Log::debug('Model settings bulk mutation completed.', $this->logContext($operation, [
-                'stored_count' => count($stored),
-            ]));
-        } catch (Throwable $exception) {
-            Log::error('Model settings bulk mutation failed.', $this->logContext($operation, [
-                'exception' => $exception::class,
-            ]));
-
+        } catch (InvalidPayloadCast|InvalidSettingKey|InvalidSettingsOwnerException $exception) {
             throw $exception;
+        } catch (Throwable $exception) {
+            throw BulkMutationException::setMany($this->model, $this->scope->isDefault(), $exception);
         }
     }
 
@@ -94,53 +82,31 @@ class SettingsService
 
     public function forgetMany(iterable $keys): void
     {
-        $operation = 'forgetMany';
-
-        Log::debug('Model settings bulk mutation started.', $this->logContext($operation));
-
         try {
             $this->scope->ensureMutable();
 
             $normalized = $this->normalizeKeys($keys);
 
-            Log::debug('Model settings bulk mutation prepared.', $this->logContext($operation, [
-                'deleted_count' => count($normalized),
-            ]));
-
             $this->repository->deleteMany($this->scope, $normalized);
             $this->model->unsetRelation('modelSettings');
-
-            Log::debug('Model settings bulk mutation completed.', $this->logContext($operation, [
-                'deleted_count' => count($normalized),
-            ]));
-        } catch (Throwable $exception) {
-            Log::error('Model settings bulk mutation failed.', $this->logContext($operation, [
-                'exception' => $exception::class,
-            ]));
-
+        } catch (InvalidPayloadCast|InvalidSettingKey|InvalidSettingsOwnerException $exception) {
             throw $exception;
+        } catch (Throwable $exception) {
+            throw BulkMutationException::forgetMany($this->model, $this->scope->isDefault(), $exception);
         }
     }
 
     public function purge(): void
     {
-        $operation = 'purge';
-
-        Log::debug('Model settings bulk mutation started.', $this->logContext($operation));
-
         try {
             $this->scope->ensureMutable();
 
             $this->repository->purge($this->scope);
             $this->model->unsetRelation('modelSettings');
-
-            Log::debug('Model settings bulk mutation completed.', $this->logContext($operation));
-        } catch (Throwable $exception) {
-            Log::error('Model settings bulk mutation failed.', $this->logContext($operation, [
-                'exception' => $exception::class,
-            ]));
-
+        } catch (InvalidPayloadCast|InvalidSettingKey|InvalidSettingsOwnerException $exception) {
             throw $exception;
+        } catch (Throwable $exception) {
+            throw BulkMutationException::purge($this->model, $this->scope->isDefault(), $exception);
         }
     }
 
@@ -165,15 +131,5 @@ class SettingsService
         }
 
         return array_values($normalized);
-    }
-
-    protected function logContext(string $operation, array $context = []): array
-    {
-        return [
-            'operation' => $operation,
-            'owner'     => $this->model::class,
-            'scope'     => $this->scope->isDefault() ? 'default' : 'model',
-            ...$context,
-        ];
     }
 }

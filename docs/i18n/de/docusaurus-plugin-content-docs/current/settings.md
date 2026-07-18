@@ -176,8 +176,8 @@ seinem Case-Namen. Verwende beim Lesen, Ersetzen oder Entfernen denselben Schlü
 
 Leere Schlüssel und Schlüssel, die nur aus Leerzeichen bestehen, lösen
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` aus. Die Validierung erfolgt nach der
-Normalisierung von Ganzzahlen und Enums in die gespeicherte Zeichenfolge. Die Exception und die
-Paketprotokolle enthalten weder den abgelehnten Schlüssel noch den Payload.
+Normalisierung von Ganzzahlen und Enums in die gespeicherte Zeichenfolge. Die Exception enthält weder
+den abgelehnten Schlüssel noch den Payload.
 
 Punkte sind literale Zeichen. Der Schlüssel `mail.from.address` ist ein einzelner undurchsichtiger
 Einstellungsschlüssel und bezeichnet nie einen verschachtelten Pfad:

@@ -169,10 +169,17 @@ $defaults->purge();
 메시지는 상위 모델, 설정 키, 캐스트 클래스를 식별할 수 있지만 페이로드는 절대 포함하지 않습니다.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`는 정규화 후 키가 비어 있거나 공백만 있으면
-발생합니다. 예외 메시지와 패키지 로그에는 거부된 키나 설정 페이로드가 포함되지 않습니다.
+발생합니다. 예외 메시지에는 거부된 키나 설정 페이로드가 포함되지 않습니다.
 
-비어 있지 않은 `setMany()` 작업이 실패하면 트랜잭션은 일괄 작업을 롤백합니다. 예외는 다시 발생하며 기존에
-로딩된 `modelSettings` 관계는 지워지지 않습니다.
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException`은 PHP의 `RuntimeException`을
+확장합니다. 이 예외는 `setMany()`, `forgetMany()`, `purge()`에서 iterable을 소비하거나
+데이터를 직렬화하거나 저장소에 접근할 때 발생하는 예기치 않은 실패를 감쌉니다. 메시지는 작업,
+소유자 클래스, `model` 또는 `default` 범위를 식별하지만 설정 키나 페이로드는 노출하지 않습니다.
+원래 예외는 `getPrevious()`로 확인할 수 있습니다.
+
+기존 패키지 예외인 `InvalidSettingsOwnerException`, `InvalidPayloadCast`, `InvalidSettingKey`는
+감싸지 않습니다. 비어 있지 않은 `setMany()` 작업이 실패하면 트랜잭션은 일괄 작업을 롤백하고
+기존에 로딩된 `modelSettings` 관계는 지워지지 않습니다.
 
 ## 함께 보기
 

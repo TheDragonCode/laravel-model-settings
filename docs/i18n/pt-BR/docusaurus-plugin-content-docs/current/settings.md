@@ -173,8 +173,8 @@ Use a mesma chave ou case ao ler, substituir ou remover uma configuração.
 
 Chaves vazias ou contendo apenas espaços lançam
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. A validação ocorre depois da
-normalização de inteiros e enums para a string armazenada. A exceção e os logs do pacote nunca
-incluem a chave rejeitada nem o payload da configuração.
+normalização de inteiros e enums para a string armazenada. A exceção nunca inclui a chave
+rejeitada nem o payload da configuração.
 
 Pontos são caracteres literais. A chave `mail.from.address` é uma única chave opaca e nunca representa
 um caminho aninhado:

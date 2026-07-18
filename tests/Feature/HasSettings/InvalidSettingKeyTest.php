@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey;
-use Illuminate\Support\Facades\Log;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
 
@@ -38,12 +37,10 @@ test('keyed APIs reject invalid normalized keys before SQL', function (
 })->with(['get', 'has', 'set', 'setMany', 'forget', 'forgetMany'])
     ->with('invalid setting keys');
 
-test('bulk invalid-key logs contain no rejected key or payload', function (string $operation): void {
+test('bulk invalid-key exceptions contain no rejected key or payload', function (string $operation): void {
     $settings = UserFactory::new()->create()->settings();
     $key      = "\t\r\n";
     $payload  = 'private-setting-payload';
-
-    Log::spy();
 
     $call = $operation === 'setMany'
         ? fn () => $settings->setMany((static function () use ($key, $payload): iterable {
@@ -53,13 +50,15 @@ test('bulk invalid-key logs contain no rejected key or payload', function (strin
             yield $key;
         })());
 
-    expect($call)->toThrow(InvalidSettingKey::class, InvalidSettingKey::blank()->getMessage());
+    try {
+        $call();
+    } catch (InvalidSettingKey $exception) {
+        expect($exception->getMessage())
+            ->toBe(InvalidSettingKey::blank()->getMessage())
+            ->not->toContain($key, $payload);
 
-    Log::shouldHaveReceived('debug')
-        ->withArgs(static fn (string $message, array $context): bool => array_keys($context) === ['operation', 'owner', 'scope'])
-        ->once();
+        return;
+    }
 
-    Log::shouldHaveReceived('error')
-        ->withArgs(static fn (string $message, array $context): bool => array_keys($context) === ['operation', 'owner', 'scope', 'exception'])
-        ->once();
+    throw new RuntimeException('Expected InvalidSettingKey was not thrown.');
 })->with(['setMany', 'forgetMany']);

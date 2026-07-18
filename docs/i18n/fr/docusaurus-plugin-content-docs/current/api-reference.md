@@ -181,11 +181,18 @@ en charge ou ne peut pas être résolue par le conteneur Laravel. Son message pe
 parent, la clé et la classe de conversion, mais jamais les données.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` est levée après normalisation
-lorsqu’une clé est vide ou ne contient que des espaces. Son message et les journaux du paquet ne
-contiennent jamais la clé rejetée ni les données du paramètre.
+lorsqu’une clé est vide ou ne contient que des espaces. Son message ne contient jamais la clé
+rejetée ni les données du paramètre.
 
-Si une opération `setMany()` non vide échoue, la transaction annule le lot. L’exception est relancée
-et la relation `modelSettings` déjà chargée n’est pas effacée.
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException` étend la classe PHP
+`RuntimeException`. Cette exception enveloppe les erreurs inattendues de consommation d’un iterable,
+de sérialisation et de stockage dans `setMany()`, `forgetMany()` et `purge()`. Son message identifie
+l’opération, la classe du propriétaire et la portée `model` ou `default`, sans exposer les clés ni
+les données des paramètres. L’exception d’origine est disponible avec `getPrevious()`.
+
+Les exceptions existantes du paquet `InvalidSettingsOwnerException`, `InvalidPayloadCast` et
+`InvalidSettingKey` ne sont pas enveloppées. Si une opération `setMany()` non vide échoue, la
+transaction annule le lot et la relation `modelSettings` déjà chargée n’est pas effacée.
 
 ## Voir aussi
 
