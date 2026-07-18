@@ -75,9 +75,9 @@ $timezone = $user->settings()->get('timezone');
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-此方法先验证所有者，然后按模型类型、模型标识符和键执行 update-or-create。传入 Laravel 认为是空的值会
-删除记录。验证在选择空值处理路径前执行。无论执行哪条路径，已加载的 `modelSettings` 关联都会被清除，确保
-下一次读取不会复用过期数据。
+此方法先验证所有者，然后按模型类型、模型标识符、作用域判别字段和键执行 update-or-create。传入 Laravel
+认为是空的值会删除记录。验证在选择空值处理路径前执行。无论执行哪条路径，已加载的 `modelSettings` 关联
+都会被清除，确保下一次读取不会复用过期数据。
 
 ## setMany
 
@@ -140,14 +140,12 @@ $defaults->purge();
 ## 异常
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` 继承 PHP 的
-`DomainException`。符合以下任一条件时，通过 `settings()` 执行的每个修改都会在存储查询前抛出此异常：
-
-- 所有者模型尚未保存，包括已预先分配主键的未保存模型。
-- 已持久化所有者的主键是整数 `0` 或字符串 `'0'`，与 1.x 的类默认值哨兵冲突。
+`DomainException`。所有者模型尚未保存时，通过 `settings()` 执行的每个修改都会在存储查询前抛出此异常，
+包括已预先分配主键的未保存模型。
 
 此验证也会在读取批量 iterable 前执行。通过 `defaultSettings()` 修改仍然有效，因为该服务会显式选择类
-默认值作用域。只读访问保持确定：未保存的所有者不查询覆盖值并返回 `null` 或空集合；主键为 `0` 的已持久化
-所有者可以读取类默认值，但不能将其作为模型覆盖值进行修改。
+默认值作用域。只读访问保持确定：未保存的所有者不查询覆盖值并返回 `null` 或空集合。主键为整数 `0` 或
+字符串 `'0'` 的已持久化所有者可以读取和修改自己的覆盖值；`is_default` 会将这些记录与类默认值分开。
 
 配置的模型级或按键转换缺失、类型无效、未实现受支持接口或无法通过 Laravel 容器解析时，会抛出
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast`。其消息可以标明父模型、设置键和转换类，

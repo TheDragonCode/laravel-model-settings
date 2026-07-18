@@ -193,10 +193,10 @@ sem consultar as sobrescritas do modelo. Seus métodos `set()`, `setMany()`, `fo
 `forgetMany()` e `purge()` lançam `InvalidSettingsOwnerException` antes de uma consulta ao
 armazenamento ou do consumo do iterable.
 
-O inteiro `0` e a string `'0'` são reservados para valores padrão compartilhados na versão 1.x. Um
-modelo persistido com qualquer uma dessas chaves pode ler os valores padrão da classe, mas qualquer
-método de alteração lança `InvalidSettingsOwnerException`. Outras chaves string, incluindo `'00'`,
-continuam válidas.
+Modelos persistidos com identificador inteiro `0` ou string `'0'` aceitam as mesmas leituras e
+alterações que qualquer outro proprietário persistido. O discriminador de escopo separa suas
+sobrescritas dos padrões da classe, mesmo que as duas linhas mantenham `item_id = '0'`. Outras chaves
+string, incluindo `'00'`, continuam válidas.
 
 As configurações são armazenadas usando a classe morph atual do modelo. Adicionar ou alterar um alias
 do morph map depois que as configurações forem gravadas exige a atualização dos valores `item_type`

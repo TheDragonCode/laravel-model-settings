@@ -78,9 +78,5 @@ final readonly class SettingsScope
         if (! $this->isReadable()) {
             throw InvalidSettingsOwnerException::unsaved($this->owner);
         }
-
-        if ((string) $this->requiredItemId() === IdentifierEnum::Default->value) {
-            throw InvalidSettingsOwnerException::reservedIdentifier($this->owner);
-        }
     }
 }

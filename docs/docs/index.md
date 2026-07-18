@@ -86,12 +86,13 @@ Applications that need those features should compose them outside this package r
 
 ## Storage boundaries
 
-Each row is identified by three values:
+Each row is identified by four values:
 
 | Value | Meaning |
 |-------|---------|
 | `item_type` | Parent model morph class or morph-map alias |
-| `item_id` | Parent primary key, or the reserved value `0` for class defaults |
+| `item_id` | Parent primary key; class defaults keep the physical value `0` |
+| `is_default` | `true` for a class default, `false` for a model override |
 | `key` | Setting name |
 
 This makes defaults independent for each model class. A `User` default never becomes a `Post`
@@ -99,8 +100,9 @@ default, even when both classes use the same setting key.
 
 ## Supported models
 
-The package supports Eloquent models with integer, string, UUID, or ULID primary keys. Models may
-also use a Laravel morph map.
+The package supports Eloquent models with integer, string, UUID, or ULID primary keys. Persisted
+models with integer `0` or string `'0'` identifiers can store overrides without colliding with class
+defaults. Models may also use a Laravel morph map.
 
 Per-model settings belong to persisted models. An unsaved model does not inherit defaults:
 `get()` returns `null`, and `all()` returns an empty collection. Calling `set()`, `setMany()`,

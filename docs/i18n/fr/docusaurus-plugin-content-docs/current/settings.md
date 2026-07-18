@@ -196,10 +196,10 @@ vide sans interroger les surcharges du modèle. Ses méthodes `set()`, `setMany(
 `forgetMany()` et `purge()` lèvent `InvalidSettingsOwnerException` avant toute requête de stockage ou
 consommation de l’iterable.
 
-L’entier `0` et la chaîne `'0'` sont réservés aux valeurs par défaut partagées dans la version 1.x.
-Un modèle enregistré avec l’une de ces clés peut lire les valeurs par défaut de la classe, mais
-toute méthode de modification lève `InvalidSettingsOwnerException`. Les autres clés de type chaîne,
-dont `'00'`, restent valides.
+Les modèles enregistrés avec l’identifiant entier `0` ou la chaîne `'0'` prennent en charge les mêmes
+lectures et modifications que tout autre propriétaire enregistré. Le discriminateur de portée
+sépare leurs surcharges des valeurs par défaut de la classe, même si les deux lignes conservent
+`item_id = '0'`. Les autres clés de type chaîne, dont `'00'`, restent valides.
 
 Les paramètres sont stockés pour la classe morph actuelle du modèle. L’ajout ou la modification d’un
 alias de morph map après l’écriture de paramètres nécessite de mettre à jour les valeurs `item_type`

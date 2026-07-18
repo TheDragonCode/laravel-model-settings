@@ -87,12 +87,13 @@ Aplicações que precisem desses recursos devem compô-los fora do pacote, em ve
 
 ## Limites do armazenamento
 
-Cada linha é identificada por três valores:
+Cada linha é identificada por quatro valores:
 
 | Valor | Significado |
 |-------|-------------|
 | `item_type` | Classe morph do modelo pai ou alias do morph map |
-| `item_id` | Chave primária do modelo pai ou o valor reservado `0` para padrões da classe |
+| `item_id` | Chave primária do modelo pai; os padrões da classe mantêm o valor físico `0` |
+| `is_default` | `true` para um padrão da classe, `false` para uma sobrescrita do modelo |
 | `key` | Nome da configuração |
 
 Isso mantém os valores padrão independentes para cada classe de modelo. Um padrão de `User` nunca se
@@ -100,8 +101,9 @@ torna um padrão de `Post`, mesmo quando as duas classes usam a mesma chave de c
 
 ## Modelos compatíveis
 
-O pacote aceita modelos Eloquent com chaves primárias inteiras, string, UUID ou ULID. Os modelos
-também podem usar um morph map do Laravel.
+O pacote aceita modelos Eloquent com chaves primárias inteiras, string, UUID ou ULID. Modelos
+persistidos com identificador inteiro `0` ou string `'0'` podem armazenar sobrescritas sem conflito
+com os padrões da classe. Os modelos também podem usar um morph map do Laravel.
 
 Configurações por modelo pertencem a modelos persistidos. Um modelo não persistido não herda os
 valores padrão: `get()` retorna `null`, e `all()` retorna uma coleção vazia. Chamar `set()`,
