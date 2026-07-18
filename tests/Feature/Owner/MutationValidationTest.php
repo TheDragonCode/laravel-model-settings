@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException;
 use Illuminate\Support\Facades\DB;
-use Workbench\App\Models\SomeId;
+use Workbench\App\Models\SomeInteger;
 use Workbench\App\Models\SomeString;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
@@ -62,6 +62,8 @@ test('set rejects reserved owner identifiers before a query', function (
 
     $owner = $modelClass::query()->findOrFail($identifier);
 
+    expect($owner->getKey())->toBe($identifier);
+
     (new $modelClass)->defaultSettings()->set('foo', 111);
 
     $recorder = new QueryRecorder;
@@ -76,7 +78,7 @@ test('set rejects reserved owner identifiers before a query', function (
     expect($recorder->calls())->toBe(0);
     expect((new $modelClass)->defaultSettings()->get('foo'))->toBe(111);
 })->with([
-    'integer zero' => [SomeId::class, 'some_ids', 'id', 0],
+    'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
     'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],
 ])->with([
     'filled value' => 222,
@@ -93,6 +95,8 @@ test('forget rejects reserved owner identifiers before a query', function (
 
     $owner = $modelClass::query()->findOrFail($identifier);
 
+    expect($owner->getKey())->toBe($identifier);
+
     (new $modelClass)->defaultSettings()->set('foo', 111);
 
     $recorder = new QueryRecorder;
@@ -107,7 +111,7 @@ test('forget rejects reserved owner identifiers before a query', function (
     expect($recorder->calls())->toBe(0);
     expect((new $modelClass)->defaultSettings()->get('foo'))->toBe(111);
 })->with([
-    'integer zero' => [SomeId::class, 'some_ids', 'id', 0],
+    'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
     'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],
 ]);
 
@@ -123,6 +127,8 @@ test('reserved owner identifiers can read defaults lazily and eagerly', function
 
     $owner = $modelClass::query()->findOrFail($identifier);
 
+    expect($owner->getKey())->toBe($identifier);
+
     expect($owner->settings()->get('foo'))->toBe(111);
     expect($owner->settings()->all()->all())->toBe(['foo' => 111]);
     expect($owner->relationLoaded('modelSettings'))->toBeFalse();
@@ -135,7 +141,7 @@ test('reserved owner identifiers can read defaults lazily and eagerly', function
     expect($eagerOwner->settings()->all()->all())->toBe(['foo' => 111]);
     expect($eagerOwner->modelSettings)->toHaveCount(1);
 })->with([
-    'integer zero' => [SomeId::class, 'some_ids', 'id', 0],
+    'integer zero' => [SomeInteger::class, 'some_integers', 'id', 0],
     'string zero'  => [SomeString::class, 'some_strings', 'key', '0'],
 ]);
 
