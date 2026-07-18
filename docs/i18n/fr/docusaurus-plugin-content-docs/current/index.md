@@ -78,11 +78,13 @@ même clé de paramètre.
 
 ## Modèles pris en charge
 
-Le paquet prend en charge les modèles Eloquent dont la clé primaire est un entier, un UUID ou un
-ULID. Les modèles peuvent aussi utiliser une morph map Laravel.
+Le paquet prend en charge les modèles Eloquent dont la clé primaire est un entier, une chaîne, un
+UUID ou un ULID. Les modèles peuvent aussi utiliser une morph map Laravel.
 
 Les paramètres propres à un modèle nécessitent un modèle enregistré. Un modèle non enregistré
-n’hérite pas des valeurs par défaut.
+n’hérite pas des valeurs par défaut : `get()` renvoie `null` et `all()` une collection vide. Appeler
+`set()` ou `forget()` pour un propriétaire non enregistré lève `InvalidSettingsOwnerException`
+avant toute requête de stockage.
 
 Les données sont stockées au format JSON. Sans conversion configurée, la lecture renvoie des
 tableaux décodés ou des valeurs scalaires. Les [conversions des données](payload-casts.md) peuvent

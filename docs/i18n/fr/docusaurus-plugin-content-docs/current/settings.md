@@ -134,8 +134,17 @@ clés vides ou composées uniquement d’espaces.
 
 ## Identifiants des modèles
 
-Les clés primaires entières, UUID et ULID sont prises en charge. La valeur `0` est réservée aux
-valeurs par défaut partagées et ne doit pas être utilisée comme véritable clé primaire d’un modèle.
+Les clés primaires entières, chaînes, UUID et ULID sont prises en charge.
+
+La modification des paramètres d’un modèle nécessite un propriétaire enregistré dont la clé est
+différente de `null`. Pour un modèle non enregistré, `get()` renvoie `null` et `all()` une collection
+vide sans interroger les surcharges du modèle. Ses méthodes `set()` et `forget()` lèvent
+`InvalidSettingsOwnerException` avant toute requête de stockage.
+
+L’entier `0` et la chaîne `'0'` sont réservés aux valeurs par défaut partagées dans la version 1.x.
+Un modèle enregistré avec l’une de ces clés peut lire les valeurs par défaut de la classe, mais
+`set()` et `forget()` lèvent `InvalidSettingsOwnerException`. Les autres clés de type chaîne, dont
+`'00'`, restent valides.
 
 Les paramètres sont stockés pour la classe morph actuelle du modèle. L’ajout ou la modification d’un
 alias de morph map après l’écriture de paramètres nécessite de mettre à jour les valeurs `item_type`

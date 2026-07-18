@@ -56,13 +56,15 @@ Die veröffentlichte Migration erstellt folgende Spalten:
 
 Die Kombination aus `item_type`, `item_id` und `key` ist eindeutig.
 
-Die Standardspalte `item_id` speichert höchstens 36 Zeichen. Ganzzahlige IDs, UUIDs und ULIDs passen
-in dieses Schema. Ein längerer benutzerdefinierter Primärschlüssel erfordert eine entsprechende
-Änderung der Migration.
+Die Standardspalte `item_id` speichert höchstens 36 Zeichen. Ganzzahlige IDs, Zeichenfolgen, UUIDs
+und ULIDs passen in dieses Schema, wenn ihre Zeichenfolgendarstellung höchstens 36 Zeichen lang ist.
+Ein längerer benutzerdefinierter Primärschlüssel erfordert eine entsprechende Änderung der Migration.
 
-Der Wert `0` ist in `item_id` für Klassenstandards reserviert. Werden Datenbankverbindung,
-Tabellenname oder Morph-Map-Aliase geändert, nachdem Daten vorhanden sind, müssen die bestehenden
-Zeilen selbst verschoben oder aktualisiert werden.
+Der Wert `0` ist in `item_id` für Klassenstandards reserviert. In 1.x lehnen `set()` und `forget()`
+einen gespeicherten Besitzer mit der Ganzzahl `0` oder der Zeichenfolge `'0'` als Schlüssel ab und
+lösen vor einer Abfrage dieser Tabelle eine `InvalidSettingsOwnerException` aus. Werden
+Datenbankverbindung, Tabellenname oder Morph-Map-Aliase geändert, nachdem Daten vorhanden sind,
+müssen die bestehenden Zeilen selbst verschoben oder aktualisiert werden.
 
 ## Speichermodell ersetzen
 
@@ -116,7 +118,7 @@ Das Ersatzmodell muss mindestens folgende Verhaltensweisen erhalten:
 |-------------|-------|
 | `item_type`, `item_id`, `key` und `payload` befüllen | `updateOrCreate()` schreibt diese Attribute |
 | Konfigurierte Verbindung und Tabelle verwenden | Migration und Repository müssen dieselben Zeilen ansprechen |
-| `item_id` als `string` casten | Ganzzahlen, UUIDs und ULIDs teilen sich eine Spalte |
+| `item_id` als `string` casten | Ganzzahlen, Zeichenfolgen, UUIDs und ULIDs teilen sich eine Spalte |
 | `payload` mit `PayloadCast` oder gleichwertig casten | Lesen und Schreiben müssen das JSON-Verhalten erhalten |
 
 ## Siehe auch

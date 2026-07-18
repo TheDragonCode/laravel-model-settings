@@ -36,7 +36,7 @@ composer style
 | `tests/Feature` | 默认值、覆盖值、删除、缺失数据和所有权 |
 | `tests/Unit/Casts` | 默认 JSON、自定义转换、morph map 和 Laravel Data |
 | `tests/Unit/KeyTypes` | 字符串、整数、backed enum 和 pure unit enum 键 |
-| `tests/Unit/PrimaryKeyTypes` | 整数、UUID 和 ULID 父模型标识符 |
+| `tests/Unit/PrimaryKeyTypes` | 整数、字符串、UUID 和 ULID 父模型标识符 |
 | `tests/Unit/QueryCount` | 读取和写入的查询次数，包括预加载 |
 | `tests/Architecture` | 命名空间、类型、严格性和 Laravel 架构规则 |
 

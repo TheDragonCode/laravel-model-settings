@@ -91,9 +91,11 @@ assert($user->settings()->get('timezone') === 'UTC');
 
 ## Persista os modelos primeiro
 
-Use `settings()->set()` somente depois que o modelo pai for persistido. Um modelo não persistido não
-tem chave primária. Seu `settings()->get()` retorna `null`, e `settings()->all()` retorna uma coleção
-vazia mesmo quando a classe tem valores padrão.
+Use `settings()->set()` e `settings()->forget()` somente depois que o modelo pai for persistido. Para
+um modelo não persistido, `settings()->get()` retorna `null`, e `settings()->all()` retorna uma
+coleção vazia mesmo quando a classe tem valores padrão. Os dois métodos de alteração lançam
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` antes de uma consulta ao
+armazenamento.
 
 ## Veja também
 

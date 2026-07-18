@@ -36,7 +36,7 @@ Pest 스위트는 서로 다른 계약을 검사합니다.
 | `tests/Feature` | 기본값, 재정의 값, 삭제, 누락 데이터와 소유권 |
 | `tests/Unit/Casts` | 기본 JSON, 사용자 지정 캐스트, morph map과 Laravel Data |
 | `tests/Unit/KeyTypes` | 문자열, 정수, backed enum과 pure unit enum 키 |
-| `tests/Unit/PrimaryKeyTypes` | 정수, UUID와 ULID 상위 모델 식별자 |
+| `tests/Unit/PrimaryKeyTypes` | 정수, 문자열, UUID와 ULID 상위 모델 식별자 |
 | `tests/Unit/QueryCount` | 즉시 로딩을 포함한 읽기 및 쓰기 쿼리 수 |
 | `tests/Architecture` | 네임스페이스, 형식, 엄격성 및 Laravel 아키텍처 규칙 |
 

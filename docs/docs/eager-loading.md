@@ -10,8 +10,8 @@ description: Avoid N+1 queries when reading settings for Eloquent model collecti
 
 ## Load settings with the models
 
-Reading settings lazily loads the `modelSettings` relation. For a collection, that produces one
-additional settings query per model.
+Without eager loading, each `settings()->get()` or `settings()->all()` call performs a settings
+query. These service reads do not load `modelSettings` as a side effect.
 
 Eager load the relation when the result contains multiple models:
 
@@ -40,6 +40,12 @@ $settings = $users->map(
 );
 ```
 
+## Relation boundary
+
+Use `modelSettings` only with `with()`, `load()`, or `loadMissing()` and as the loaded relation
+property. It is a read optimization, not an alternative query or CRUD API. Read and mutate values
+through `settings()` or `defaultSettings()`.
+
 ## Query behavior
 
 When parent models are fetched and their settings are then read, lazy loading and eager loading have
@@ -59,12 +65,13 @@ The settings query includes the class defaults and every requested model identif
 then copies inherited defaults into each model's loaded result and replaces matching keys with that
 model's overrides.
 
-This behavior is covered for integer, UUID, and ULID primary keys.
+This behavior is covered for integer, string, UUID, and ULID primary keys.
 
 ## Changes after eager loading
 
-`set()` and `forget()` clear the loaded `modelSettings` relation on that model. The next read reloads
-the relation, so it does not return the stale value.
+`set()` and `forget()` clear the loaded `modelSettings` relation on that model. The next service read
+queries the current effective value, so it does not return stale data. Explicitly eager load the
+relation again before another batch read.
 
 Mutation still performs its own write queries. Eager loading only changes subsequent reads.
 

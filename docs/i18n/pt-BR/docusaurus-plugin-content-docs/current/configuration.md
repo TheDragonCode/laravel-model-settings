@@ -56,11 +56,13 @@ A migration publicada cria estas colunas:
 
 A combinação de `item_type`, `item_id` e `key` é única.
 
-A coluna padrão `item_id` armazena no máximo 36 caracteres. Identificadores inteiros, UUID e ULID
-cabem nesse esquema. Uma chave primária personalizada mais longa exige uma alteração correspondente
-na migration.
+A coluna padrão `item_id` armazena no máximo 36 caracteres. Identificadores inteiros, string, UUID e
+ULID cabem nesse esquema quando sua representação como string tem no máximo 36 caracteres. Uma chave
+primária personalizada mais longa exige uma alteração correspondente na migration.
 
-O valor `0` em `item_id` é reservado para os valores padrão da classe. Alterar a conexão, o nome da
+O valor `0` em `item_id` é reservado para os valores padrão da classe. Na versão 1.x, `set()` e
+`forget()` rejeitam um proprietário persistido cuja chave seja o inteiro `0` ou a string `'0'`,
+lançando `InvalidSettingsOwnerException` antes de consultar essa tabela. Alterar a conexão, o nome da
 tabela ou os aliases do morph map depois que os dados existirem exige mover ou atualizar as linhas
 existentes manualmente.
 
@@ -116,7 +118,7 @@ No mínimo, o modelo substituto deve preservar estes comportamentos:
 |-----------|--------|
 | Preencher `item_type`, `item_id`, `key` e `payload` | `updateOrCreate()` grava esses atributos |
 | Usar a conexão e a tabela configuradas | A migration e o repositório devem acessar as mesmas linhas |
-| Converter `item_id` para `string` | Inteiros, UUID e ULID compartilham uma coluna |
+| Converter `item_id` para `string` | Inteiros, strings, UUID e ULID compartilham uma coluna |
 | Converter `payload` com `PayloadCast` ou equivalente | Leituras e escritas devem preservar o comportamento JSON |
 
 ## Veja também

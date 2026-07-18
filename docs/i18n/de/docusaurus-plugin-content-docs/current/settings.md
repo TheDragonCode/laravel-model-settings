@@ -132,8 +132,17 @@ akzeptieren leere Schlüssel und Schlüssel, die nur aus Leerzeichen bestehen.
 
 ## Modell-IDs
 
-Ganzzahlige Primärschlüssel, UUIDs und ULIDs werden unterstützt. Der Wert `0` ist intern für gemeinsame
-Standardwerte reserviert und darf nicht als echter Modell-Primärschlüssel verwendet werden.
+Ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärschlüssel werden unterstützt.
+
+Modellspezifische Änderungen benötigen einen gespeicherten Besitzer mit einem Schlüssel ungleich
+`null`. Für ein ungespeichertes Modell gibt `get()` `null` und `all()` eine leere Collection zurück,
+ohne Modellüberschreibungen abzufragen. Seine Methoden `set()` und `forget()` lösen vor einer
+Speicherabfrage eine `InvalidSettingsOwnerException` aus.
+
+Die Ganzzahl `0` und die Zeichenfolge `'0'` sind in 1.x für gemeinsame Standardwerte reserviert. Ein
+gespeichertes Modell mit einem dieser Schlüssel kann Klassenstandards lesen, aber `set()` und
+`forget()` lösen eine `InvalidSettingsOwnerException` aus. Andere Zeichenfolgenschlüssel,
+einschließlich `'00'`, bleiben gültig.
 
 Einstellungen werden unter der aktuellen Morph-Klasse des Modells gespeichert. Wird ein Morph-Map-
 Alias nach dem Schreiben von Einstellungen eingeführt oder geändert, müssen vorhandene `item_type`-

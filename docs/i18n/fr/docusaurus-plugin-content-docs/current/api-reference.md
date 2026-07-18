@@ -16,9 +16,11 @@ description: Méthodes publiques du trait, du service et de la relation fournies
 | `defaultSettings()` | `SettingsService` | Accéder aux valeurs par défaut partagées pour cette classe de modèle |
 | `modelSettings()` | `Relation` Eloquent | Charger les valeurs par défaut et les surcharges comme relation |
 
-Utilisez la relation `modelSettings` avec `with()`, `load()` ou `loadMissing()`. Utilisez les deux
-méthodes de service pour lire ou modifier les valeurs. À l’exécution, la relation est une
-`SettingsRelation` du paquet basée sur la relation Laravel `MorphMany`.
+Utilisez la relation `modelSettings` uniquement avec `with()`, `load()` ou `loadMissing()`, et comme
+propriété chargée qui en résulte. N’utilisez pas la requête de la relation comme API alternative de
+lecture ou de CRUD. Utilisez les deux méthodes de service pour lire ou modifier les valeurs. À
+l’exécution, la relation est une `SettingsRelation` du paquet basée sur la relation Laravel
+`MorphMany`.
 
 ## SettingsService
 
@@ -70,9 +72,11 @@ par défaut. Si la surcharge et la valeur par défaut sont absentes, la méthode
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-La méthode effectue une opération update-or-create pour le type de modèle, son identifiant et la
-clé. Une valeur considérée comme vide par Laravel supprime la ligne. Dans les deux cas, la relation
-`modelSettings` chargée est effacée afin que la prochaine lecture ne réutilise pas d’anciennes données.
+La méthode valide le propriétaire, puis effectue une opération update-or-create pour le type de
+modèle, son identifiant et la clé. Une valeur considérée comme vide par Laravel supprime la ligne.
+La validation a lieu avant la sélection du traitement des valeurs vides. Dans les deux cas, la
+relation `modelSettings` chargée est effacée afin que la prochaine lecture ne réutilise pas
+d’anciennes données.
 
 ## forget
 
@@ -80,8 +84,9 @@ clé. Une valeur considérée comme vide par Laravel supprime la ligne. Dans les
 $user->settings()->forget('timezone');
 ```
 
-La méthode est sûre lorsque la clé n’existe pas. La suppression d’une surcharge ne supprime pas sa
-valeur par défaut partagée. La relation chargée est effacée après la suppression.
+Pour un propriétaire valide, la méthode est sûre lorsque la clé n’existe pas. La suppression d’une
+surcharge ne supprime pas sa valeur par défaut partagée. La relation chargée est effacée après la
+suppression.
 
 ## defaultSettings
 
@@ -95,6 +100,24 @@ $timezone = $defaults->get('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 ```
+
+## Exceptions
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` étend la classe PHP
+`DomainException`. `settings()->set()` et `settings()->forget()` la lèvent avant toute requête de
+stockage lorsque l’une des conditions suivantes est remplie :
+
+- Le modèle propriétaire n’est pas enregistré, y compris lorsqu’une clé lui a été attribuée à
+  l’avance.
+- La clé du propriétaire enregistré est l’entier `0` ou la chaîne `'0'`, ce qui entre en conflit
+  avec la valeur sentinelle des paramètres par défaut de la classe dans la version 1.x.
+
+Cette validation s’applique aussi lorsque `set()` reçoit une valeur vide. Les modifications par
+`defaultSettings()` restent valides, car ce service sélectionne explicitement la portée des valeurs
+par défaut de la classe. La lecture reste déterministe : un propriétaire non enregistré renvoie
+`null` ou une collection vide sans interroger les surcharges, tandis qu’un propriétaire enregistré
+avec la clé `0` peut lire les valeurs par défaut de la classe, mais pas les modifier comme surcharges
+du modèle.
 
 ## Voir aussi
 

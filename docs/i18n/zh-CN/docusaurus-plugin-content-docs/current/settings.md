@@ -129,7 +129,14 @@ Laravel 使用 backed enum 的底层值进行存储，使用 pure unit enum 的 
 
 ## 模型标识符
 
-支持整数、UUID 和 ULID 主键。值 `0` 在内部保留给共享默认值，不能用作真实模型主键。
+支持整数、字符串、UUID 和 ULID 主键。
+
+修改单个模型的设置时，需要所有者已持久化，且主键不为 `null`。对于未保存的模型，`get()` 返回 `null`，
+`all()` 不查询模型覆盖值并返回空集合。它的 `set()` 和 `forget()` 会在执行存储查询前抛出
+`InvalidSettingsOwnerException`。
+
+在 1.x 中，整数 `0` 和字符串 `'0'` 保留给共享默认值。使用任一主键的已持久化模型可以读取类默认值，但
+`set()` 和 `forget()` 会抛出 `InvalidSettingsOwnerException`。其他字符串主键（包括 `'00'`）仍然有效。
 
 设置按模型当前的 morph 类存储。在设置写入后新增或修改 morph map 别名时，需要更新现有的 `item_type` 值。
 

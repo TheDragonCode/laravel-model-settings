@@ -72,9 +72,11 @@ $user->settings()->forget('timezone');
 
 ## 支持的模型
 
-此软件包支持使用整数、UUID 或 ULID 主键的 Eloquent 模型。模型也可以使用 Laravel morph map。
+此软件包支持使用整数、字符串、UUID 或 ULID 主键的 Eloquent 模型。模型也可以使用 Laravel morph map。
 
-单个模型的设置只属于已持久化的模型。未保存的模型不会继承默认值。
+单个模型的设置只属于已持久化的模型。未保存的模型不会继承默认值：`get()` 返回 `null`，`all()` 返回空集合。
+对未保存的所有者调用 `set()` 或 `forget()` 时，会在执行存储查询前抛出
+`InvalidSettingsOwnerException`。
 
 设置数据以 JSON 格式存储。未配置转换时，读取操作会返回解码后的数组或标量值。
 [数据转换](payload-casts.md)可以改为返回应用程序专用对象。

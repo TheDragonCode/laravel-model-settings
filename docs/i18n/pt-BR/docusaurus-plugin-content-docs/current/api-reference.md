@@ -16,9 +16,10 @@ description: Métodos públicos da trait, do serviço e da relação fornecidos 
 | `defaultSettings()` | `SettingsService` | Acessar os valores padrão compartilhados desta classe de modelo |
 | `modelSettings()` | `Relation` do Eloquent | Carregar valores padrão e sobrescritas como uma relação |
 
-Use a relação `modelSettings` com `with()`, `load()` ou `loadMissing()`. Use os dois métodos de serviço
-para ler ou alterar valores. Em tempo de execução, a relação é uma `SettingsRelation` do pacote,
-baseada na relação `MorphMany` do Laravel.
+Use a relação `modelSettings` somente com `with()`, `load()` ou `loadMissing()` e como a propriedade
+carregada resultante. Não use a consulta da relação como uma API alternativa de leitura ou CRUD. Use
+os dois métodos de serviço para ler ou alterar valores. Em tempo de execução, a relação é uma
+`SettingsRelation` do pacote, baseada na relação `MorphMany` do Laravel.
 
 ## SettingsService
 
@@ -70,9 +71,10 @@ padrão é usado. Se nem a sobrescrita nem o padrão existirem, o resultado ser�
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-O método executa uma operação update-or-create para o tipo do modelo, o identificador e a chave. Um
-valor considerado vazio pelo Laravel remove a linha. Em ambos os caminhos, a relação `modelSettings`
-carregada é limpa para que a próxima leitura não reutilize dados desatualizados.
+O método valida o proprietário e então executa uma operação update-or-create para o tipo do modelo,
+o identificador e a chave. Um valor considerado vazio pelo Laravel remove a linha. A validação ocorre
+antes da seleção do caminho de valor vazio. Em ambos os caminhos, a relação `modelSettings` carregada
+é limpa para que a próxima leitura não reutilize dados desatualizados.
 
 ## forget
 
@@ -80,8 +82,8 @@ carregada é limpa para que a próxima leitura não reutilize dados desatualizad
 $user->settings()->forget('timezone');
 ```
 
-O método é seguro quando a chave não existe. Remover uma sobrescrita não remove seu valor padrão
-compartilhado. A relação carregada é limpa depois da exclusão.
+Para um proprietário válido, o método é seguro quando a chave não existe. Remover uma sobrescrita
+não remove seu valor padrão compartilhado. A relação carregada é limpa depois da exclusão.
 
 ## defaultSettings
 
@@ -95,6 +97,22 @@ $timezone = $defaults->get('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 ```
+
+## Exceções
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` estende a classe PHP
+`DomainException`. `settings()->set()` e `settings()->forget()` lançam essa exceção antes de uma
+consulta ao armazenamento quando uma destas condições é verdadeira:
+
+- O modelo proprietário não foi persistido, inclusive quando recebeu uma chave antecipadamente.
+- A chave do proprietário persistido é o inteiro `0` ou a string `'0'`, o que conflita com o valor
+  sentinela usado pelos padrões da classe na versão 1.x.
+
+Essa validação também ocorre quando `set()` recebe um valor vazio. Alterações por meio de
+`defaultSettings()` continuam válidas porque esse serviço seleciona explicitamente o escopo dos
+valores padrão da classe. A leitura permanece determinística: um proprietário não persistido retorna
+`null` ou uma coleção vazia sem consultar sobrescritas, enquanto um proprietário persistido com a
+chave `0` pode ler os valores padrão da classe, mas não pode alterá-los como sobrescritas do modelo.
 
 ## Veja também
 

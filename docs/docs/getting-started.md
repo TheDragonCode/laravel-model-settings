@@ -91,9 +91,11 @@ assert($user->settings()->get('timezone') === 'UTC');
 
 ## Persist models first
 
-Use `settings()->set()` only after the parent model has been saved. An unsaved model has no primary
-key. Its `settings()->get()` returns `null`, and `settings()->all()` returns an empty collection even
-when class defaults exist.
+Use `settings()->set()` and `settings()->forget()` only after the parent model has been saved. For an
+unsaved model, `settings()->get()` returns `null`, and `settings()->all()` returns an empty collection
+even when class defaults exist. Both mutation methods throw
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` before a storage query
+runs.
 
 ## See Also
 

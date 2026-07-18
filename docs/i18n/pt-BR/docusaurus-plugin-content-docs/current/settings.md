@@ -132,8 +132,17 @@ chaves contendo apenas espaços.
 
 ## Identificadores de modelo
 
-Chaves primárias inteiras, UUID e ULID são compatíveis. O valor `0` é reservado internamente para
-valores padrão compartilhados e não deve ser usado como uma chave primária real de modelo.
+Chaves primárias inteiras, string, UUID e ULID são compatíveis.
+
+Alterações nas configurações de um modelo exigem um proprietário persistido com uma chave diferente
+de `null`. Para um modelo não persistido, `get()` retorna `null`, e `all()` retorna uma coleção vazia
+sem consultar as sobrescritas do modelo. Seus métodos `set()` e `forget()` lançam
+`InvalidSettingsOwnerException` antes de uma consulta ao armazenamento.
+
+O inteiro `0` e a string `'0'` são reservados para valores padrão compartilhados na versão 1.x. Um
+modelo persistido com qualquer uma dessas chaves pode ler os valores padrão da classe, mas `set()` e
+`forget()` lançam `InvalidSettingsOwnerException`. Outras chaves string, incluindo `'00'`, continuam
+válidas.
 
 As configurações são armazenadas usando a classe morph atual do modelo. Adicionar ou alterar um alias
 do morph map depois que as configurações forem gravadas exige a atualização dos valores `item_type`

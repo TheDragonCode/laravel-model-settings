@@ -10,8 +10,8 @@ description: N+1-Abfragen beim Lesen von Einstellungen für Eloquent-Modell-Coll
 
 ## Einstellungen mit den Modellen laden
 
-Beim verzögerten Lesen von Einstellungen wird die Relation `modelSettings` geladen. Für eine
-Collection entsteht dadurch eine zusätzliche Einstellungsabfrage pro Modell.
+Ohne Eager Loading führt jeder Aufruf von `settings()->get()` oder `settings()->all()` eine
+Einstellungsabfrage aus. Diese Service-Lesevorgänge laden `modelSettings` nicht als Nebeneffekt.
 
 Lade die Relation vorab, wenn das Ergebnis mehrere Modelle enthält:
 
@@ -40,6 +40,12 @@ $settings = $users->map(
 );
 ```
 
+## Relationsgrenze
+
+Verwende `modelSettings` nur mit `with()`, `load()` oder `loadMissing()` sowie als geladene
+Relationseigenschaft. Sie ist eine Leseoptimierung und keine alternative Abfrage- oder CRUD-API.
+Lies und ändere Werte über `settings()` oder `defaultSettings()`.
+
 ## Abfrageverhalten
 
 Wenn übergeordnete Modelle abgerufen und ihre Einstellungen anschließend gelesen werden, kosten Lazy
@@ -59,12 +65,13 @@ Die Einstellungsabfrage enthält die Klassenstandards und alle angeforderten Mod
 kopiert anschließend geerbte Standardwerte in das geladene Ergebnis jedes Modells und ersetzt
 passende Schlüssel durch die Überschreibungen dieses Modells.
 
-Dieses Verhalten ist für ganzzahlige Primärschlüssel, UUIDs und ULIDs abgedeckt.
+Dieses Verhalten ist für ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärschlüssel abgedeckt.
 
 ## Änderungen nach dem Eager Loading
 
-`set()` und `forget()` löschen die geladene Relation `modelSettings` des betroffenen Modells. Beim
-nächsten Lesen wird die Relation neu geladen, sodass kein veralteter Wert zurückgegeben wird.
+`set()` und `forget()` löschen die geladene Relation `modelSettings` des betroffenen Modells. Der
+nächste Service-Lesevorgang fragt den aktuellen effektiven Wert ab und gibt keine veralteten Daten
+zurück. Lade die Relation vor einem weiteren gebündelten Lesevorgang erneut explizit vorab.
 
 Eine Änderung führt weiterhin ihre eigenen Schreibabfragen aus. Eager Loading beeinflusst nur die
 nachfolgenden Lesevorgänge.

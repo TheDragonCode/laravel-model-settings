@@ -36,7 +36,7 @@ composer style
 | `tests/Feature` | Значэнні па змаўчанні, перавызначэнні, выдаленне, адсутныя даныя і ўладальнікі |
 | `tests/Unit/Casts` | Стандартны JSON, карыстальніцкія пераўтварэнні, morph map і Laravel Data |
 | `tests/Unit/KeyTypes` | Радковыя і цэлалікавыя ключы, backed enum і pure unit enum |
-| `tests/Unit/PrimaryKeyTypes` | Цэлалікавыя ідэнтыфікатары, UUID і ULID бацькоўскіх мадэляў |
+| `tests/Unit/PrimaryKeyTypes` | Цэлалікавыя, радковыя, UUID- і ULID-ідэнтыфікатары бацькоўскіх мадэляў |
 | `tests/Unit/QueryCount` | Колькасць запытаў пры чытанні і запісе, уключаючы папярэднюю загрузку |
 | `tests/Architecture` | Прасторы імёнаў, тыпы, строгі рэжым і архітэктурныя правілы Laravel |
 

@@ -56,13 +56,16 @@ La migration publiée crée les colonnes suivantes :
 
 La combinaison de `item_type`, `item_id` et `key` est unique.
 
-La colonne `item_id` par défaut stocke au maximum 36 caractères. Les identifiants entiers, UUID et
-ULID tiennent dans ce schéma. Une clé primaire personnalisée plus longue nécessite une modification
-correspondante de la migration.
+La colonne `item_id` par défaut stocke au maximum 36 caractères. Les identifiants entiers, chaînes,
+UUID et ULID tiennent dans ce schéma lorsque leur représentation sous forme de chaîne ne dépasse pas
+36 caractères. Une clé primaire personnalisée plus longue nécessite une modification correspondante
+de la migration.
 
-La valeur `0` est réservée dans `item_id` aux valeurs par défaut de la classe. Si des données existent
-déjà, la modification de la connexion, du nom de table ou des alias de morph map nécessite de
-déplacer ou de mettre à jour vous-même les lignes existantes.
+La valeur `0` est réservée dans `item_id` aux valeurs par défaut de la classe. Dans la version 1.x,
+`set()` et `forget()` refusent un propriétaire enregistré dont la clé est l’entier `0` ou la chaîne
+`'0'` en levant `InvalidSettingsOwnerException` avant d’interroger cette table. Si des données
+existent déjà, la modification de la connexion, du nom de table ou des alias de morph map nécessite
+de déplacer ou de mettre à jour vous-même les lignes existantes.
 
 ## Remplacer le modèle de stockage
 
@@ -116,7 +119,7 @@ Le modèle de remplacement doit au minimum conserver les comportements suivants 
 |----------|--------|
 | Remplir `item_type`, `item_id`, `key` et `payload` | `updateOrCreate()` écrit ces attributs |
 | Utiliser la connexion et la table configurées | La migration et le dépôt doivent accéder aux mêmes lignes |
-| Convertir `item_id` en `string` | Les entiers, UUID et ULID partagent une colonne |
+| Convertir `item_id` en `string` | Les entiers, chaînes, UUID et ULID partagent une colonne |
 | Convertir `payload` avec `PayloadCast` ou un équivalent | Les lectures et écritures doivent conserver le comportement JSON |
 
 ## Voir aussi

@@ -22,7 +22,7 @@ Requires PHP 8.3+ and Laravel 12 or 13.
 - Per-model values override defaults without changing other records.
 - `get()` and `all()` resolve the effective values automatically.
 - Eager loading avoids one settings query per model in a collection.
-- Integer, UUID, and ULID primary keys work with or without a Laravel morph map.
+- Integer, string, UUID, and ULID primary keys work with or without a Laravel morph map.
 - Payloads use JSON by default and may use custom value objects.
 
 ## Quick Start
@@ -70,7 +70,7 @@ Read the [documentation site](https://model-settings.dragon-code.pro) or open a 
 |-------|-------------|
 | [Overview](docs/docs/index.md) | Resolution rules and supported models |
 | [Getting Started](docs/docs/getting-started.md) | Installation and first setting |
-| [Working with Settings](docs/docs/settings.md) | Defaults, overrides, keys, and blank values |
+| [Working with Settings](docs/docs/settings.md) | Defaults, owners, keys, and blank values |
 | [Eager Loading](docs/docs/eager-loading.md) | Avoiding settings N+1 queries |
 | [Configuration](docs/docs/configuration.md) | Connection, schema, and storage model |
 | [Payload Casts](docs/docs/payload-casts.md) | JSON, custom casts, and data objects |
