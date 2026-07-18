@@ -50,14 +50,37 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
+$hasTimezone = $settings->has('timezone');
 
-$user->settings()->forget('timezone');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
+$user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 `get()`은 최종 값 하나를 반환합니다. `all()`은 기본값과 재정의 값이 병합된
 `Illuminate\Support\Collection`을 반환합니다.
+최종 키의 존재 여부가 중요하면 컬렉션의 `has()` 메서드를 사용합니다. `get()`은 호출자가 지정하는 대체값
+인수를 의도적으로 받지 않습니다. 유일한 대체값은 저장된 클래스 기본값이며, 두 범위에 키가 없으면 `null`입니다.
 
-기본값과 재정의 값에는 `all()`, `get()`, `set()`, `forget()`의 동일한 네 작업을 사용합니다.
+기본값과 재정의 값에는 `all()`, `get()`, `set()`, `setMany()`, `forget()`, `forgetMany()`, `purge()`의
+동일한 작업을 사용합니다.
+
+## 패키지의 명확한 경계
+
+Laravel Model Settings는 Eloquent에 집중한 패키지이며 범용 애플리케이션 설정 프레임워크가 아닙니다.
+
+| 경계 | 의도된 동작 |
+|------|-------------|
+| 저장소 | 데이터베이스 테이블 하나만 사용하며 Redis 백엔드나 상위 모델 필드 저장소는 제공하지 않음 |
+| 기본값 | 같은 테이블의 예약 행을 사용하며 두 번째 기본값 테이블은 제공하지 않음 |
+| 등록 | 리포지토리 레지스트리, 타입이 지정된 전역 설정 클래스, 클래스 자동 검색을 제공하지 않음 |
+| 마이그레이션 | 설정 키별 마이그레이션 실행기를 제공하지 않음 |
+| 캐싱 | 요청 간 필수 캐시를 제공하지 않으며 즉시 로딩은 로딩된 관계만 재사용함 |
+
+이 기능이 필요한 애플리케이션은 `modelSettings` 관계나 내부 리포지토리를 확장 API로 취급하지 말고 패키지
+외부에서 조합해야 합니다.
 
 ## 저장 범위
 
@@ -78,8 +101,9 @@ $user->settings()->forget('timezone');
 map도 사용할 수 있습니다.
 
 모델별 설정은 저장된 모델에만 속합니다. 저장되지 않은 모델은 기본값을 상속하지 않습니다. `get()`은
-`null`을 반환하고 `all()`은 빈 컬렉션을 반환합니다. 저장되지 않은 소유자에 `set()` 또는 `forget()`을
-호출하면 저장소 쿼리가 실행되기 전에 `InvalidSettingsOwnerException`이 발생합니다.
+`null`을 반환하고 `all()`은 빈 컬렉션을 반환합니다. 저장되지 않은 소유자에 `set()`, `setMany()`,
+`forget()`, `forgetMany()`, `purge()`를 호출하면 저장소 쿼리가 실행되기 전에
+`InvalidSettingsOwnerException`이 발생합니다.
 
 페이로드는 JSON으로 저장됩니다. 캐스트를 구성하지 않으면 읽을 때 디코딩된 배열 또는 스칼라 값을 반환합니다.
 [페이로드 캐스트](payload-casts.md)를 사용하면 애플리케이션 전용 객체를 반환할 수 있습니다.

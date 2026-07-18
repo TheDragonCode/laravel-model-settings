@@ -26,7 +26,8 @@ Os valores devem ser serializáveis em JSON. Erros de codificação JSON não s�
 
 ## Seleção da conversão
 
-Conversões personalizadas são configuradas pela classe do modelo pai:
+O formato legado para todo o modelo aplica uma conversão a todas as configurações pertencentes a uma
+classe de modelo pai:
 
 ```php
 'casts' => [
@@ -34,12 +35,26 @@ Conversões personalizadas são configuradas pela classe do modelo pai:
 ],
 ```
 
-Uma conversão configurada processa todos os payloads de configuração pertencentes àquela classe de
-modelo pai. Os aliases do morph map do Laravel são resolvidos de volta para a classe do modelo antes
-da seleção da conversão.
+Use um mapa por chave quando somente chaves exatas precisarem de tratamento personalizado:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Os aliases do morph map do Laravel são resolvidos de volta para a classe do modelo pai antes da
+seleção. A correspondência usa a chave armazenada da configuração, não o nome do atributo Eloquent
+`payload`. Pontos são literais, então `billing.credentials` é uma única chave. Chaves ausentes de um
+mapa por chave usam o JSON normal.
 
 Uma classe configurada deve implementar `CastsAttributes` ou estender `Spatie\LaravelData\Data`.
-Outras classes não recebem tratamento personalizado e usam o caminho JSON padrão.
+Classes configuradas inválidas, ausentes, incompatíveis ou que o container não consegue resolver
+lançam `InvalidPayloadCast`; o pacote não volta silenciosamente ao JSON simples para uma entrada
+configurada.
 
 ## Ciclo de vida da conversão
 
@@ -51,7 +66,8 @@ Para uma implementação de `CastsAttributes`, o pacote executa esta sequência:
 | Leitura | Passar a string JSON armazenada para o `get()` personalizado |
 
 O argumento `$model` é o modelo de armazenamento configurado, não o modelo pai `User` ou `Post`.
-O pacote instancia a conversão sem argumentos no construtor.
+O pacote resolve implementações de `CastsAttributes` pelo container do Laravel, então dependências do
+construtor podem usar os bindings normais do container.
 
 ## Conversão de atributo do Eloquent
 
@@ -80,6 +96,57 @@ final class UserSettingsPayloadCast implements CastsAttributes
 O resultado do `set()` personalizado deve continuar serializável em JSON. Erros de codificação JSON
 não são suprimidos.
 
+## Criptografia por chave
+
+A criptografia pertence a uma conversão da aplicação porque o esquema do pacote não tem metadados de
+criptografia nem um contrato de rotação de chaves. Esta conversão criptografa uma chave de
+configuração e mantém todas as outras no caminho JSON normal:
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+
+final class EncryptedSettingPayload implements CastsAttributes
+{
+    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    {
+        $ciphertext = Json::decode($value);
+
+        return Json::decode(Crypt::decryptString((string) $ciphertext));
+    }
+
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return Crypt::encryptString(Json::encode($value));
+    }
+}
+```
+
+Registre-a para uma chave literal exata:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+```php
+$user->settings()->set('billing.credentials', $credentials);
+
+$credentials = $user->settings()->get('billing.credentials');
+```
+
+Não registre o valor em log antes nem depois da conversão. Se as chaves de criptografia puderem
+mudar, defina e teste uma política de rotação no nível da aplicação antes de armazenar dados de
+produção. Não adicione colunas de metadados à tabela do pacote sem um contrato de armazenamento
+separado que defina versionamento e rotação.
+
 ## Spatie Laravel Data
 
 Quando `spatie/laravel-data` estiver instalado, uma classe `Data` poderá ser usada diretamente:
@@ -90,7 +157,9 @@ composer require spatie/laravel-data:^4.23
 
 ```php
 'casts' => [
-    App\Models\User::class => App\Data\UserSettingsData::class,
+    App\Models\User::class => [
+        'preferences' => App\Data\UserSettingsData::class,
+    ],
 ],
 ```
 
@@ -108,8 +177,15 @@ $user->settings()->set('preferences', $preferences);
 $preferences = $user->settings()->get('preferences');
 ```
 
-A conversão é selecionada por classe de modelo pai, e não por chave. Todo payload desse modelo deve
-ser uma entrada válida para a conversão configurada.
+Outras chaves do mesmo modelo continuam usando o JSON normal. Use o formato legado para todo o modelo
+somente quando cada payload desse modelo pai for uma entrada válida para a classe de dados configurada.
+
+## Erros de conversão
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` identifica a classe do modelo pai, a
+chave da configuração e a conversão configurada quando a resolução falha. Ele nunca inclui o payload.
+A exceção é lançada em escritas simples e em lote, e também em leituras de valores persistidos que
+usam essa entrada configurada.
 
 ## Veja também
 

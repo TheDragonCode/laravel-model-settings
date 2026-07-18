@@ -23,7 +23,7 @@ This publishes `config/model_settings.php` and the package migration.
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | Eloquent model used for stored settings |
 | `connection` | Application default | Database connection used by the model and migration |
 | `table` | `settings` | Database table used by the model and migration |
-| `casts` | `[]` | Payload cast selected by parent model class |
+| `casts` | `[]` | Payload casts selected by parent model class and optionally setting key |
 
 The package reads these environment variables:
 
@@ -41,6 +41,33 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 Changing either value later does not move existing records.
 
+## Payload cast configuration
+
+The legacy model-wide form remains supported. One cast handles every payload owned by the model
+class:
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+Use a key-aware map when different keys need different types or handling:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Key matching is exact. Dots have no nested-path meaning, and a key missing from the map uses the
+default JSON cast. Each model entry is either a model-wide class string or a key-aware map; there is
+no wildcard entry inside a key-aware map. See [Payload Casts](payload-casts.md) for supported cast
+contracts and an encryption recipe.
+
 ## Storage schema
 
 The published migration creates these columns:
@@ -56,14 +83,17 @@ The published migration creates these columns:
 
 The combination of `item_type`, `item_id`, and `key` is unique.
 
+Class defaults and model overrides share this table. The package does not create a second defaults
+table or add encryption metadata columns.
+
 The default `item_id` column stores at most 36 characters. Integer, string, UUID, and ULID
 identifiers fit this schema when their string form is no longer than 36 characters. A longer custom
 primary key requires a matching migration change.
 
-The value `0` is reserved in `item_id` for class defaults. In 1.x, `set()` and `forget()` reject a
-persisted owner whose key is integer `0` or string `'0'` with `InvalidSettingsOwnerException` before
-querying this table. Changing the database connection, table name, or morph-map aliases after data
-exists requires moving or updating the existing rows yourself.
+The value `0` is reserved in `item_id` for class defaults. In 1.x, every mutation through
+`settings()` rejects a persisted owner whose key is integer `0` or string `'0'` with
+`InvalidSettingsOwnerException` before querying this table. Changing the database connection, table
+name, or morph-map aliases after data exists requires moving or updating the existing rows yourself.
 
 ## Replace the storage model
 

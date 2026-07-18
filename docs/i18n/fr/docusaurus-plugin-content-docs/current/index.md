@@ -52,15 +52,39 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
+$hasTimezone = $settings->has('timezone');
 
-$user->settings()->forget('timezone');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
+$user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 `get()` renvoie une valeur effective. `all()` renvoie une `Illuminate\Support\Collection` contenant
 les valeurs par défaut fusionnées avec les surcharges.
+Utilisez la méthode `has()` de la collection pour vérifier l’existence d’une clé effective. `get()`
+n’accepte volontairement aucune valeur de repli fournie par l’appelant : la valeur persistante par
+défaut de la classe est son seul repli, puis `null` est renvoyé si aucune portée ne contient la clé.
 
-Les valeurs par défaut et les surcharges utilisent les quatre mêmes opérations : `all()`, `get()`,
-`set()` et `forget()`.
+Les valeurs par défaut et les surcharges utilisent les mêmes opérations : `all()`, `get()`, `set()`,
+`setMany()`, `forget()`, `forgetMany()` et `purge()`.
+
+## Limites ciblées du paquet
+
+Laravel Model Settings est un paquet Eloquent ciblé, et non un framework général de paramètres
+d’application.
+
+| Limite | Comportement volontaire |
+|--------|-------------------------|
+| Stockage | Une table de base de données ; ni Redis ni stockage dans les champs du modèle parent |
+| Valeurs par défaut | Lignes réservées dans la même table ; aucune seconde table de valeurs par défaut |
+| Enregistrement | Aucun registre de dépôts, aucune classe globale typée de paramètres ni découverte de classes |
+| Migrations | Aucun exécuteur de migrations par clé de paramètre |
+| Cache | Aucun cache inter-requêtes obligatoire ; le chargement anticipé ne réutilise que la relation chargée |
+
+Les applications qui ont besoin de ces fonctions doivent les composer en dehors du paquet plutôt
+que d’utiliser `modelSettings` ou le dépôt interne comme API d’extension.
 
 ## Limites du stockage
 
@@ -83,8 +107,8 @@ UUID ou un ULID. Les modèles peuvent aussi utiliser une morph map Laravel.
 
 Les paramètres propres à un modèle nécessitent un modèle enregistré. Un modèle non enregistré
 n’hérite pas des valeurs par défaut : `get()` renvoie `null` et `all()` une collection vide. Appeler
-`set()` ou `forget()` pour un propriétaire non enregistré lève `InvalidSettingsOwnerException`
-avant toute requête de stockage.
+`set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` pour un propriétaire non enregistré
+lève `InvalidSettingsOwnerException` avant toute requête de stockage.
 
 Les données sont stockées au format JSON. Sans conversion configurée, la lecture renvoie des
 tableaux décodés ou des valeurs scalaires. Les [conversions des données](payload-casts.md) peuvent

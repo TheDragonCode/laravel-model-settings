@@ -26,7 +26,8 @@ Werte müssen als JSON serialisierbar sein. Fehler bei der JSON-Codierung werden
 
 ## Cast-Auswahl
 
-Benutzerdefinierte Casts werden nach der Klasse des übergeordneten Modells konfiguriert:
+Die bisherige modellweite Form wendet einen Cast auf jede Einstellung einer übergeordneten
+Modellklasse an:
 
 ```php
 'casts' => [
@@ -34,11 +35,27 @@ Benutzerdefinierte Casts werden nach der Klasse des übergeordneten Modells konf
 ],
 ```
 
-Ein konfigurierter Cast verarbeitet jeden Einstellungs-Payload dieser übergeordneten Modellklasse.
-Laravel-Morph-Map-Aliase werden vor der Cast-Auswahl zur Modellklasse zurückaufgelöst.
+Verwende eine schlüsselbezogene Map, wenn nur exakte Einstellungsschlüssel eine benutzerdefinierte
+Behandlung benötigen:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Laravel-Morph-Map-Aliase werden vor der Auswahl zur übergeordneten Modellklasse zurückaufgelöst. Der
+Schlüsselabgleich verwendet den gespeicherten Einstellungsschlüssel und nicht den Namen des
+Eloquent-Attributs `payload`. Punkte sind literal, deshalb ist `billing.credentials` ein einzelner
+Schlüssel. In einer schlüsselbezogenen Map fehlende Schlüssel verwenden normales JSON.
 
 Eine konfigurierte Klasse muss `CastsAttributes` implementieren oder `Spatie\LaravelData\Data`
-erweitern. Andere Klassen erhalten keine Sonderbehandlung und verwenden den Standard-JSON-Pfad.
+erweitern. Ungültige, fehlende, nicht unterstützte oder nicht durch den Container auflösbare Klassen
+lösen `InvalidPayloadCast` aus. Das Paket greift für einen konfigurierten Eintrag nicht stillschweigend
+auf einfaches JSON zurück.
 
 ## Cast-Lebenszyklus
 
@@ -50,7 +67,8 @@ Für eine `CastsAttributes`-Implementierung führt das Paket folgende Reihenfolg
 | Lesen | Gespeicherte JSON-Zeichenfolge an das benutzerdefinierte `get()` übergeben |
 
 Das Argument `$model` ist das konfigurierte Speichermodell und nicht das übergeordnete Modell `User`
-oder `Post`. Das Paket instanziiert den Cast ohne Konstruktorargumente.
+oder `Post`. Das Paket löst `CastsAttributes`-Implementierungen über Laravels Container auf. Abhängigkeiten
+im Konstruktor können deshalb normale Container-Bindings verwenden.
 
 ## Eloquent-Attribut-Cast
 
@@ -79,6 +97,57 @@ final class UserSettingsPayloadCast implements CastsAttributes
 Das Ergebnis des benutzerdefinierten `set()` muss als JSON serialisierbar bleiben. Fehler bei der
 JSON-Codierung werden nicht unterdrückt.
 
+## Verschlüsselung pro Schlüssel
+
+Verschlüsselung gehört in einen anwendungsspezifischen Cast, da das Paketschema keine
+Verschlüsselungsmetadaten und keinen Vertrag zur Schlüsselrotation besitzt. Dieser Cast verschlüsselt
+einen Einstellungsschlüssel, während alle anderen Schlüssel den normalen JSON-Pfad verwenden:
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+
+final class EncryptedSettingPayload implements CastsAttributes
+{
+    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    {
+        $ciphertext = Json::decode($value);
+
+        return Json::decode(Crypt::decryptString((string) $ciphertext));
+    }
+
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return Crypt::encryptString(Json::encode($value));
+    }
+}
+```
+
+Registriere ihn für einen exakten literalen Schlüssel:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+```php
+$user->settings()->set('billing.credentials', $credentials);
+
+$credentials = $user->settings()->get('billing.credentials');
+```
+
+Protokolliere den Wert weder vor noch nach dem Cast. Wenn sich Verschlüsselungsschlüssel ändern
+können, definiere und teste vor dem Speichern von Produktionsdaten eine Rotationsrichtlinie auf
+Anwendungsebene. Füge der Pakettabelle keine Metadatenspalten hinzu, solange kein eigener
+Speichervertrag Versionierung und Rotation definiert.
+
 ## Spatie Laravel Data
 
 Wenn `spatie/laravel-data` installiert ist, kann eine `Data`-Klasse direkt verwendet werden:
@@ -89,7 +158,9 @@ composer require spatie/laravel-data:^4.23
 
 ```php
 'casts' => [
-    App\Models\User::class => App\Data\UserSettingsData::class,
+    App\Models\User::class => [
+        'preferences' => App\Data\UserSettingsData::class,
+    ],
 ],
 ```
 
@@ -107,8 +178,16 @@ $user->settings()->set('preferences', $preferences);
 $preferences = $user->settings()->get('preferences');
 ```
 
-Ein Cast wird pro übergeordneter Modellklasse und nicht pro Schlüssel ausgewählt. Jeder Payload
-dieses Modells muss daher eine gültige Eingabe für den konfigurierten Cast sein.
+Andere Schlüssel desselben Modells verwenden weiterhin normales JSON. Verwende die bisherige
+modellweite Form nur, wenn jeder Payload dieses übergeordneten Modells eine gültige Eingabe für die
+konfigurierte Datenklasse ist.
+
+## Cast-Fehler
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` nennt bei einem Fehler die
+übergeordnete Modellklasse, den Einstellungsschlüssel und den konfigurierten Cast. Der Payload wird
+nie einbezogen. Die Exception wird bei einzelnen und gebündelten Schreibvorgängen sowie beim Lesen
+persistierter Werte über diesen konfigurierten Eintrag ausgelöst.
 
 ## Siehe auch
 

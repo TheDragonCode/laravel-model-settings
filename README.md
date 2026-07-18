@@ -20,10 +20,11 @@ Requires PHP 8.3+ and Laravel 12 or 13.
 
 - Shared defaults are isolated by Eloquent model class.
 - Per-model values override defaults without changing other records.
-- `get()` and `all()` resolve the effective values automatically.
+- `get()` and `all()` resolve shared defaults and per-model overrides automatically.
+- `setMany()`, `forgetMany()`, and `purge()` provide bounded-query bulk mutations.
 - Eager loading avoids one settings query per model in a collection.
 - Integer, string, UUID, and ULID primary keys work with or without a Laravel morph map.
-- Payloads use JSON by default and may use custom value objects.
+- Payloads use JSON by default and may use model-wide or per-key custom casts.
 
 ## Quick Start
 
@@ -54,13 +55,24 @@ Set a shared default, override it for a saved model, and read the effective valu
 (new User)->defaultSettings()->set('timezone', 'UTC');
 
 $user->settings()->set('timezone', 'Europe/Paris');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
 
 assert($user->settings()->get('timezone') === 'Europe/Paris');
+assert($user->settings()->all()->has('notifications.email'));
 
 $user->settings()->forget('timezone');
 
 assert($user->settings()->get('timezone') === 'UTC');
 ```
+
+## Package Scope
+
+This package deliberately stays database-backed and model-scoped. It does not provide Redis or
+model-field storage, a repository registry, typed global settings discovery, a per-key migration
+runner, a mandatory cross-request cache, or a second defaults table.
 
 ## Documentation
 
@@ -68,7 +80,7 @@ Read the [documentation site](https://model-settings.dragon-code.pro) or open a 
 
 | Guide | Description |
 |-------|-------------|
-| [Overview](docs/docs/index.md) | Resolution rules and supported models |
+| [Overview](docs/docs/index.md) | Resolution rules, boundaries, and supported models |
 | [Getting Started](docs/docs/getting-started.md) | Installation and first setting |
 | [Working with Settings](docs/docs/settings.md) | Defaults, owners, keys, and blank values |
 | [Eager Loading](docs/docs/eager-loading.md) | Avoiding settings N+1 queries |

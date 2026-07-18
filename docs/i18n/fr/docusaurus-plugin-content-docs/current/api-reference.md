@@ -29,10 +29,16 @@ l’exécution, la relation est une `SettingsRelation` du paquet basée sur la r
 | `all()` | `Collection` | Renvoie les valeurs par défaut fusionnées avec les surcharges du modèle |
 | `get(int\|string\|UnitEnum $key)` | `mixed` | Renvoie une surcharge, sa valeur par défaut ou `null` |
 | `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Crée, remplace ou supprime un paramètre vide |
+| `setMany(iterable $values)` | `void` | Écrit les valeurs non vides et supprime les valeurs vides dans un lot borné |
 | `forget(int\|string\|UnitEnum $key)` | `void` | Supprime un paramètre s’il existe |
+| `forgetMany(iterable $keys)` | `void` | Supprime les clés indiquées de la portée actuelle |
+| `purge()` | `void` | Supprime tous les paramètres stockés dans la portée actuelle |
 
 Les méthodes utilisant une clé acceptent les backed enums et les pure unit enums. Laravel convertit
 les backed enums en leur valeur sous-jacente et les pure unit enums en nom de cas.
+
+`SettingsService` ne fournit ni argument de repli pour `get()` ni méthode `has()` distincte. Utilisez
+`all()->has($key)` pour vérifier l’existence d’une clé effective.
 
 ## Matrice de résolution
 
@@ -52,6 +58,7 @@ modèles enregistrés héritent des valeurs par défaut de la classe.
 $settings = $user->settings()->all();
 
 $timezone = $settings->get('timezone');
+$hasTimezone = $settings->has('timezone');
 ```
 
 Le résultat est une `Illuminate\Support\Collection` indexée par la clé du paramètre. Pour les
@@ -64,7 +71,8 @@ $timezone = $user->settings()->get('timezone');
 ```
 
 Le résultat est la valeur effective décodée ou convertie. Une surcharge absente utilise la valeur
-par défaut. Si la surcharge et la valeur par défaut sont absentes, la méthode renvoie `null`.
+par défaut. Si la surcharge et la valeur par défaut sont absentes, la méthode renvoie `null`. Sa
+signature n’accepte volontairement aucun second argument de repli.
 
 ## set
 
@@ -78,6 +86,22 @@ La validation a lieu avant la sélection du traitement des valeurs vides. Dans l
 relation `modelSettings` chargée est effacée afin que la prochaine lecture ne réutilise pas
 d’anciennes données.
 
+## setMany
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+    'obsolete' => null,
+]);
+```
+
+Les clés de l’iterable sont normalisées comme avec `set()`. Si plusieurs clés d’entrée se
+normalisent vers la même chaîne, la dernière valeur est retenue. Les valeurs non vides utilisent un
+upsert natif unique et les valeurs vides une suppression unique. Lorsque les deux groupes existent,
+les opérations s’exécutent dans une transaction. La méthode valide le propriétaire avant de
+consommer l’iterable et efface `modelSettings` une fois après la réussite.
+
 ## forget
 
 ```php
@@ -88,23 +112,47 @@ Pour un propriétaire valide, la méthode est sûre lorsque la clé n’existe p
 surcharge ne supprime pas sa valeur par défaut partagée. La relation chargée est effacée après la
 suppression.
 
+## forgetMany
+
+```php
+$user->settings()->forgetMany(['timezone', 'locale']);
+```
+
+La méthode normalise et déduplique l’iterable, puis supprime uniquement ces clés de la portée actuelle
+avec une requête. Les clés absentes n’ont aucun effet. Elle renvoie `void` et efface la relation
+chargée après un appel réussi, y compris avec un iterable vide.
+
+## purge
+
+```php
+$user->settings()->purge();
+```
+
+Avec `settings()`, la méthode supprime toutes les surcharges du propriétaire enregistré. Elle ne
+supprime ni les valeurs par défaut de la classe ni les surcharges d’un autre propriétaire. Avec
+`defaultSettings()`, elle supprime toutes les valeurs par défaut de cette classe et conserve les
+surcharges des modèles. Elle renvoie `void` et efface une relation chargée après la réussite.
+
 ## defaultSettings
 
-Le service renvoyé par `defaultSettings()` possède les quatre mêmes méthodes :
+Le service renvoyé par `defaultSettings()` possède les sept mêmes méthodes :
 
 ```php
 $defaults = (new User)->defaultSettings();
 
 $defaults->set('timezone', 'UTC');
+$defaults->setMany(['timezone' => 'UTC', 'locale' => 'en']);
 $timezone = $defaults->get('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
+$defaults->forgetMany(['timezone', 'locale']);
+$defaults->purge();
 ```
 
 ## Exceptions
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` étend la classe PHP
-`DomainException`. `settings()->set()` et `settings()->forget()` la lèvent avant toute requête de
+`DomainException`. Toute méthode de modification via `settings()` la lève avant une requête de
 stockage lorsque l’une des conditions suivantes est remplie :
 
 - Le modèle propriétaire n’est pas enregistré, y compris lorsqu’une clé lui a été attribuée à
@@ -112,12 +160,20 @@ stockage lorsque l’une des conditions suivantes est remplie :
 - La clé du propriétaire enregistré est l’entier `0` ou la chaîne `'0'`, ce qui entre en conflit
   avec la valeur sentinelle des paramètres par défaut de la classe dans la version 1.x.
 
-Cette validation s’applique aussi lorsque `set()` reçoit une valeur vide. Les modifications par
+Cette validation a aussi lieu avant la consommation d’un iterable groupé. Les modifications par
 `defaultSettings()` restent valides, car ce service sélectionne explicitement la portée des valeurs
 par défaut de la classe. La lecture reste déterministe : un propriétaire non enregistré renvoie
 `null` ou une collection vide sans interroger les surcharges, tandis qu’un propriétaire enregistré
 avec la clé `0` peut lire les valeurs par défaut de la classe, mais pas les modifier comme surcharges
 du modèle.
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` est levée lorsqu’une conversion
+configurée pour un modèle ou une clé est absente, d’un type invalide, n’implémente aucun contrat pris
+en charge ou ne peut pas être résolue par le conteneur Laravel. Son message peut identifier le modèle
+parent, la clé et la classe de conversion, mais jamais les données.
+
+Si une opération `setMany()` mixte échoue, la transaction annule l’écriture et la suppression.
+L’exception est relancée et la relation `modelSettings` déjà chargée n’est pas effacée.
 
 ## Voir aussi
 

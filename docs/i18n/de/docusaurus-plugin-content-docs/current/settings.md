@@ -59,6 +59,19 @@ $settings = $user->settings()->all();
 
 `all()` gibt eine `Illuminate\Support\Collection` zurück, die nach Einstellungsschlüsseln indiziert ist.
 
+`get()` akzeptiert nur den Schlüssel. Die Methode gibt zuerst die Modellüberschreibung, dann den
+persistierten Klassenstandard und anschließend `null` zurück. Sie akzeptiert keinen vom Aufrufer
+angegebenen Ersatzwert. Verwende die Collection, um einen fehlenden effektiven Schlüssel von einem
+gespeicherten Wert zu unterscheiden:
+
+```php
+$settings = $user->settings()->all();
+
+if ($settings->has('timezone')) {
+    $timezone = $settings->get('timezone');
+}
+```
+
 Eine Überschreibung ersetzt beispielsweise nur den passenden Standardwert:
 
 ```php
@@ -94,9 +107,43 @@ Rufe `forget()` über `defaultSettings()` auf, um den Standardwert selbst zu ent
 
 Der Aufruf von `forget()` für einen fehlenden Schlüssel hat keine Auswirkung.
 
+## Gebündelte Änderungen
+
+Verwende `setMany()` und `forgetMany()`, wenn in einem Bereich mehrere Änderungen nötig sind:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->settings()->forgetMany(['timezone', 'locale']);
+```
+
+Beide Methoden akzeptieren jedes Iterable. `setMany()` normalisiert jeden Schlüssel vor dem
+Schreiben. Werden mehrere Eingabeschlüssel auf denselben gespeicherten Schlüssel normalisiert,
+gewinnt der letzte Wert. Leere Werte löschen diesen Schlüssel nach derselben Regel wie `set()` aus
+dem aktuellen Bereich.
+
+Ein gemischter `setMany()`-Batch verwendet ein Upsert und einen Löschvorgang innerhalb einer
+Transaktion. `forgetMany()` verwendet einen Löschvorgang für alle angegebenen Schlüssel. Die Anzahl
+der Abfragen hängt von den Operationstypen im Batch und nicht von der Anzahl der Schlüssel ab.
+
+Verwende `purge()`, um den gesamten aktuellen Bereich zu entfernen:
+
+```php
+$user->settings()->purge();
+```
+
+Bei `settings()` löscht `purge()` nur die Überschreibungen dieses Besitzers und macht persistierte
+Standardwerte wieder sichtbar. Bei `defaultSettings()` löscht die Methode die Standardwerte dieser
+Modellklasse, ohne Modellüberschreibungen zu löschen. Alle drei gebündelten Methoden geben `void`
+zurück.
+
 ## Leere Werte
 
-`set()` verwendet Laravels `blank()`-Helper. Ein leerer Wert löscht die Einstellung, statt sie zu speichern.
+`set()` und `setMany()` verwenden Laravels `blank()`-Helper. Ein leerer Wert löscht die Einstellung,
+statt sie zu speichern.
 
 | Wert | Ergebnis |
 |------|----------|
@@ -107,7 +154,7 @@ Der Aufruf von `forget()` für einen fehlenden Schlüssel hat keine Auswirkung.
 | `false` | Gespeichert |
 | `'0'` | Gespeichert |
 
-Das Paket kann mit `set()` keinen absichtlich leeren Wert speichern.
+Das Paket kann mit keiner der beiden Methoden einen absichtlich leeren Wert speichern.
 
 ## Einstellungsschlüssel
 
@@ -130,18 +177,28 @@ seinem Case-Namen. Verwende beim Lesen, Ersetzen oder Entfernen denselben Schlü
 Das Paket validiert den Inhalt eines Schlüssels nicht. Die öffentliche API und das Standardschema
 akzeptieren leere Schlüssel und Schlüssel, die nur aus Leerzeichen bestehen.
 
+Punkte sind literale Zeichen. Der Schlüssel `mail.from.address` ist ein einzelner undurchsichtiger
+Einstellungsschlüssel und bezeichnet nie einen verschachtelten Pfad:
+
+```php
+$user->settings()->set('mail.from.address', 'noreply@example.com');
+
+$address = $user->settings()->get('mail.from.address');
+```
+
 ## Modell-IDs
 
 Ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärschlüssel werden unterstützt.
 
 Modellspezifische Änderungen benötigen einen gespeicherten Besitzer mit einem Schlüssel ungleich
 `null`. Für ein ungespeichertes Modell gibt `get()` `null` und `all()` eine leere Collection zurück,
-ohne Modellüberschreibungen abzufragen. Seine Methoden `set()` und `forget()` lösen vor einer
-Speicherabfrage eine `InvalidSettingsOwnerException` aus.
+ohne Modellüberschreibungen abzufragen. Seine Methoden `set()`, `setMany()`, `forget()`,
+`forgetMany()` und `purge()` lösen vor einer Speicherabfrage oder dem Durchlaufen des Iterables eine
+`InvalidSettingsOwnerException` aus.
 
 Die Ganzzahl `0` und die Zeichenfolge `'0'` sind in 1.x für gemeinsame Standardwerte reserviert. Ein
-gespeichertes Modell mit einem dieser Schlüssel kann Klassenstandards lesen, aber `set()` und
-`forget()` lösen eine `InvalidSettingsOwnerException` aus. Andere Zeichenfolgenschlüssel,
+gespeichertes Modell mit einem dieser Schlüssel kann Klassenstandards lesen, aber jede
+Änderungsmethode löst eine `InvalidSettingsOwnerException` aus. Andere Zeichenfolgenschlüssel,
 einschließlich `'00'`, bleiben gültig.
 
 Einstellungen werden unter der aktuellen Morph-Klasse des Modells gespeichert. Wird ein Morph-Map-

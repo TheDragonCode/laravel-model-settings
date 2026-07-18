@@ -23,7 +23,7 @@ Cette commande publie `config/model_settings.php` et la migration du paquet.
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | Modèle Eloquent utilisé pour les paramètres stockés |
 | `connection` | Valeur par défaut de l’application | Connexion utilisée par le modèle et la migration |
 | `table` | `settings` | Table utilisée par le modèle et la migration |
-| `casts` | `[]` | Conversion des données sélectionnée selon la classe du modèle parent |
+| `casts` | `[]` | Conversions sélectionnées selon la classe du modèle parent et, facultativement, la clé |
 
 Le paquet lit les variables d’environnement suivantes :
 
@@ -41,6 +41,35 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 La modification ultérieure de l’une de ces valeurs ne déplace pas les enregistrements existants.
 
+## Configuration des conversions
+
+L’ancienne forme à l’échelle du modèle reste prise en charge. Une conversion traite toutes les
+données appartenant à la classe du modèle :
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+Utilisez une table indexée par clé lorsque différentes clés nécessitent des types ou traitements
+distincts :
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+La correspondance des clés est exacte. Les points ne représentent aucun chemin imbriqué et une clé
+absente de la table utilise la conversion JSON par défaut. Chaque entrée de modèle est soit une
+chaîne de classe pour tout le modèle, soit une table indexée par clé ; aucun caractère générique
+n’existe dans cette table. Consultez [Conversions des données](payload-casts.md) pour les contrats
+pris en charge et une recette de chiffrement.
+
 ## Schéma de stockage
 
 La migration publiée crée les colonnes suivantes :
@@ -56,14 +85,18 @@ La migration publiée crée les colonnes suivantes :
 
 La combinaison de `item_type`, `item_id` et `key` est unique.
 
+Les valeurs par défaut de classe et les surcharges de modèles partagent cette table. Le paquet ne
+crée aucune seconde table de valeurs par défaut et n’ajoute aucune colonne de métadonnées de
+chiffrement.
+
 La colonne `item_id` par défaut stocke au maximum 36 caractères. Les identifiants entiers, chaînes,
 UUID et ULID tiennent dans ce schéma lorsque leur représentation sous forme de chaîne ne dépasse pas
 36 caractères. Une clé primaire personnalisée plus longue nécessite une modification correspondante
 de la migration.
 
 La valeur `0` est réservée dans `item_id` aux valeurs par défaut de la classe. Dans la version 1.x,
-`set()` et `forget()` refusent un propriétaire enregistré dont la clé est l’entier `0` ou la chaîne
-`'0'` en levant `InvalidSettingsOwnerException` avant d’interroger cette table. Si des données
+toute mutation via `settings()` refuse un propriétaire enregistré dont la clé est l’entier `0` ou la
+chaîne `'0'` en levant `InvalidSettingsOwnerException` avant d’interroger cette table. Si des données
 existent déjà, la modification de la connexion, du nom de table ou des alias de morph map nécessite
 de déplacer ou de mettre à jour vous-même les lignes existantes.
 

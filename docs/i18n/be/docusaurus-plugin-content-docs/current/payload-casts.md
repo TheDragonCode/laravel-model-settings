@@ -26,7 +26,8 @@ $notifications = $user->settings()->get('notifications');
 
 ## Выбар пераўтварэння
 
-Карыстальніцкія пераўтварэнні наладжваюцца па класе бацькоўскай мадэлі:
+Сумяшчальная форма для ўсёй мадэлі прымяняе адно пераўтварэнне да ўсіх налад класа бацькоўскай
+мадэлі:
 
 ```php
 'casts' => [
@@ -34,11 +35,25 @@ $notifications = $user->settings()->get('notifications');
 ],
 ```
 
-Адно наладжанае пераўтварэнне апрацоўвае даныя ўсіх налад гэтага класа бацькоўскай мадэлі. Перад
-выбарам пераўтварэння псеўданімы Laravel morph map вызначаюцца назад у клас мадэлі.
+Выкарыстоўвайце карту па ключах, калі спецыяльная апрацоўка патрэбна толькі дакладным ключам налад:
 
-Наладжаны клас павінен рэалізоўваць `CastsAttributes` або пашыраць `Spatie\LaravelData\Data`. Для
-іншых класаў спецыяльная апрацоўка не ўжываецца, і значэнні выкарыстоўваюць стандартны шлях JSON.
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Перад выбарам пераўтварэння псеўданімы Laravel morph map вызначаюцца назад у клас бацькоўскай
+мадэлі. Супастаўленне выкарыстоўвае захаваны ключ налады, а не назву Eloquent-атрыбута `payload`.
+Кропкі з’яўляюцца звычайнымі сімваламі, таму `billing.credentials` — адзін ключ. Адсутныя ў карце
+ключы выкарыстоўваюць звычайны JSON.
+
+Наладжаны клас павінен рэалізоўваць `CastsAttributes` або пашыраць `Spatie\LaravelData\Data`.
+Няправільны, адсутны, непадтрыманы або невырашальны кантэйнерам клас выклікае
+`InvalidPayloadCast`; для наладжанага запісу пакет не пераходзіць да звычайнага JSON без памылкі.
 
 ## Жыццёвы цыкл пераўтварэння
 
@@ -50,7 +65,8 @@ $notifications = $user->settings()->get('notifications');
 | Чытанне | Перадаць захаваны JSON-радок у карыстальніцкі `get()` |
 
 Аргумент `$model` змяшчае наладжаную мадэль захоўвання налад, а не бацькоўскую мадэль `User` або
-`Post`. Пакет стварае асобнік пераўтварэння без аргументаў канструктара.
+`Post`. Рэалізацыі `CastsAttributes` вырашаюцца праз кантэйнер Laravel, таму залежнасці канструктара
+могуць выкарыстоўваць звычайныя прывязкі кантэйнера.
 
 ## Пераўтварэнне атрыбута Eloquent
 
@@ -79,6 +95,56 @@ final class UserSettingsPayloadCast implements CastsAttributes
 Вынік карыстальніцкага `set()` павінен падтрымліваць серыялізацыю ў JSON. Памылкі кадавання JSON не
 хаваюцца.
 
+## Шыфраванне асобнага ключа
+
+Шыфраванне трэба рэалізаваць у пераўтварэнні праграмы, бо схема пакета не вызначае метаданыя
+шыфравання і кантракт ратацыі ключоў. Гэта пераўтварэнне шыфруе адзін ключ, а астатнія пакідае на
+стандартным шляху JSON:
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+
+final class EncryptedSettingPayload implements CastsAttributes
+{
+    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    {
+        $ciphertext = Json::decode($value);
+
+        return Json::decode(Crypt::decryptString((string) $ciphertext));
+    }
+
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return Crypt::encryptString(Json::encode($value));
+    }
+}
+```
+
+Зарэгіструйце яго для дакладнага літаральнага ключа:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+```php
+$user->settings()->set('billing.credentials', $credentials);
+
+$credentials = $user->settings()->get('billing.credentials');
+```
+
+Не запісвайце значэнне ў журнал да або пасля пераўтварэння. Калі ключы шыфравання могуць змяняцца,
+вызначце і праверце палітыку ратацыі праграмы да захоўвання production-даных. Не дадавайце слупкі
+метаданых у табліцу пакета без асобнага кантракта захоўвання, які вызначае версіянаванне і ратацыю.
+
 ## Spatie Laravel Data
 
 Калі ўсталяваны `spatie/laravel-data`, клас `Data` можна выкарыстоўваць непасрэдна:
@@ -89,7 +155,9 @@ composer require spatie/laravel-data:^4.23
 
 ```php
 'casts' => [
-    App\Models\User::class => App\Data\UserSettingsData::class,
+    App\Models\User::class => [
+        'preferences' => App\Data\UserSettingsData::class,
+    ],
 ],
 ```
 
@@ -107,8 +175,16 @@ $user->settings()->set('preferences', $preferences);
 $preferences = $user->settings()->get('preferences');
 ```
 
-Пераўтварэнне выбіраецца для класа бацькоўскай мадэлі, а не для асобнага ключа. Таму даныя кожнай
-налады гэтай мадэлі павінны быць дапушчальным уваходам для наладжанага пераўтварэння.
+Іншыя ключы той жа мадэлі працягваюць выкарыстоўваць звычайны JSON. Выкарыстоўвайце сумяшчальную
+форму для ўсёй мадэлі толькі тады, калі даныя кожнай налады гэтага ўладальніка падыходзяць
+наладжанаму класу даных.
+
+## Памылкі пераўтварэння
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` паказвае клас бацькоўскай мадэлі,
+ключ налады і наладжанае пераўтварэнне пры памылцы вырашэння. Выключэнне ніколі не змяшчае даныя
+налады. Яно выклікаецца для адзіночных і групавых запісаў, а таксама пры чытанні захаванага значэння
+праз такі наладжаны запіс.
 
 ## Гл. таксама
 

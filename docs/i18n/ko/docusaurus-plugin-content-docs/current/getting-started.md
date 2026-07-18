@@ -91,9 +91,9 @@ assert($user->settings()->get('timezone') === 'UTC');
 
 ## 모델을 먼저 저장
 
-상위 모델을 저장한 후에만 `settings()->set()`과 `settings()->forget()`을 사용합니다. 저장되지 않은 모델에서는
-클래스 기본값이 있어도 `settings()->get()`이 `null`을 반환하고 `settings()->all()`이 빈 컬렉션을 반환합니다.
-두 변경 메서드는 저장소 쿼리가 실행되기 전에
+상위 모델을 저장한 후에만 `settings()->set()`, `setMany()`, `forget()`, `forgetMany()`, `purge()`를
+사용합니다. 저장되지 않은 모델에서는 클래스 기본값이 있어도 `settings()->get()`이 `null`을 반환하고
+`settings()->all()`이 빈 컬렉션을 반환합니다. 모든 변경 메서드는 저장소 쿼리가 실행되기 전에
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException`을 발생시킵니다.
 
 ## 함께 보기

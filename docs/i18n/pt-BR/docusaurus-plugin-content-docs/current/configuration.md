@@ -23,7 +23,7 @@ Isso publica `config/model_settings.php` e a migration do pacote.
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | Modelo Eloquent usado para as configurações armazenadas |
 | `connection` | Padrão da aplicação | Conexão usada pelo modelo e pela migration |
 | `table` | `settings` | Tabela usada pelo modelo e pela migration |
-| `casts` | `[]` | Conversão de payload selecionada pela classe do modelo pai |
+| `casts` | `[]` | Conversões de payload selecionadas pela classe do modelo pai e, opcionalmente, pela chave da configuração |
 
 O pacote lê estas variáveis de ambiente:
 
@@ -41,6 +41,33 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 Alterar qualquer um desses valores depois não move os registros existentes.
 
+## Configuração das conversões de payload
+
+O formato legado para todo o modelo continua compatível. Uma conversão processa todos os payloads
+pertencentes à classe do modelo:
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+Use um mapa por chave quando chaves diferentes precisarem de tipos ou tratamentos diferentes:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+A correspondência da chave é exata. Pontos não representam caminhos aninhados, e uma chave ausente
+do mapa usa a conversão JSON padrão. Cada entrada de modelo é uma string de classe para todo o modelo
+ou um mapa por chave; não existe uma entrada curinga dentro desse mapa. Consulte
+[Conversões de payload](payload-casts.md) para ver os contratos compatíveis e um exemplo de criptografia.
+
 ## Esquema de armazenamento
 
 A migration publicada cria estas colunas:
@@ -56,15 +83,18 @@ A migration publicada cria estas colunas:
 
 A combinação de `item_type`, `item_id` e `key` é única.
 
+Os valores padrão da classe e as sobrescritas dos modelos compartilham essa tabela. O pacote não cria
+uma segunda tabela de valores padrão nem adiciona colunas de metadados de criptografia.
+
 A coluna padrão `item_id` armazena no máximo 36 caracteres. Identificadores inteiros, string, UUID e
 ULID cabem nesse esquema quando sua representação como string tem no máximo 36 caracteres. Uma chave
 primária personalizada mais longa exige uma alteração correspondente na migration.
 
-O valor `0` em `item_id` é reservado para os valores padrão da classe. Na versão 1.x, `set()` e
-`forget()` rejeitam um proprietário persistido cuja chave seja o inteiro `0` ou a string `'0'`,
-lançando `InvalidSettingsOwnerException` antes de consultar essa tabela. Alterar a conexão, o nome da
-tabela ou os aliases do morph map depois que os dados existirem exige mover ou atualizar as linhas
-existentes manualmente.
+O valor `0` em `item_id` é reservado para os valores padrão da classe. Na versão 1.x, qualquer
+alteração por meio de `settings()` rejeita um proprietário persistido cuja chave seja o inteiro `0`
+ou a string `'0'`, lançando `InvalidSettingsOwnerException` antes de consultar essa tabela. Alterar a
+conexão, o nome da tabela ou os aliases do morph map depois que os dados existirem exige mover ou
+atualizar as linhas existentes manualmente.
 
 ## Substituir o modelo de armazenamento
 

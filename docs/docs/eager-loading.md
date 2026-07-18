@@ -69,9 +69,21 @@ This behavior is covered for integer, string, UUID, and ULID primary keys.
 
 ## Changes after eager loading
 
-`set()` and `forget()` clear the loaded `modelSettings` relation on that model. The next service read
-queries the current effective value, so it does not return stale data. Explicitly eager load the
-relation again before another batch read.
+After a successful `set()`, `setMany()`, `forget()`, `forgetMany()`, or `purge()`, the package clears
+the loaded `modelSettings` relation on that model exactly once. The next service read queries the
+current effective value, so it does not return stale data. A failed bulk mutation keeps the existing
+loaded relation and rolls back a mixed write/delete transaction.
+
+Explicitly load the relation again before another batch read:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->load('modelSettings');
+```
 
 Mutation still performs its own write queries. Eager loading only changes subsequent reads.
 
