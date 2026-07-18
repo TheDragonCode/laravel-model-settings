@@ -27,8 +27,9 @@ os dois métodos de serviço para ler ou alterar valores. Em tempo de execução
 |--------|---------|---------------|
 | `all()` | `Collection` | Retorna os valores padrão combinados com as sobrescritas do modelo |
 | `get(int\|string\|UnitEnum $key)` | `mixed` | Retorna uma sobrescrita, seu valor padrão ou `null` |
-| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Cria, substitui ou remove uma configuração vazia |
-| `setMany(iterable $values)` | `void` | Faz upsert de valores preenchidos e remove valores vazios em um lote limitado |
+| `has(int\|string\|UnitEnum $key)` | `bool` | Informa se uma chave efetiva existe, inclusive com `null` armazenado |
+| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Cria ou substitui uma configuração com o valor JSON exato |
+| `setMany(iterable $values)` | `void` | Faz upsert de todos os valores em um lote transacional limitado |
 | `forget(int\|string\|UnitEnum $key)` | `void` | Remove uma configuração se ela existir |
 | `forgetMany(iterable $keys)` | `void` | Remove as chaves informadas do escopo atual |
 | `purge()` | `void` | Remove todas as configurações armazenadas no escopo atual |
@@ -36,20 +37,20 @@ os dois métodos de serviço para ler ou alterar valores. Em tempo de execução
 Os métodos com chave aceitam backed enums e pure unit enums. O Laravel converte backed enums para
 seu valor subjacente e pure unit enums para o nome do case.
 
-`SettingsService` não tem um parâmetro de valor alternativo fornecido pelo chamador em `get()` nem
-um método `has()` separado. Use `all()->has($key)` para testar se uma chave efetiva existe.
+`SettingsService` não tem um parâmetro de valor alternativo fornecido pelo chamador em `get()`. Use
+`has($key)` para distinguir uma chave efetiva ausente de um JSON `null` armazenado.
 
 ## Matriz de resolução
 
-| Sobrescrita do modelo | Padrão da classe | Resultado de `get()` | Incluído em `all()` |
-|-----------------------|------------------|----------------------|---------------------|
-| Presente | Presente | Sobrescrita | Sobrescrita |
-| Presente | Ausente | Sobrescrita | Sobrescrita |
-| Ausente | Presente | Padrão | Padrão |
-| Ausente | Ausente | `null` | Nenhuma entrada |
+| Sobrescrita do modelo | Padrão da classe | Resultado de `get()` | Resultado de `has()` | Incluído em `all()` |
+|-----------------------|------------------|----------------------|----------------------|---------------------|
+| Presente | Presente | Sobrescrita, inclusive `null` | `true` | Sobrescrita |
+| Presente | Ausente | Sobrescrita, inclusive `null` | `true` | Sobrescrita |
+| Ausente | Presente | Padrão, inclusive `null` | `true` | Padrão |
+| Ausente | Ausente | `null` | `false` | Nenhuma entrada |
 
-Para um modelo não persistido, `get()` retorna `null` e `all()` retorna uma coleção vazia. Somente
-modelos persistidos herdam os valores padrão da classe.
+Para um modelo não persistido, `get()` retorna `null`, `has()` retorna `false` e `all()` retorna uma
+coleção vazia. Somente modelos persistidos herdam os valores padrão da classe.
 
 ## all
 
@@ -57,7 +58,6 @@ modelos persistidos herdam os valores padrão da classe.
 $settings = $user->settings()->all();
 
 $timezone = $settings->get('timezone');
-$hasTimezone = $settings->has('timezone');
 ```
 
 O resultado é uma `Illuminate\Support\Collection` indexada pela chave da configuração. Para
@@ -73,17 +73,28 @@ O resultado é o valor efetivo decodificado ou convertido. Quando a sobrescrita 
 padrão é usado. Se nem a sobrescrita nem o padrão existirem, o resultado será `null`. A assinatura
 intencionalmente não aceita um segundo argumento de valor alternativo.
 
+## has
+
+```php
+$hasTimezone = $user->settings()->has('timezone');
+```
+
+O método retorna `true` quando existe uma sobrescrita do modelo ou uma linha de valor padrão da
+classe. Um JSON `null` armazenado retorna `true`; uma chave ausente retorna `false`. Os serviços com
+carregamento preguiçoso e antecipado usam a mesma precedência, e o caminho antecipado não executa
+outra consulta de configurações.
+
 ## set
 
 ```php
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-O método valida o proprietário e então executa uma operação update-or-create para o tipo do modelo,
-o identificador, o discriminador de escopo e a chave. Um valor considerado vazio pelo Laravel remove
-a linha. A validação ocorre antes da seleção do caminho de valor vazio. Em ambos os caminhos, a
-relação `modelSettings` carregada é limpa para que a próxima leitura não reutilize dados
-desatualizados.
+O método valida o proprietário e a chave normalizada, então executa uma operação update-or-create
+para o tipo do modelo, o identificador, o discriminador de escopo e a chave. Todos os valores JSON
+são armazenados, incluindo `null`, strings vazias, strings de espaços, arrays vazios, zero e `false`.
+Depois de uma escrita bem-sucedida, a relação `modelSettings` carregada é limpa para que a próxima
+leitura não reutilize dados desatualizados.
 
 ## setMany
 
@@ -96,10 +107,9 @@ $user->settings()->setMany([
 ```
 
 As chaves do iterable usam a mesma normalização de `set()`. Se várias chaves de entrada forem
-normalizadas para a mesma string, o último valor vence. Valores preenchidos usam um upsert nativo do
-banco; valores vazios usam uma exclusão. Quando os dois grupos existem, ambas as operações são
-executadas em uma transação. O método valida o proprietário antes de consumir o iterable e limpa
-`modelSettings` uma vez depois do sucesso.
+normalizadas para a mesma string, o último valor vence. Todos os valores usam um único upsert nativo
+do banco dentro de uma transação. O método valida o proprietário antes de consumir o iterable e limpa
+`modelSettings` uma vez depois do sucesso. Use `forgetMany()` para exclusão.
 
 ## forget
 
@@ -133,7 +143,7 @@ dos modelos. Ele retorna `void` e limpa uma relação carregada depois do sucess
 
 ## defaultSettings
 
-O serviço retornado por `defaultSettings()` tem os mesmos sete métodos:
+O serviço retornado por `defaultSettings()` tem os mesmos oito métodos:
 
 ```php
 $defaults = (new User)->defaultSettings();
@@ -141,6 +151,7 @@ $defaults = (new User)->defaultSettings();
 $defaults->set('timezone', 'UTC');
 $defaults->setMany(['timezone' => 'UTC', 'locale' => 'en']);
 $timezone = $defaults->get('timezone');
+$hasTimezone = $defaults->has('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 $defaults->forgetMany(['timezone', 'locale']);
@@ -157,17 +168,21 @@ chave antecipadamente.
 Essa validação também ocorre antes do consumo de um iterable em lote. Alterações por meio de
 `defaultSettings()` continuam válidas porque esse serviço seleciona explicitamente o escopo dos
 valores padrão da classe. A leitura permanece determinística: um proprietário não persistido retorna
-`null` ou uma coleção vazia sem consultar sobrescritas. Um proprietário persistido com chave inteira
-`0` ou string `'0'` pode ler e alterar suas sobrescritas; `is_default` mantém essas linhas separadas
-dos padrões da classe.
+`null` ou uma coleção vazia sem consultar sobrescritas, e `has()` retorna `false`. Um proprietário
+persistido com chave inteira `0` ou string `'0'` pode ler e alterar suas sobrescritas; `is_default`
+mantém essas linhas separadas dos padrões da classe.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` é lançada quando uma conversão
 configurada para todo o modelo ou por chave está ausente, tem um tipo inválido, não implementa um
 contrato compatível ou não pode ser resolvida pelo container do Laravel. Sua mensagem pode identificar
 o modelo pai, a chave da configuração e a classe da conversão, mas nunca o payload.
 
-Se uma operação mista de `setMany()` falhar, a transação reverte suas escritas e exclusões. A exceção
-é relançada, e a relação `modelSettings` carregada existente não é limpa.
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` é lançada depois da normalização
+quando uma chave está vazia ou contém apenas espaços. Sua mensagem e os logs do pacote nunca incluem
+a chave rejeitada nem o payload da configuração.
+
+Se uma operação não vazia de `setMany()` falhar, a transação reverte o lote. A exceção é relançada,
+e a relação `modelSettings` carregada existente não é limpa.
 
 ## Veja também
 

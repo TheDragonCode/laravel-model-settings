@@ -92,8 +92,8 @@ assert($user->settings()->get('timezone') === 'UTC');
 ## 先保存模型
 
 只有在父模型保存后才能调用 `settings()->set()`、`setMany()`、`forget()`、`forgetMany()` 和 `purge()`。
-对于未保存的模型，即使类默认值存在，`settings()->get()` 也会返回 `null`，`settings()->all()` 会返回
-空集合。每个修改方法都会在执行存储查询前抛出
+对于未保存的模型，即使类默认值存在，`settings()->get()` 也会返回 `null`，`settings()->has()` 返回
+`false`，`settings()->all()` 会返回空集合。每个修改方法都会在执行存储查询前抛出
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException`。
 
 ## 另请参阅

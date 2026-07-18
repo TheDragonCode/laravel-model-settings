@@ -48,23 +48,22 @@ $user->settings()->set('timezone', 'America/Toronto');
 
 只有该模型的设置会被修改。其他模型继续使用自己的覆盖值或共享默认值。
 
-`get()` 和 `all()` 按相同的优先级解析值：
+`get()`、`has()` 和 `all()` 按相同的优先级解析值：
 
 ```php
 $timezone = $user->settings()->get('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 $settings = $user->settings()->all();
 ```
 
 `all()` 返回一个按设置键索引的 `Illuminate\Support\Collection`。
 
-`get()` 只接受键。它依次返回模型覆盖值、持久化的类默认值和 `null`，不接受调用方提供的回退值。需要区分
-最终键不存在和已存储值时，请使用集合：
+`get()` 只接受键。它依次返回模型覆盖值、持久化的类默认值和 `null`，不接受调用方提供的回退值。`has()`
+可区分键不存在和已存储的 JSON `null`：
 
 ```php
-$settings = $user->settings()->all();
-
-if ($settings->has('timezone')) {
-    $timezone = $settings->get('timezone');
+if ($user->settings()->has('timezone')) {
+    $timezone = $user->settings()->get('timezone');
 }
 ```
 
@@ -117,10 +116,10 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 这两个方法接受任意 iterable。`setMany()` 会在写入前规范化每个键。多个输入键规范化为同一个存储键时，
-最后一个值生效。空值按 `set()` 的相同规则从当前作用域删除该键。
+最后一个值生效。每个值都会被存储；只有 `forget()` 和 `forgetMany()` 会删除记录。
 
-同时包含写入和删除的 `setMany()` 批次会在一个事务中执行一次 upsert 和一次删除。`forgetMany()` 使用一次
-删除处理所有列出的键。查询次数取决于批次中的操作类型，而不是键的数量。
+非空的 `setMany()` 批次会在一个事务中执行一次数据库原生 upsert。`forgetMany()` 使用一次删除处理所有
+列出的键。查询次数受操作类型限制，而不是键的数量。
 
 使用 `purge()` 删除整个当前作用域：
 
@@ -131,20 +130,21 @@ $user->settings()->purge();
 对于 `settings()`，`purge()` 只删除该所有者的覆盖值，并重新显示持久化的默认值。对于
 `defaultSettings()`，它会删除该模型类的默认值，但不会删除模型覆盖值。这三个批量方法均返回 `void`。
 
-## 空值
+## JSON 值
 
-`set()` 和 `setMany()` 使用 Laravel 的 `blank()` 辅助函数。空值会删除设置，而不是保存它。
+`set()` 和 `setMany()` 会准确存储 JSON 值：
 
 | 值 | 结果 |
 |----|------|
-| `null` | 删除 |
-| `''` 或仅包含空白字符的字符串 | 删除 |
-| `[]` | 删除 |
+| `null` | 保存 |
+| `''` 或仅包含空白字符的字符串 | 保存 |
+| `[]` | 保存 |
 | `0` | 保存 |
 | `false` | 保存 |
 | `'0'` | 保存 |
 
-此软件包无法通过这两个方法保存有意设置的空值。
+已存储的 `null` 视为存在的值。`has($key)` 返回 `true`，`get($key)` 返回 `null`。值为 `null` 的模型覆盖
+值还会隐藏非空的类默认值，直到通过 `forget()` 删除该覆盖值。
 
 ## 设置键
 
@@ -164,7 +164,9 @@ $timezone = $user->settings()->get(SettingKey::Timezone);
 Laravel 使用 backed enum 的底层值进行存储，使用 pure unit enum 的 case 名称进行存储。读取、替换或删除
 设置时，请使用相同的键或枚举 case。
 
-此软件包不会验证键的内容。公共 API 和默认结构允许空键以及仅包含空白字符的键。
+空键以及仅包含空白字符的键会抛出
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`。整数和枚举规范化为存储字符串后再验证。
+异常和软件包日志绝不会包含被拒绝的键或设置数据。
 
 点号是普通字符。键 `mail.from.address` 是一个不可拆分的设置键，绝不表示嵌套路径：
 
@@ -179,8 +181,9 @@ $address = $user->settings()->get('mail.from.address');
 支持整数、字符串、UUID 和 ULID 主键。
 
 修改单个模型的设置时，需要所有者已持久化，且主键不为 `null`。对于未保存的模型，`get()` 返回 `null`，
-`all()` 不查询模型覆盖值并返回空集合。它的 `set()`、`setMany()`、`forget()`、`forgetMany()` 和
-`purge()` 会在执行存储查询或读取 iterable 前抛出 `InvalidSettingsOwnerException`。
+`has()` 返回 `false`，`all()` 不查询模型覆盖值并返回空集合。它的 `set()`、`setMany()`、`forget()`、
+`forgetMany()` 和 `purge()` 会在执行存储查询或读取 iterable 前抛出
+`InvalidSettingsOwnerException`。
 
 标识符为整数 `0` 或字符串 `'0'` 的已持久化模型支持与其他已保存所有者相同的读取和修改操作。作用域判别
 字段将它们的覆盖值与类默认值分开，即使两条记录都保留 `item_id = '0'`。其他字符串主键（包括 `'00'`）

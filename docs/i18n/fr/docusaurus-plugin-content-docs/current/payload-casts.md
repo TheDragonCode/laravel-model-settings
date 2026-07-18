@@ -10,8 +10,9 @@ description: Décoder les données des paramètres en tableaux, valeurs personna
 
 ## Valeurs JSON par défaut
 
-Sans conversion personnalisée, le paquet encode en JSON les valeurs non vides lors de l’écriture et
-renvoie des tableaux décodés ou des valeurs scalaires lors de la lecture.
+Sans conversion personnalisée, le paquet encode chaque valeur en JSON lors de l’écriture et renvoie
+exactement la valeur JSON décodée lors de la lecture. Cela inclut `null`, les chaînes vides ou
+composées d’espaces, les tableaux vides, zéro et `false`.
 
 ```php
 $user->settings()->set('notifications', [
@@ -68,7 +69,9 @@ Pour une implémentation de `CastsAttributes`, le paquet exécute la séquence s
 
 L’argument `$model` est le modèle de stockage configuré, et non le modèle parent `User` ou `Post`.
 Le paquet résout les implémentations de `CastsAttributes` avec le conteneur Laravel ; leurs
-dépendances de constructeur peuvent donc utiliser les liaisons normales du conteneur.
+dépendances de constructeur peuvent donc utiliser les liaisons normales du conteneur. Les
+conversions `set()` personnalisées reçoivent chaque valeur d’entrée, y compris celles que Laravel
+considère comme vides.
 
 ## Conversion d’attribut Eloquent
 
@@ -192,5 +195,5 @@ d’une valeur persistante utilisant cette entrée configurée.
 ## Voir aussi
 
 - [Configuration](configuration.md) — enregistrer les conversions et remplacer le modèle de stockage.
-- [Utilisation des paramètres](settings.md) — voir quelles valeurs vides sont supprimées.
+- [Utilisation des paramètres](settings.md) — voir comment les valeurs JSON exactes sont stockées et supprimées.
 - [Référence de l’API](api-reference.md) — vérifier les types renvoyés par `get()` et `all()`.

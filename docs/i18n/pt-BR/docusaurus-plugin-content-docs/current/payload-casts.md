@@ -10,8 +10,9 @@ description: Decodifique payloads de configuração como arrays, valores persona
 
 ## Valores JSON padrão
 
-Sem uma conversão personalizada, o pacote codifica valores não vazios como JSON durante a escrita e
-retorna arrays decodificados ou valores escalares durante a leitura.
+Sem uma conversão personalizada, o pacote codifica cada valor como JSON durante a escrita e retorna
+o valor JSON decodificado exato durante a leitura. Isso inclui `null`, strings vazias, strings de
+espaços, arrays vazios, zero e `false`.
 
 ```php
 $user->settings()->set('notifications', [
@@ -67,7 +68,8 @@ Para uma implementação de `CastsAttributes`, o pacote executa esta sequência:
 
 O argumento `$model` é o modelo de armazenamento configurado, não o modelo pai `User` ou `Post`.
 O pacote resolve implementações de `CastsAttributes` pelo container do Laravel, então dependências do
-construtor podem usar os bindings normais do container.
+construtor podem usar os bindings normais do container. Conversões personalizadas de `set()` recebem
+todos os valores de entrada, incluindo valores que o Laravel considera vazios.
 
 ## Conversão de atributo do Eloquent
 
@@ -190,5 +192,5 @@ usam essa entrada configurada.
 ## Veja também
 
 - [Configuração](configuration.md) — registre conversões e substitua o modelo de armazenamento.
-- [Trabalhando com configurações](settings.md) — veja quais valores vazios são removidos.
+- [Trabalhando com configurações](settings.md) — veja como os valores JSON exatos são armazenados e removidos.
 - [Referência da API](api-reference.md) — confira os tipos retornados por `get()` e `all()`.

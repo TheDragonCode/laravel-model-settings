@@ -21,7 +21,7 @@ test('stored values use one query regardless of batch size', function (int $size
     expect($recorder->calls())->toBe(1);
 })->with([1, 100]);
 
-test('blank values use one query regardless of batch size', function (): void {
+test('null values use one query regardless of batch size', function (): void {
     $user     = UserFactory::new()->create();
     $existing = [];
     $values   = [];
@@ -41,7 +41,7 @@ test('blank values use one query regardless of batch size', function (): void {
     expect($recorder->calls())->toBe(1);
 });
 
-test('mixed values use one upsert and one delete', function (): void {
+test('mixed values use one upsert', function (): void {
     $user     = UserFactory::new()->create();
     $existing = [];
     $values   = [];
@@ -59,7 +59,7 @@ test('mixed values use one upsert and one delete', function (): void {
 
     $user->settings()->setMany($values);
 
-    expect($recorder->calls())->toBe(2);
+    expect($recorder->calls())->toBe(1);
 });
 
 test('empty values use no queries', function (): void {

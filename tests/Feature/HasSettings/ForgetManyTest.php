@@ -39,6 +39,7 @@ test('forgetMany deletes only normalized keys from the current scope', function 
     };
 
     $user->settings()->forgetMany($keys());
+    $user->settings()->forgetMany($keys());
 
     expect($user->relationLoaded('modelSettings'))->toBeFalse();
     expect($user->settings()->all()->sortKeys()->all())->toBe([

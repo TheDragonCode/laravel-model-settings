@@ -106,6 +106,21 @@ existantes.
 
 ## Mise à niveau depuis une version 1.x antérieure
 
+Cette version modifie le contrat d’exécution en plus de la migration du discriminateur de stockage :
+
+| Comportement des versions 1.x antérieures | Comportement actuel | Modification requise dans l’application |
+|--------------------------------------------|---------------------|------------------------------------------|
+| `set($key, null)`, les chaînes vides ou composées d’espaces et les tableaux vides supprimaient la ligne | `set()` stocke chaque valeur JSON exactement | Remplacez les appels de suppression par `forget($key)` |
+| Les entrées vides de `setMany()` étaient supprimées dans le même lot | Chaque entrée de `setMany()` est stockée dans un upsert transactionnel unique | Placez les clés à supprimer dans un appel `forgetMany()` séparé |
+| Les clés vides ou composées uniquement d’espaces étaient acceptées | Les clés normalisées vides lèvent `InvalidSettingKey` | Renommez ou supprimez les clés invalides avant la mise à niveau |
+| Les tests d’existence nécessitaient `all()->has($key)` | `has($key)` distingue le JSON `null` stocké d’une clé absente | Préférez la méthode ciblée `has()` |
+
+Une surcharge de modèle `null` stockée masque désormais une valeur par défaut de classe non vide
+jusqu’à sa suppression avec `forget()`. Les conversions personnalisées reçoivent maintenant les
+valeurs vides des deux méthodes d’écriture, et les événements de création ou de mise à jour d’un
+modèle de stockage personnalisé les reçoivent depuis `set()`. `get()` accepte toujours un seul
+argument ; aucun repli fourni par l’appelant ni alias permanent `put()` n’a été ajouté.
+
 Après la mise à jour du paquet, publiez sa nouvelle migration et exécutez-la pendant que
 l’application est en mode maintenance :
 

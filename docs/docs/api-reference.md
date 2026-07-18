@@ -27,8 +27,9 @@ based on Laravel's `MorphMany` relation.
 |--------|---------|----------|
 | `all()` | `Collection` | Returns defaults merged with model overrides |
 | `get(int\|string\|UnitEnum $key)` | `mixed` | Returns an override, its default, or `null` |
-| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Creates, replaces, or removes a blank setting |
-| `setMany(iterable $values)` | `void` | Upserts filled values and removes blank values in one bounded batch |
+| `has(int\|string\|UnitEnum $key)` | `bool` | Reports whether an effective key exists, including stored `null` |
+| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Creates or replaces a setting with the exact JSON value |
+| `setMany(iterable $values)` | `void` | Upserts every value in one bounded transactional batch |
 | `forget(int\|string\|UnitEnum $key)` | `void` | Removes a setting if it exists |
 | `forgetMany(iterable $keys)` | `void` | Removes the listed keys from the current scope |
 | `purge()` | `void` | Removes every setting stored in the current scope |
@@ -36,20 +37,20 @@ based on Laravel's `MorphMany` relation.
 The keyed methods accept backed and pure unit enums. Laravel converts backed enums to their backing
 value and pure unit enums to their case name.
 
-`SettingsService` has no caller-supplied fallback parameter on `get()` and no separate `has()`
-method. Use `all()->has($key)` to test whether an effective key exists.
+`SettingsService` has no caller-supplied fallback parameter on `get()`. Use `has($key)` to
+distinguish a missing effective key from a stored JSON `null`.
 
 ## Resolution matrix
 
-| Model override | Class default | `get()` result | Included by `all()` |
-|----------------|---------------|----------------|---------------------|
-| Present | Present | Override | Override |
-| Present | Missing | Override | Override |
-| Missing | Present | Default | Default |
-| Missing | Missing | `null` | No entry |
+| Model override | Class default | `get()` result | `has()` result | Included by `all()` |
+|----------------|---------------|----------------|----------------|---------------------|
+| Present | Present | Override, including `null` | `true` | Override |
+| Present | Missing | Override, including `null` | `true` | Override |
+| Missing | Present | Default, including `null` | `true` | Default |
+| Missing | Missing | `null` | `false` | No entry |
 
-For an unsaved model, `get()` returns `null` and `all()` returns an empty collection. Class defaults
-are only inherited by persisted models.
+For an unsaved model, `get()` returns `null`, `has()` returns `false`, and `all()` returns an empty
+collection. Class defaults are only inherited by persisted models.
 
 ## all
 
@@ -57,7 +58,6 @@ are only inherited by persisted models.
 $settings = $user->settings()->all();
 
 $timezone = $settings->get('timezone');
-$hasTimezone = $settings->has('timezone');
 ```
 
 The result is an `Illuminate\Support\Collection` keyed by setting key. For model settings, overrides
@@ -73,16 +73,26 @@ The result is the effective decoded or cast value. A missing override falls back
 missing override and default returns `null`. The signature intentionally accepts no second fallback
 argument.
 
+## has
+
+```php
+$hasTimezone = $user->settings()->has('timezone');
+```
+
+The method returns `true` when either the model override or class default row exists. A stored JSON
+`null` returns `true`; a missing key returns `false`. Lazy and eager-loaded services use the same
+precedence, and the eager path performs no additional settings query.
+
 ## set
 
 ```php
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-The method validates the owner, then uses an update-or-create operation for the model type, model
-identifier, scope discriminator, and key. Passing a value considered blank by Laravel removes the
-row. Validation happens before the blank-value path is selected. After either path, the loaded
-`modelSettings` relation is cleared so the next read cannot reuse stale data.
+The method validates the owner and normalized key, then uses an update-or-create operation for the
+model type, model identifier, scope discriminator, and key. Every JSON value is stored, including
+`null`, empty strings, whitespace strings, empty arrays, zero, and `false`. After a successful write,
+the loaded `modelSettings` relation is cleared so the next read cannot reuse stale data.
 
 ## setMany
 
@@ -95,9 +105,9 @@ $user->settings()->setMany([
 ```
 
 The iterable keys use the same normalization as `set()`. If multiple input keys normalize to the
-same string, the last value wins. Filled values use one database-native upsert; blank values use one
-delete. When both groups exist, both operations run in one transaction. The method validates the
-owner before consuming the iterable and clears `modelSettings` once after success.
+same string, the last value wins. Every value uses one database-native upsert inside a transaction.
+The method validates the owner before consuming the iterable and clears `modelSettings` once after
+success. Use `forgetMany()` for deletion.
 
 ## forget
 
@@ -131,7 +141,7 @@ after success.
 
 ## defaultSettings
 
-The service returned by `defaultSettings()` has the same seven methods:
+The service returned by `defaultSettings()` has the same eight methods:
 
 ```php
 $defaults = (new User)->defaultSettings();
@@ -139,6 +149,7 @@ $defaults = (new User)->defaultSettings();
 $defaults->set('timezone', 'UTC');
 $defaults->setMany(['timezone' => 'UTC', 'locale' => 'en']);
 $timezone = $defaults->get('timezone');
+$hasTimezone = $defaults->has('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 $defaults->forgetMany(['timezone', 'locale']);
@@ -154,16 +165,20 @@ owner model is unsaved, including an unsaved model with a preassigned key.
 This validation also happens before a bulk iterable is consumed. Mutations through
 `defaultSettings()` remain valid because that service selects the class-default scope explicitly.
 Read-only access stays deterministic: an unsaved owner returns `null` or an empty collection without
-querying overrides. A persisted owner with integer `0` or string `'0'` can read and mutate its model
-overrides; `is_default` keeps those rows separate from class defaults.
+querying overrides, and `has()` returns `false`. A persisted owner with integer `0` or string `'0'`
+can read and mutate its model overrides; `is_default` keeps those rows separate from class defaults.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` is thrown when a configured
 model-wide or key-aware cast is missing, has an invalid type, implements no supported contract, or
 cannot be resolved through the Laravel container. Its message may identify the parent model, setting
 key, and cast class, but never the payload.
 
-If a mixed `setMany()` operation fails, the transaction rolls back its write and delete work. The
-exception is rethrown, and the existing loaded `modelSettings` relation is not cleared.
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` is thrown after normalization when a
+key is empty or contains only whitespace. Its message and package logs never contain the rejected
+key or payload.
+
+If a non-empty `setMany()` operation fails, the transaction rolls back its batch work. The exception
+is rethrown, and the existing loaded `modelSettings` relation is not cleared.
 
 ## See Also
 

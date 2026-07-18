@@ -103,6 +103,21 @@ werden.
 
 ## Upgrade von einer früheren 1.x-Version
 
+Diese Version ändert zusätzlich zur Migration des Speicherdiskriminators den Laufzeitvertrag:
+
+| Verhalten früherer 1.x-Versionen | Aktuelles Verhalten | Erforderliche Anwendungsänderung |
+|-----------------------------------|---------------------|----------------------------------|
+| `set($key, null)`, leere Zeichenfolgen, Leerzeichenfolgen und leere Arrays löschten die Zeile | `set()` speichert jeden JSON-Wert exakt | Löschaufrufe durch `forget($key)` ersetzen |
+| Leere Einträge in `setMany()` wurden im selben Batch gelöscht | Jeder `setMany()`-Eintrag wird in einem transaktionalen Upsert gespeichert | Zu löschende Schlüssel in einen separaten `forgetMany()`-Aufruf verschieben |
+| Leere Schlüssel und reine Leerzeichenschlüssel wurden akzeptiert | Normalisierte leere Schlüssel lösen `InvalidSettingKey` aus | Ungültige Schlüssel vor dem Upgrade umbenennen oder entfernen |
+| Existenzprüfungen erforderten `all()->has($key)` | `has($key)` unterscheidet gespeichertes JSON-`null` von einem fehlenden Schlüssel | Die gezielte Methode `has()` verwenden |
+
+Eine gespeicherte Modellüberschreibung mit `null` verdeckt nun einen gefüllten Klassenstandard, bis
+`forget()` die Überschreibung entfernt. Benutzerdefinierte Payload-Casts erhalten jetzt leere Werte
+von beiden Settern; Create- oder Update-Events eines benutzerdefinierten Speichermodells erhalten sie
+von `set()`. `get()` akzeptiert weiterhin nur ein Argument; weder ein Ersatzwert des Aufrufers noch
+ein dauerhafter `put()`-Alias wurde hinzugefügt.
+
 Veröffentliche nach dem Paket-Update die neue Migration und führe sie aus, während sich die Anwendung
 im Wartungsmodus befindet:
 

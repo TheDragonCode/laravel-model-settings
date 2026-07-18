@@ -10,7 +10,8 @@ description: 将设置数据解码为数组、自定义转换值或 Spatie Larav
 
 ## 默认 JSON 值
 
-未配置自定义转换时，软件包会在写入时将非空值编码为 JSON，并在读取时返回解码后的数组或标量值。
+未配置自定义转换时，软件包会在写入时将每个值编码为 JSON，并在读取时返回准确的 JSON 解码值。其中包括
+`null`、空字符串、仅含空白字符的字符串、空数组、零和 `false`。
 
 ```php
 $user->settings()->set('notifications', [
@@ -60,7 +61,8 @@ $notifications = $user->settings()->get('notifications');
 | 读取 | 将已存储的 JSON 字符串传递给自定义 `get()` |
 
 `$model` 参数是已配置的设置存储模型，不是父模型 `User` 或 `Post`。软件包通过 Laravel 容器解析
-`CastsAttributes` 实现，因此构造函数依赖可以使用普通容器绑定。
+`CastsAttributes` 实现，因此构造函数依赖可以使用普通容器绑定。自定义 `set()` 转换会接收每个输入值，
+包括 Laravel 认为是空的值。
 
 ## Eloquent 属性转换
 
@@ -176,5 +178,5 @@ $preferences = $user->settings()->get('preferences');
 ## 另请参阅
 
 - [配置](configuration.md) — 注册转换并替换存储模型。
-- [使用设置](settings.md) — 查看哪些空值会被删除。
+- [使用设置](settings.md) — 查看准确 JSON 值的存储和删除方式。
 - [API 参考](api-reference.md) — 检查 `get()` 和 `all()` 的返回类型。

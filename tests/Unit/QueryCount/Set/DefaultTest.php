@@ -29,7 +29,7 @@ test('zero', function (): void {
     expect($recorder->calls())->toBe(2);
 });
 
-test('empty', function (): void {
+test('null', function (): void {
     $recorder = new QueryRecorder;
 
     (new User)->defaultSettings()->set('foo', 111);
@@ -38,5 +38,5 @@ test('empty', function (): void {
 
     (new User)->defaultSettings()->set('foo', null);
 
-    expect($recorder->calls())->toBe(1);
+    expect($recorder->calls())->toBe(2);
 });

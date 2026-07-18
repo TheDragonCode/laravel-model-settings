@@ -50,24 +50,23 @@ $user->settings()->set('timezone', 'America/Toronto');
 Only the setting for that model is changed. Other models continue to use their own override or the
 shared default.
 
-`get()` and `all()` resolve values with the same precedence:
+`get()`, `has()`, and `all()` resolve values with the same precedence:
 
 ```php
 $timezone = $user->settings()->get('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 $settings = $user->settings()->all();
 ```
 
 `all()` returns an `Illuminate\Support\Collection` keyed by setting key.
 
 `get()` accepts only the key. It returns the model override, then the persistent class default, then
-`null`. It does not accept a caller-supplied fallback value. Use the collection when you need to
-distinguish a missing effective key from a stored value:
+`null`. It does not accept a caller-supplied fallback value. `has()` distinguishes a missing key
+from a stored JSON `null`:
 
 ```php
-$settings = $user->settings()->all();
-
-if ($settings->has('timezone')) {
-    $timezone = $settings->get('timezone');
+if ($user->settings()->has('timezone')) {
+    $timezone = $user->settings()->get('timezone');
 }
 ```
 
@@ -120,12 +119,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 Both methods accept any iterable. `setMany()` normalizes every key before writing. When multiple
-input keys normalize to the same stored key, the last value wins. Blank values delete that key from
-the current scope, using the same rule as `set()`.
+input keys normalize to the same stored key, the last value wins. Every value is stored; only
+`forget()` and `forgetMany()` delete rows.
 
-A mixed `setMany()` batch uses one upsert and one delete inside a transaction. `forgetMany()` uses
-one delete for all listed keys. Query count depends on the operation types in the batch, not the
-number of keys.
+A non-empty `setMany()` batch uses one database-native upsert inside a transaction. `forgetMany()`
+uses one delete for all listed keys. Query count is bounded by the operation type, not the number of
+keys.
 
 Use `purge()` to remove the complete current scope:
 
@@ -137,21 +136,22 @@ For `settings()`, `purge()` deletes only that owner's overrides and exposes any 
 again. For `defaultSettings()`, it deletes the defaults for that model class without deleting model
 overrides. All three bulk methods return `void`.
 
-## Blank values
+## JSON values
 
-`set()` and `setMany()` use Laravel's `blank()` helper. A blank value removes the setting instead of
-storing it.
+`set()` and `setMany()` preserve JSON values exactly:
 
 | Value | Result |
 |-------|--------|
-| `null` | Removed |
-| `''` or whitespace-only string | Removed |
-| `[]` | Removed |
+| `null` | Stored |
+| `''` or whitespace-only string | Stored |
+| `[]` | Stored |
 | `0` | Stored |
 | `false` | Stored |
 | `'0'` | Stored |
 
-The package cannot persist an intentionally blank value through either method.
+A stored `null` is still present. `has($key)` returns `true`, while `get($key)` returns `null`. A
+model override containing `null` also hides a filled class default until the override is removed
+with `forget()`.
 
 ## Setting keys
 
@@ -171,8 +171,10 @@ $timezone = $user->settings()->get(SettingKey::Timezone);
 Laravel stores a backed enum by its backing value and a pure unit enum by its case name. Use the same
 key or enum case when reading, replacing, or removing a setting.
 
-The package does not validate key content. Empty and whitespace-only keys are accepted by the public
-API and the default schema.
+Empty and whitespace-only keys throw
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. Validation runs after integers and
+enums are normalized to their stored string form. The exception and package logs never include the
+rejected key or payload.
 
 Dots are literal characters. The key `mail.from.address` is one opaque setting key and never means a
 nested path:
@@ -188,8 +190,8 @@ $address = $user->settings()->get('mail.from.address');
 Integer, string, UUID, and ULID primary keys are supported.
 
 Per-model mutations require a persisted owner with a non-null key. For an unsaved model, `get()`
-returns `null`, and `all()` returns an empty collection without querying model overrides. Its
-`set()`, `setMany()`, `forget()`, `forgetMany()`, and `purge()` methods throw
+returns `null`, `has()` returns `false`, and `all()` returns an empty collection without querying
+model overrides. Its `set()`, `setMany()`, `forget()`, `forgetMany()`, and `purge()` methods throw
 `InvalidSettingsOwnerException` before a storage query or iterable consumption occurs.
 
 Persisted models with integer `0` or string `'0'` identifiers support the same reads and mutations

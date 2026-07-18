@@ -100,6 +100,21 @@ mover ou atualizar as linhas existentes manualmente.
 
 ## Atualização a partir de uma versão 1.x anterior
 
+Esta versão altera o contrato de execução além da migration do discriminador de armazenamento:
+
+| Comportamento anterior da 1.x | Comportamento atual | Alteração necessária na aplicação |
+|--------------------------------|---------------------|------------------------------------|
+| `set($key, null)`, strings vazias, strings de espaços e arrays vazios removiam a linha | `set()` armazena cada valor JSON exatamente | Substitua chamadas de exclusão por `forget($key)` |
+| Entradas vazias em `setMany()` eram removidas no mesmo lote | Cada entrada de `setMany()` é armazenada em um único upsert transacional | Mova as chaves removidas para uma chamada separada de `forgetMany()` |
+| Chaves vazias ou contendo apenas espaços eram aceitas | Chaves normalizadas vazias lançam `InvalidSettingKey` | Renomeie ou remova chaves inválidas antes da atualização |
+| Verificações de existência exigiam `all()->has($key)` | `has($key)` distingue um JSON `null` armazenado de uma chave ausente | Prefira o método específico `has()` |
+
+Uma sobrescrita de modelo com `null` armazenado agora oculta um valor padrão preenchido da classe até
+que `forget()` remova a sobrescrita. Conversões personalizadas de payload agora recebem valores
+vazios de ambos os setters, e eventos de criação ou atualização de um modelo de armazenamento
+personalizado os recebem de `set()`. `get()` continua aceitando somente um argumento; nenhum valor
+alternativo do chamador nem alias permanente `put()` foi adicionado.
+
 Depois de atualizar o pacote, publique a nova migration e execute-a com a aplicação em modo de
 manutenção:
 
