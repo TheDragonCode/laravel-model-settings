@@ -4,53 +4,49 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Casts;
 
-use DragonCode\LaravelModelSettings\Concerns\HasModelResolver;
+use DragonCode\LaravelModelSettings\Internal\PayloadCastResolver;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 use JsonException;
 use Spatie\LaravelData\Data;
 
-use function class_exists;
-use function config;
-use function is_a;
+use function app;
 
 class PayloadCast implements CastsAttributes
 {
-    use HasModelResolver;
-
     protected int $flags = JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if (! $cast = $this->cast($model)) {
+        $cast = $this->resolver()->resolve($model, $this->settingKey($model, $attributes));
+
+        if ($cast === null) {
             return $this->fromJson($value);
         }
 
-        if (is_a($cast, CastsAttributes::class, true)) {
-            return (new $cast)->get($model, $key, $value, $attributes);
+        if ($cast instanceof CastsAttributes) {
+            return $cast->get($model, $key, $value, $attributes);
         }
 
-        if (class_exists(Data::class) && is_a($cast, Data::class, true)) {
-            return $cast::from($value);
-        }
-
-        return $this->fromJson($value);
+        return $cast::from($value);
     }
 
     /** @throws JsonException */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
-        if (! $cast = $this->cast($model)) {
+        $cast = $this->resolver()->resolve($model, $this->settingKey($model, $attributes));
+
+        if ($cast === null) {
             return $this->asJson($value);
         }
 
-        if (class_exists(Data::class) && $value instanceof Data) {
+        if (is_string($cast) && $value instanceof Data) {
             return $value->toJson($this->flags);
         }
 
-        if (is_a($cast, CastsAttributes::class, true)) {
-            $value = (new $cast)->set($model, $key, $value, $attributes);
+        if ($cast instanceof CastsAttributes) {
+            $value = $cast->set($model, $key, $value, $attributes);
         }
 
         return $this->asJson($value);
@@ -66,15 +62,13 @@ class PayloadCast implements CastsAttributes
         return Json::encode($value, $this->flags);
     }
 
-    protected function cast(Model $model): ?string
+    protected function settingKey(Model $model, array $attributes): string
     {
-        $parent = $this->parentModelClass($model);
-
-        return $this->casts()[$parent] ?? null;
+        return (string) ($attributes['key'] ?? $model->getAttribute('key'));
     }
 
-    protected function casts(): array
+    protected function resolver(): PayloadCastResolver
     {
-        return config()->array('model_settings.casts', []);
+        return app(PayloadCastResolver::class);
     }
 }

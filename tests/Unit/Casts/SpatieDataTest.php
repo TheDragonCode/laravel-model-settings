@@ -51,3 +51,34 @@ test('success', function (): void {
     expect($result1->toArray())->toBe($defaultData);
     expect($result2->toArray())->toBe($modelData);
 });
+
+test('exact setting cast accepts a data object and leaves unmatched keys as JSON', function (): void {
+    config()->set('model_settings.casts.' . User::class, [
+        'profile' => SomeData::class,
+    ]);
+
+    $profile = SomeData::from([
+        'foo' => 'Foo',
+        'bar' => 'Bar',
+        'baz' => 'Baz',
+
+        'item' => [
+            'firstName' => 'John',
+            'lastName'  => 'Doe',
+        ],
+
+        'collection' => [
+            ['id' => 1, 'comment' => 'Comment'],
+        ],
+    ]);
+
+    $user = UserFactory::new()->create();
+
+    $user->settings()->set('profile', $profile);
+    $user->settings()->set('plain', ['foo' => 'bar']);
+
+    expect($user->settings()->get('profile'))
+        ->toBeInstanceOf(SomeData::class)
+        ->toArray()->toBe($profile->toArray())
+        ->and($user->settings()->get('plain'))->toBe(['foo' => 'bar']);
+});
