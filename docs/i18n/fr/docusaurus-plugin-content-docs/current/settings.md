@@ -51,10 +51,11 @@ $user->settings()->set('timezone', 'America/Toronto');
 Seul le paramètre de ce modèle est modifié. Les autres modèles continuent d’utiliser leur propre
 surcharge ou la valeur par défaut partagée.
 
-`get()` et `all()` résolvent les valeurs avec la même priorité :
+`get()`, `has()` et `all()` résolvent les valeurs avec la même priorité :
 
 ```php
 $timezone = $user->settings()->get('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 $settings = $user->settings()->all();
 ```
 
@@ -62,14 +63,11 @@ $settings = $user->settings()->all();
 
 `get()` accepte uniquement la clé. Il renvoie d’abord la surcharge du modèle, puis la valeur
 persistante par défaut de la classe, puis `null`. Il n’accepte pas de valeur de repli fournie par
-l’appelant. Utilisez la collection lorsque vous devez distinguer une clé effective absente d’une
-valeur stockée :
+l’appelant. `has()` distingue une clé absente d’une valeur JSON `null` stockée :
 
 ```php
-$settings = $user->settings()->all();
-
-if ($settings->has('timezone')) {
-    $timezone = $settings->get('timezone');
+if ($user->settings()->has('timezone')) {
+    $timezone = $user->settings()->get('timezone');
 }
 ```
 
@@ -122,12 +120,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 Les deux méthodes acceptent tout iterable. `setMany()` normalise chaque clé avant l’écriture. Si
-plusieurs clés d’entrée se normalisent vers la même clé stockée, la dernière valeur est retenue. Les
-valeurs vides suppriment la clé de la portée actuelle selon la même règle que `set()`.
+plusieurs clés d’entrée se normalisent vers la même clé stockée, la dernière valeur est retenue.
+Chaque valeur est stockée ; seules `forget()` et `forgetMany()` suppriment des lignes.
 
-Un lot `setMany()` mixte effectue un upsert et une suppression dans une transaction. `forgetMany()`
-supprime toutes les clés indiquées avec une seule requête. Le nombre de requêtes dépend des types
-d’opérations du lot, et non du nombre de clés.
+Un lot `setMany()` non vide effectue un unique upsert natif dans une transaction. `forgetMany()`
+supprime toutes les clés indiquées avec une seule requête. Le nombre de requêtes est borné par le
+type d’opération et non par le nombre de clés.
 
 Utilisez `purge()` pour supprimer toute la portée actuelle :
 
@@ -140,21 +138,22 @@ visibles les valeurs persistantes par défaut. Avec `defaultSettings()`, il supp
 défaut de cette classe sans supprimer les surcharges des modèles. Les trois méthodes groupées
 renvoient `void`.
 
-## Valeurs vides
+## Valeurs JSON
 
-`set()` et `setMany()` utilisent l’assistant Laravel `blank()`. Une valeur vide supprime le paramètre
-au lieu de l’enregistrer.
+`set()` et `setMany()` conservent les valeurs JSON exactes :
 
 | Valeur | Résultat |
 |--------|----------|
-| `null` | Supprimée |
-| `''` ou chaîne composée uniquement d’espaces | Supprimée |
-| `[]` | Supprimée |
+| `null` | Enregistrée |
+| `''` ou chaîne composée uniquement d’espaces | Enregistrée |
+| `[]` | Enregistrée |
 | `0` | Enregistrée |
 | `false` | Enregistrée |
 | `'0'` | Enregistrée |
 
-Le paquet ne peut pas conserver une valeur volontairement vide avec l’une ou l’autre méthode.
+Une valeur `null` stockée est considérée comme existante. `has($key)` renvoie `true` et `get($key)`
+renvoie `null`. Une surcharge de modèle valant `null` masque aussi une valeur par défaut de classe
+non vide jusqu’à sa suppression avec `forget()`.
 
 ## Clés des paramètres
 
@@ -174,8 +173,10 @@ $timezone = $user->settings()->get(SettingKey::Timezone);
 Laravel stocke une backed enum avec sa valeur sous-jacente et une pure unit enum avec le nom de son
 cas. Utilisez la même clé ou le même cas pour lire, remplacer ou supprimer un paramètre.
 
-Le paquet ne valide pas le contenu des clés. L’API publique et le schéma par défaut acceptent les
-clés vides ou composées uniquement d’espaces.
+Les clés vides ou composées uniquement d’espaces lèvent
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. La validation s’effectue après la
+normalisation des entiers et des énumérations vers la chaîne stockée. L’exception et les journaux du
+paquet ne contiennent jamais la clé rejetée ni les données du paramètre.
 
 Les points sont des caractères littéraux. La clé `mail.from.address` est une seule clé opaque et ne
 représente jamais un chemin imbriqué :
@@ -191,10 +192,10 @@ $address = $user->settings()->get('mail.from.address');
 Les clés primaires entières, chaînes, UUID et ULID sont prises en charge.
 
 La modification des paramètres d’un modèle nécessite un propriétaire enregistré dont la clé est
-différente de `null`. Pour un modèle non enregistré, `get()` renvoie `null` et `all()` une collection
-vide sans interroger les surcharges du modèle. Ses méthodes `set()`, `setMany()`, `forget()`,
-`forgetMany()` et `purge()` lèvent `InvalidSettingsOwnerException` avant toute requête de stockage ou
-consommation de l’iterable.
+différente de `null`. Pour un modèle non enregistré, `get()` renvoie `null`, `has()` renvoie `false`
+et `all()` une collection vide sans interroger les surcharges du modèle. Ses méthodes `set()`,
+`setMany()`, `forget()`, `forgetMany()` et `purge()` lèvent `InvalidSettingsOwnerException` avant
+toute requête de stockage ou consommation de l’iterable.
 
 Les modèles enregistrés avec l’identifiant entier `0` ou la chaîne `'0'` prennent en charge les mêmes
 lectures et modifications que tout autre propriétaire enregistré. Le discriminateur de portée

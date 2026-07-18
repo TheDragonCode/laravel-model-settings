@@ -52,7 +52,7 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
-$hasTimezone = $settings->has('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 
 $user->settings()->setMany([
     'locale' => 'fr',
@@ -63,13 +63,13 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 `get()` gibt einen effektiven Wert zurück. `all()` gibt eine `Illuminate\Support\Collection` zurück,
 in der Standardwerte und Überschreibungen zusammengeführt sind.
-Verwende die Methode `has()` der Collection, wenn die Existenz eines effektiven Schlüssels relevant
-ist. `get()` akzeptiert absichtlich keinen vom Aufrufer angegebenen Ersatzwert: Der persistierte
-Klassenstandard ist der einzige Rückfallwert, gefolgt von `null`, wenn der Schlüssel in beiden
-Bereichen fehlt.
+Verwende `has()`, wenn die Existenz eines effektiven Schlüssels relevant ist, auch bei einem
+gespeicherten JSON-`null`. `get()` akzeptiert absichtlich keinen vom Aufrufer angegebenen Ersatzwert:
+Der persistierte Klassenstandard ist der einzige Rückfallwert, gefolgt von `null`, wenn der Schlüssel
+in beiden Bereichen fehlt.
 
-Für Standardwerte und Überschreibungen stehen dieselben Operationen bereit: `all()`, `get()`, `set()`,
-`setMany()`, `forget()`, `forgetMany()` und `purge()`.
+Für Standardwerte und Überschreibungen stehen dieselben Operationen bereit: `all()`, `get()`,
+`has()`, `set()`, `setMany()`, `forget()`, `forgetMany()` und `purge()`.
 
 ## Klare Paketgrenzen
 
@@ -109,13 +109,14 @@ Primärschlüsseln. Gespeicherte Modelle mit der Ganzzahl-ID `0` oder der Zeiche
 Laravel Morph Map verwenden.
 
 Modellspezifische Einstellungen gehören zu gespeicherten Modellen. Ein ungespeichertes Modell erbt
-keine Standardwerte: `get()` gibt `null` und `all()` eine leere Collection zurück. `set()`,
-`setMany()`, `forget()`, `forgetMany()` oder `purge()` für einen ungespeicherten Besitzer lösen vor
-einer Speicherabfrage eine `InvalidSettingsOwnerException` aus.
+keine Standardwerte: `get()` gibt `null`, `has()` gibt `false` und `all()` eine leere Collection
+zurück. `set()`, `setMany()`, `forget()`, `forgetMany()` oder `purge()` für einen ungespeicherten
+Besitzer lösen vor einer Speicherabfrage eine `InvalidSettingsOwnerException` aus.
 
-Payloads werden als JSON gespeichert. Ohne konfigurierten Cast geben Lesevorgänge dekodierte Arrays
-oder skalare Werte zurück. [Payload-Casts](payload-casts.md) können stattdessen anwendungsspezifische
-Objekte zurückgeben.
+Payloads werden als JSON gespeichert, einschließlich `null`, leerer Zeichenfolgen, reiner
+Leerzeichenfolgen, leerer Arrays, `0` und `false`. Ohne konfigurierten Cast geben Lesevorgänge den
+exakt dekodierten Wert zurück. [Payload-Casts](payload-casts.md) können stattdessen
+anwendungsspezifische Objekte zurückgeben.
 
 ## Siehe auch
 

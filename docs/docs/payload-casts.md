@@ -10,8 +10,9 @@ description: Decode setting payloads as arrays, custom cast values, or Spatie La
 
 ## Default JSON values
 
-Without a custom cast, the package JSON-encodes non-blank values when writing and returns decoded
-arrays or scalar values when reading.
+Without a custom cast, the package JSON-encodes every value when writing and returns the exact
+decoded JSON value when reading. This includes `null`, empty strings, whitespace strings, empty
+arrays, zero, and `false`.
 
 ```php
 $user->settings()->set('notifications', [
@@ -64,7 +65,8 @@ For a `CastsAttributes` implementation, the package runs this sequence:
 
 The `$model` argument is the configured settings storage model, not the parent `User` or `Post`.
 The package resolves `CastsAttributes` implementations through Laravel's container, so constructor
-dependencies may use normal container bindings.
+dependencies may use normal container bindings. Custom `set()` casts receive every input value,
+including values that Laravel considers blank.
 
 ## Eloquent attribute cast
 
@@ -185,5 +187,5 @@ entry.
 ## See Also
 
 - [Configuration](configuration.md) — register casts and replace the storage model.
-- [Working with Settings](settings.md) — see which values are removed as blank.
+- [Working with Settings](settings.md) — see how exact JSON values are stored and removed.
 - [API Reference](api-reference.md) — check the return types of `get()` and `all()`.

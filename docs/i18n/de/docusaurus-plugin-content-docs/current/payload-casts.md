@@ -10,8 +10,9 @@ description: Einstellungs-Payloads als Arrays, benutzerdefinierte Werte oder Spa
 
 ## Standardmäßige JSON-Werte
 
-Ohne benutzerdefinierten Cast codiert das Paket nicht leere Werte beim Schreiben als JSON und gibt
-beim Lesen dekodierte Arrays oder skalare Werte zurück.
+Ohne benutzerdefinierten Cast codiert das Paket jeden Wert beim Schreiben als JSON und gibt beim
+Lesen den exakt dekodierten JSON-Wert zurück. Dazu gehören `null`, leere Zeichenfolgen,
+Leerzeichenfolgen, leere Arrays, die Zahl null und `false`.
 
 ```php
 $user->settings()->set('notifications', [
@@ -67,8 +68,9 @@ Für eine `CastsAttributes`-Implementierung führt das Paket folgende Reihenfolg
 | Lesen | Gespeicherte JSON-Zeichenfolge an das benutzerdefinierte `get()` übergeben |
 
 Das Argument `$model` ist das konfigurierte Speichermodell und nicht das übergeordnete Modell `User`
-oder `Post`. Das Paket löst `CastsAttributes`-Implementierungen über Laravels Container auf. Abhängigkeiten
-im Konstruktor können deshalb normale Container-Bindings verwenden.
+oder `Post`. Das Paket löst `CastsAttributes`-Implementierungen über Laravels Container auf.
+Abhängigkeiten im Konstruktor können deshalb normale Container-Bindings verwenden. Benutzerdefinierte
+`set()`-Casts erhalten jeden Eingabewert, auch Werte, die Laravel als leer betrachtet.
 
 ## Eloquent-Attribut-Cast
 
@@ -192,5 +194,5 @@ persistierter Werte über diesen konfigurierten Eintrag ausgelöst.
 ## Siehe auch
 
 - [Konfiguration](configuration.md) — Casts registrieren und das Speichermodell ersetzen.
-- [Mit Einstellungen arbeiten](settings.md) — sehen, welche leeren Werte entfernt werden.
+- [Mit Einstellungen arbeiten](settings.md) — sehen, wie exakte JSON-Werte gespeichert und entfernt werden.
 - [API-Referenz](api-reference.md) — Rückgabetypen von `get()` und `all()` prüfen.

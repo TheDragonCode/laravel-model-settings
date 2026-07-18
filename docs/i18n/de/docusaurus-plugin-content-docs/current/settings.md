@@ -50,10 +50,11 @@ $user->settings()->set('timezone', 'America/Toronto');
 Nur die Einstellung dieses Modells wird geändert. Andere Modelle verwenden weiterhin ihre eigene
 Überschreibung oder den gemeinsamen Standardwert.
 
-`get()` und `all()` lösen Werte mit derselben Priorität auf:
+`get()`, `has()` und `all()` lösen Werte mit derselben Priorität auf:
 
 ```php
 $timezone = $user->settings()->get('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 $settings = $user->settings()->all();
 ```
 
@@ -61,14 +62,12 @@ $settings = $user->settings()->all();
 
 `get()` akzeptiert nur den Schlüssel. Die Methode gibt zuerst die Modellüberschreibung, dann den
 persistierten Klassenstandard und anschließend `null` zurück. Sie akzeptiert keinen vom Aufrufer
-angegebenen Ersatzwert. Verwende die Collection, um einen fehlenden effektiven Schlüssel von einem
-gespeicherten Wert zu unterscheiden:
+angegebenen Ersatzwert. `has()` unterscheidet einen fehlenden Schlüssel von einem gespeicherten
+JSON-`null`:
 
 ```php
-$settings = $user->settings()->all();
-
-if ($settings->has('timezone')) {
-    $timezone = $settings->get('timezone');
+if ($user->settings()->has('timezone')) {
+    $timezone = $user->settings()->get('timezone');
 }
 ```
 
@@ -122,12 +121,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 Beide Methoden akzeptieren jedes Iterable. `setMany()` normalisiert jeden Schlüssel vor dem
 Schreiben. Werden mehrere Eingabeschlüssel auf denselben gespeicherten Schlüssel normalisiert,
-gewinnt der letzte Wert. Leere Werte löschen diesen Schlüssel nach derselben Regel wie `set()` aus
-dem aktuellen Bereich.
+gewinnt der letzte Wert. Jeder Wert wird gespeichert; nur `forget()` und `forgetMany()` löschen
+Zeilen.
 
-Ein gemischter `setMany()`-Batch verwendet ein Upsert und einen Löschvorgang innerhalb einer
+Ein nicht leerer `setMany()`-Batch verwendet ein einziges datenbankeigenes Upsert innerhalb einer
 Transaktion. `forgetMany()` verwendet einen Löschvorgang für alle angegebenen Schlüssel. Die Anzahl
-der Abfragen hängt von den Operationstypen im Batch und nicht von der Anzahl der Schlüssel ab.
+der Abfragen ist durch den Operationstyp begrenzt und hängt nicht von der Anzahl der Schlüssel ab.
 
 Verwende `purge()`, um den gesamten aktuellen Bereich zu entfernen:
 
@@ -140,21 +139,22 @@ Standardwerte wieder sichtbar. Bei `defaultSettings()` löscht die Methode die S
 Modellklasse, ohne Modellüberschreibungen zu löschen. Alle drei gebündelten Methoden geben `void`
 zurück.
 
-## Leere Werte
+## JSON-Werte
 
-`set()` und `setMany()` verwenden Laravels `blank()`-Helper. Ein leerer Wert löscht die Einstellung,
-statt sie zu speichern.
+`set()` und `setMany()` speichern exakte JSON-Werte:
 
 | Wert | Ergebnis |
 |------|----------|
-| `null` | Entfernt |
-| `''` oder eine Zeichenfolge nur aus Leerzeichen | Entfernt |
-| `[]` | Entfernt |
+| `null` | Gespeichert |
+| `''` oder eine Zeichenfolge nur aus Leerzeichen | Gespeichert |
+| `[]` | Gespeichert |
 | `0` | Gespeichert |
 | `false` | Gespeichert |
 | `'0'` | Gespeichert |
 
-Das Paket kann mit keiner der beiden Methoden einen absichtlich leeren Wert speichern.
+Ein gespeichertes `null` gilt als vorhandener Wert. `has($key)` gibt `true` und `get($key)` gibt
+`null` zurück. Eine Modellüberschreibung mit `null` verdeckt außerdem einen gefüllten Klassenstandard,
+bis die Überschreibung mit `forget()` entfernt wird.
 
 ## Einstellungsschlüssel
 
@@ -174,8 +174,10 @@ $timezone = $user->settings()->get(SettingKey::Timezone);
 Laravel speichert ein Backed Enum mit seinem zugrunde liegenden Wert und ein Pure Unit Enum mit
 seinem Case-Namen. Verwende beim Lesen, Ersetzen oder Entfernen denselben Schlüssel oder Enum-Case.
 
-Das Paket validiert den Inhalt eines Schlüssels nicht. Die öffentliche API und das Standardschema
-akzeptieren leere Schlüssel und Schlüssel, die nur aus Leerzeichen bestehen.
+Leere Schlüssel und Schlüssel, die nur aus Leerzeichen bestehen, lösen
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` aus. Die Validierung erfolgt nach der
+Normalisierung von Ganzzahlen und Enums in die gespeicherte Zeichenfolge. Die Exception und die
+Paketprotokolle enthalten weder den abgelehnten Schlüssel noch den Payload.
 
 Punkte sind literale Zeichen. Der Schlüssel `mail.from.address` ist ein einzelner undurchsichtiger
 Einstellungsschlüssel und bezeichnet nie einen verschachtelten Pfad:
@@ -191,10 +193,10 @@ $address = $user->settings()->get('mail.from.address');
 Ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärschlüssel werden unterstützt.
 
 Modellspezifische Änderungen benötigen einen gespeicherten Besitzer mit einem Schlüssel ungleich
-`null`. Für ein ungespeichertes Modell gibt `get()` `null` und `all()` eine leere Collection zurück,
-ohne Modellüberschreibungen abzufragen. Seine Methoden `set()`, `setMany()`, `forget()`,
-`forgetMany()` und `purge()` lösen vor einer Speicherabfrage oder dem Durchlaufen des Iterables eine
-`InvalidSettingsOwnerException` aus.
+`null`. Für ein ungespeichertes Modell gibt `get()` `null`, `has()` gibt `false` und `all()` eine
+leere Collection zurück, ohne Modellüberschreibungen abzufragen. Seine Methoden `set()`, `setMany()`,
+`forget()`, `forgetMany()` und `purge()` lösen vor einer Speicherabfrage oder dem Durchlaufen des
+Iterables eine `InvalidSettingsOwnerException` aus.
 
 Gespeicherte Modelle mit der Ganzzahl-ID `0` oder der Zeichenfolge `'0'` unterstützen dieselben Lese-
 und Änderungsvorgänge wie jeder andere gespeicherte Besitzer. Der Bereichsdiskriminator trennt ihre

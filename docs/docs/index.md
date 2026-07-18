@@ -50,7 +50,7 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
-$hasTimezone = $settings->has('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 
 $user->settings()->setMany([
     'locale' => 'fr',
@@ -61,12 +61,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 `get()` returns one effective value. `all()` returns an
 `Illuminate\Support\Collection` containing defaults merged with overrides.
-Use the collection's `has()` method when effective-key existence matters. `get()` intentionally has
-no caller-supplied fallback argument: the persistent class default is its only fallback, followed by
-`null` when neither scope contains the key.
+Use `has()` when effective-key existence matters, including when the stored value is JSON `null`.
+`get()` intentionally has no caller-supplied fallback argument: the persistent class default is its
+only fallback, followed by `null` when neither scope contains the key.
 
-Defaults and overrides use the same operations: `all()`, `get()`, `set()`, `setMany()`, `forget()`,
-`forgetMany()`, and `purge()`.
+Defaults and overrides use the same operations: `all()`, `get()`, `has()`, `set()`, `setMany()`,
+`forget()`, `forgetMany()`, and `purge()`.
 
 ## Focused package boundaries
 
@@ -105,12 +105,13 @@ models with integer `0` or string `'0'` identifiers can store overrides without 
 defaults. Models may also use a Laravel morph map.
 
 Per-model settings belong to persisted models. An unsaved model does not inherit defaults:
-`get()` returns `null`, and `all()` returns an empty collection. Calling `set()`, `setMany()`,
-`forget()`, `forgetMany()`, or `purge()` for an unsaved owner throws
+`get()` returns `null`, `has()` returns `false`, and `all()` returns an empty collection. Calling
+`set()`, `setMany()`, `forget()`, `forgetMany()`, or `purge()` for an unsaved owner throws
 `InvalidSettingsOwnerException` before a storage query runs.
 
-Payloads are stored as JSON. Without a configured cast, reads return decoded arrays or scalar
-values. [Payload casts](payload-casts.md) can return application-specific objects instead.
+Payloads are stored as JSON, including `null`, empty strings, whitespace strings, empty arrays,
+zero, and `false`. Without a configured cast, reads return the exact decoded value.
+[Payload casts](payload-casts.md) can return application-specific objects instead.
 
 ## See Also
 
