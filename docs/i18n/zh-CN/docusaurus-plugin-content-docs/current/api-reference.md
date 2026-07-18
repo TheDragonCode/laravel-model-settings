@@ -164,11 +164,16 @@ $defaults->purge();
 但绝不包含数据。
 
 键规范化后为空或仅包含空白字符时，会抛出
-`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`。其消息和软件包日志绝不会包含被拒绝的键
-或设置数据。
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`。其消息绝不会包含被拒绝的键或设置数据。
 
-非空 `setMany()` 操作失败时，事务会回滚整个批次。异常会重新抛出，现有的已加载 `modelSettings` 关联
-不会被清除。
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException` 继承 PHP 的
+`RuntimeException`。它会包装 `setMany()`、`forgetMany()` 和 `purge()` 在遍历 iterable、序列化或访问
+存储时发生的意外错误。消息会标明操作、所有者类以及 `model` 或 `default` 作用域，但不会暴露
+设置键或设置数据。原始异常可通过 `getPrevious()` 获取。
+
+现有的软件包异常 `InvalidSettingsOwnerException`、`InvalidPayloadCast` 和 `InvalidSettingKey`
+不会被包装。非空 `setMany()` 操作失败时，事务会回滚整个批次，现有的已加载 `modelSettings`
+关联不会被清除。
 
 ## 另请参阅
 

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use DragonCode\LaravelModelSettings\Models\Settings;
-use Illuminate\Support\Facades\Log;
 use Workbench\App\Casts\ContainerCast;
 use Workbench\App\Data\SomeData;
 use Workbench\App\Enums\IntBackedEnum;
@@ -119,25 +118,11 @@ test('setMany resolves the payload cast for every setting key', function (): voi
         ->and($settings->get('plain'))->toBe(['baz' => 'qux']);
 });
 
-test('setMany invalidates the loaded relation and never logs keys or payloads', function (): void {
+test('setMany invalidates the loaded relation', function (): void {
     $user = UserFactory::new()->create();
     $user->load('modelSettings');
 
-    $key     = 'private-setting-key';
-    $payload = 'private-setting-payload';
-
-    Log::spy();
-
-    $user->settings()->setMany([$key => $payload]);
+    $user->settings()->setMany(['key' => 'value']);
 
     expect($user->relationLoaded('modelSettings'))->toBeFalse();
-
-    Log::shouldHaveReceived('debug')->times(3);
-    Log::shouldHaveReceived('debug')
-        ->withArgs(static function (string $message, array $context) use ($key, $payload): bool {
-            $logged = json_encode([$message, $context], JSON_THROW_ON_ERROR);
-
-            return ! str_contains($logged, $key) && ! str_contains($logged, $payload);
-        })
-        ->times(3);
 });

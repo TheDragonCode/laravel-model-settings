@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use DragonCode\LaravelModelSettings\Exceptions\BulkMutationException;
 use DragonCode\LaravelModelSettings\Models\Settings;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Workbench\App\Models\User;
 use Workbench\App\Services\QueryRecorder;
 use Workbench\Database\Factories\UserFactory;
@@ -25,7 +25,12 @@ test('mixed-value setMany rolls back database work when payload serialization fa
     $user->load('modelSettings');
 
     $payload = 'private-failing-payload';
-    $cast    = new class implements CastsAttributes {
+    $failure = new RuntimeException('Serialization failed for ' . $payload);
+    $cast    = new class ($failure) implements CastsAttributes {
+        public function __construct(
+            private RuntimeException $failure,
+        ) {}
+
         public function get(Model $model, string $key, mixed $value, array $attributes): mixed
         {
             return Json::decode($value);
@@ -37,21 +42,32 @@ test('mixed-value setMany rolls back database work when payload serialization fa
                 ->where('key', 'keep')
                 ->update(['payload' => Json::encode('mutated')]);
 
-            throw new RuntimeException('Serialization failed for ' . $value);
+            throw $this->failure;
         }
     };
 
+    app()->instance($cast::class, $cast);
     config()->set('model_settings.casts.' . User::class, $cast::class);
-
-    Log::spy();
 
     $recorder = new QueryRecorder;
     $recorder->start();
 
-    expect(fn () => $user->settings()->setMany([
-        'stored'   => $payload,
-        'nullable' => null,
-    ]))->toThrow(RuntimeException::class);
+    $exception = null;
+
+    try {
+        $user->settings()->setMany([
+            'stored'   => $payload,
+            'nullable' => null,
+        ]);
+    } catch (BulkMutationException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull();
+    expect($exception->getMessage())
+        ->toBe('Model settings [setMany] failed for [Workbench\\App\\Models\\User] in [model] scope.')
+        ->not->toContain($payload);
+    expect($exception->getPrevious())->toBe($failure);
 
     expect($recorder->calls())->toBe(1);
     expect($user->relationLoaded('modelSettings'))->toBeTrue();
@@ -64,14 +80,6 @@ test('mixed-value setMany rolls back database work when payload serialization fa
     expect(Json::decode(
         DB::table(config()->string('model_settings.table'))->where('key', 'keep')->value('payload')
     ))->toBe('original');
-
-    Log::shouldHaveReceived('error')
-        ->withArgs(static function (string $message, array $context) use ($payload): bool {
-            $logged = json_encode([$message, $context], JSON_THROW_ON_ERROR);
-
-            return ! str_contains($logged, $payload);
-        })
-        ->once();
 });
 
 test('setMany preserves existing rows when the upsert fails', function (): void {
@@ -83,18 +91,28 @@ test('setMany preserves existing rows when the upsert fails', function (): void 
     ]);
     $user->load('modelSettings');
 
+    $failure = new RuntimeException('Forced persistence failure.');
     $queries = 0;
 
-    DB::connection()->beforeExecuting(static function () use (&$queries): void {
+    DB::connection()->beforeExecuting(static function () use (&$queries, $failure): void {
         if (++$queries === 1) {
-            throw new RuntimeException('Forced persistence failure.');
+            throw $failure;
         }
     });
 
-    expect(fn () => $user->settings()->setMany([
-        'stored'   => 'new',
-        'nullable' => null,
-    ]))->toThrow(RuntimeException::class, 'Forced persistence failure.');
+    $exception = null;
+
+    try {
+        $user->settings()->setMany([
+            'stored'   => 'new',
+            'nullable' => null,
+        ]);
+    } catch (BulkMutationException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull();
+    expect($exception->getPrevious())->toBe($failure);
 
     expect($user->relationLoaded('modelSettings'))->toBeTrue();
 
@@ -102,4 +120,95 @@ test('setMany preserves existing rows when the upsert fails', function (): void 
     assertDatabaseHas(Settings::class, ['key' => 'delete']);
     assertDatabaseMissing(Settings::class, ['key' => 'stored']);
     assertDatabaseMissing(Settings::class, ['key' => 'nullable']);
+});
+
+test('forgetMany and purge wrap persistence failures', function (string $operation): void {
+    $user = UserFactory::new()->create();
+
+    $user->settings()->setMany([
+        'keep'   => 'original',
+        'delete' => 'original',
+    ]);
+    $user->load('modelSettings');
+
+    $failure = new RuntimeException('Forced persistence failure.');
+    $failed  = false;
+
+    DB::connection()->beforeExecuting(static function () use (&$failed, $failure): void {
+        if (! $failed) {
+            $failed = true;
+
+            throw $failure;
+        }
+    });
+
+    $exception = null;
+
+    try {
+        if ($operation === 'forgetMany') {
+            $user->settings()->forgetMany(['delete']);
+        } else {
+            $user->settings()->purge();
+        }
+    } catch (BulkMutationException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull();
+    expect($exception->getMessage())->toContain("[$operation]", User::class, '[model]');
+    expect($exception->getPrevious())->toBe($failure);
+    expect($user->relationLoaded('modelSettings'))->toBeTrue();
+
+    assertDatabaseHas(Settings::class, ['key' => 'keep']);
+    assertDatabaseHas(Settings::class, ['key' => 'delete']);
+})->with(['forgetMany', 'purge']);
+
+test('setMany and forgetMany wrap iterable failures', function (string $operation): void {
+    $user = UserFactory::new()->create();
+    $user->load('modelSettings');
+
+    $failure = new RuntimeException('Forced iterable failure.');
+    $input   = (static function () use ($failure): iterable {
+        throw $failure;
+        yield 'key' => 'value';
+    })();
+
+    $exception = null;
+
+    try {
+        if ($operation === 'setMany') {
+            $user->settings()->setMany($input);
+        } else {
+            $user->settings()->forgetMany($input);
+        }
+    } catch (BulkMutationException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull();
+    expect($exception->getMessage())->toContain("[$operation]", User::class, '[model]');
+    expect($exception->getPrevious())->toBe($failure);
+    expect($user->relationLoaded('modelSettings'))->toBeTrue();
+})->with(['setMany', 'forgetMany']);
+
+test('bulk mutation failures identify the default scope', function (): void {
+    $owner   = new User;
+    $failure = new RuntimeException('Forced iterable failure.');
+    $input   = (static function () use ($failure): iterable {
+        throw $failure;
+        yield 'key' => 'value';
+    })();
+
+    $exception = null;
+
+    try {
+        $owner->defaultSettings()->setMany($input);
+    } catch (BulkMutationException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull();
+    expect($exception->getMessage())
+        ->toBe('Model settings [setMany] failed for [Workbench\\App\\Models\\User] in [default] scope.');
+    expect($exception->getPrevious())->toBe($failure);
 });

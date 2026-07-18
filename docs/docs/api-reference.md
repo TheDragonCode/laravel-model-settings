@@ -174,11 +174,17 @@ cannot be resolved through the Laravel container. Its message may identify the p
 key, and cast class, but never the payload.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` is thrown after normalization when a
-key is empty or contains only whitespace. Its message and package logs never contain the rejected
-key or payload.
+key is empty or contains only whitespace. Its message never contains the rejected key or payload.
 
-If a non-empty `setMany()` operation fails, the transaction rolls back its batch work. The exception
-is rethrown, and the existing loaded `modelSettings` relation is not cleared.
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException` extends PHP's `RuntimeException`.
+Unexpected iterable, serialization, and persistence failures from `setMany()`, `forgetMany()`, and
+`purge()` are wrapped by this exception. Its message identifies the operation, owner class, and
+`model` or `default` scope without exposing setting keys or payloads. The original exception is
+available through `getPrevious()`.
+
+Existing package exceptions such as `InvalidSettingsOwnerException`, `InvalidPayloadCast`, and
+`InvalidSettingKey` are not wrapped. If a non-empty `setMany()` operation fails, the transaction
+rolls back its batch work and the existing loaded `modelSettings` relation is not cleared.
 
 ## See Also
 

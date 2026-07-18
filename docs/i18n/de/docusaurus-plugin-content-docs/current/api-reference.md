@@ -184,12 +184,20 @@ Meldung darf das übergeordnete Modell, den Einstellungsschlüssel und die Cast-
 den Payload.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` wird nach der Normalisierung
-ausgelöst, wenn ein Schlüssel leer ist oder nur aus Leerzeichen besteht. Die Meldung und die
-Paketprotokolle enthalten weder den abgelehnten Schlüssel noch den Payload.
+ausgelöst, wenn ein Schlüssel leer ist oder nur aus Leerzeichen besteht. Die Meldung enthält weder
+den abgelehnten Schlüssel noch den Payload.
 
-Schlägt eine nicht leere `setMany()`-Operation fehl, setzt die Transaktion den Batch zurück. Die
-Exception wird erneut ausgelöst und die bestehende geladene Relation `modelSettings` wird nicht
-gelöscht.
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException` erweitert PHPs
+`RuntimeException`. Sie kapselt unerwartete Fehler beim Durchlaufen eines Iterables, bei der
+Serialisierung und beim Speicherzugriff in `setMany()`, `forgetMany()` und `purge()`. Ihre Meldung
+nennt die Operation, die Besitzerklasse und den Bereich `model` oder `default`, ohne
+Einstellungsschlüssel oder Payloads offenzulegen. Die ursprüngliche Exception ist über
+`getPrevious()` verfügbar.
+
+Die bestehenden Paket-Exceptions `InvalidSettingsOwnerException`, `InvalidPayloadCast` und
+`InvalidSettingKey` werden nicht gekapselt. Schlägt eine nicht leere `setMany()`-Operation fehl,
+setzt die Transaktion den Batch zurück und die bestehende geladene Relation `modelSettings` wird
+nicht gelöscht.
 
 ## Siehe auch
 

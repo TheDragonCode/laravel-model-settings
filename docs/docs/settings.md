@@ -173,8 +173,8 @@ key or enum case when reading, replacing, or removing a setting.
 
 Empty and whitespace-only keys throw
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. Validation runs after integers and
-enums are normalized to their stored string form. The exception and package logs never include the
-rejected key or payload.
+enums are normalized to their stored string form. The exception never includes the rejected key or
+payload.
 
 Dots are literal characters. The key `mail.from.address` is one opaque setting key and never means a
 nested path:

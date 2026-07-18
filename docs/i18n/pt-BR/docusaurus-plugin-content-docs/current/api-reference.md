@@ -178,11 +178,18 @@ contrato compatível ou não pode ser resolvida pelo container do Laravel. Sua m
 o modelo pai, a chave da configuração e a classe da conversão, mas nunca o payload.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` é lançada depois da normalização
-quando uma chave está vazia ou contém apenas espaços. Sua mensagem e os logs do pacote nunca incluem
-a chave rejeitada nem o payload da configuração.
+quando uma chave está vazia ou contém apenas espaços. Sua mensagem nunca inclui a chave rejeitada nem
+o payload da configuração.
 
-Se uma operação não vazia de `setMany()` falhar, a transação reverte o lote. A exceção é relançada,
-e a relação `modelSettings` carregada existente não é limpa.
+`DragonCode\LaravelModelSettings\Exceptions\BulkMutationException` estende a classe PHP
+`RuntimeException`. Essa exceção encapsula falhas inesperadas ao consumir um iterable, serializar
+dados e acessar o armazenamento em `setMany()`, `forgetMany()` e `purge()`. Sua mensagem identifica a
+operação, a classe do proprietário e o escopo `model` ou `default`, sem expor chaves nem payloads das
+configurações. A exceção original está disponível por meio de `getPrevious()`.
+
+As exceções existentes do pacote `InvalidSettingsOwnerException`, `InvalidPayloadCast` e
+`InvalidSettingKey` não são encapsuladas. Se uma operação não vazia de `setMany()` falhar, a
+transação reverte o lote e a relação `modelSettings` já carregada não é limpa.
 
 ## Veja também
 

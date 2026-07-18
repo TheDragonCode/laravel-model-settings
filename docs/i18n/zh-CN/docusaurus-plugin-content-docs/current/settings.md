@@ -166,7 +166,7 @@ Laravel 使用 backed enum 的底层值进行存储，使用 pure unit enum 的 
 
 空键以及仅包含空白字符的键会抛出
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`。整数和枚举规范化为存储字符串后再验证。
-异常和软件包日志绝不会包含被拒绝的键或设置数据。
+异常消息绝不会包含被拒绝的键或设置数据。
 
 点号是普通字符。键 `mail.from.address` 是一个不可拆分的设置键，绝不表示嵌套路径：
 
