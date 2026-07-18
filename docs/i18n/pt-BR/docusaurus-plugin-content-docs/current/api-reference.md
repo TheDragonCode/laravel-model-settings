@@ -80,9 +80,10 @@ $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
 O método valida o proprietário e então executa uma operação update-or-create para o tipo do modelo,
-o identificador e a chave. Um valor considerado vazio pelo Laravel remove a linha. A validação ocorre
-antes da seleção do caminho de valor vazio. Em ambos os caminhos, a relação `modelSettings` carregada
-é limpa para que a próxima leitura não reutilize dados desatualizados.
+o identificador, o discriminador de escopo e a chave. Um valor considerado vazio pelo Laravel remove
+a linha. A validação ocorre antes da seleção do caminho de valor vazio. Em ambos os caminhos, a
+relação `modelSettings` carregada é limpa para que a próxima leitura não reutilize dados
+desatualizados.
 
 ## setMany
 
@@ -150,17 +151,15 @@ $defaults->purge();
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` estende a classe PHP
 `DomainException`. Toda alteração por meio de `settings()` lança essa exceção antes de uma consulta
-ao armazenamento quando uma destas condições é verdadeira:
-
-- O modelo proprietário não foi persistido, inclusive quando recebeu uma chave antecipadamente.
-- A chave do proprietário persistido é o inteiro `0` ou a string `'0'`, o que conflita com o valor
-  sentinela usado pelos padrões da classe na versão 1.x.
+ao armazenamento quando o modelo proprietário não foi persistido, inclusive quando recebeu uma
+chave antecipadamente.
 
 Essa validação também ocorre antes do consumo de um iterable em lote. Alterações por meio de
 `defaultSettings()` continuam válidas porque esse serviço seleciona explicitamente o escopo dos
 valores padrão da classe. A leitura permanece determinística: um proprietário não persistido retorna
-`null` ou uma coleção vazia sem consultar sobrescritas, enquanto um proprietário persistido com a
-chave `0` pode ler os valores padrão da classe, mas não pode alterá-los como sobrescritas do modelo.
+`null` ou uma coleção vazia sem consultar sobrescritas. Um proprietário persistido com chave inteira
+`0` ou string `'0'` pode ler e alterar suas sobrescritas; `is_default` mantém essas linhas separadas
+dos padrões da classe.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` é lançada quando uma conversão
 configurada para todo o modelo ou por chave está ausente, tem um tipo inválido, não implementa um

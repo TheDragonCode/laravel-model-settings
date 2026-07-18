@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Relations;
 
-use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use DragonCode\LaravelModelSettings\Scopes\PriorityScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -44,9 +44,36 @@ class SettingsRelation extends MorphMany
     }
 
     #[Override]
+    public function addEagerConstraints(array $models): void
+    {
+        $keys = $this->getKeys($models, $this->localKey);
+
+        if ($keys === []) {
+            $this->eagerKeysWereEmpty = true;
+
+            return;
+        }
+
+        $isDefault = $this->related->qualifyColumn('is_default');
+        $itemId    = $this->getQualifiedForeignKeyName();
+
+        $this->getRelationQuery()
+            ->where($this->morphType, $this->morphClass)
+            ->where(
+                fn (Builder $query) => $query
+                    ->where($isDefault, true)
+                    ->orWhere(
+                        fn (Builder $query) => $query
+                            ->where($isDefault, false)
+                            ->whereIn($itemId, $keys)
+                    )
+            );
+    }
+
+    #[Override]
     public function getEager(): Collection
     {
-        $eagerKeys = new BaseCollection($this->getKeys([]));
+        $eagerKeys = new BaseCollection($this->eagerKeys);
 
         $items = parent::getEager()
             ->groupBy($this->getMorphType())
@@ -67,10 +94,6 @@ class SettingsRelation extends MorphMany
     #[Override]
     protected function getKeys(array $models, $key = null): array
     {
-        if ($this->eagerKeys !== []) {
-            return $this->eagerKeys;
-        }
-
         $models = (new BaseCollection($models))
             ->filter(fn (Model $model): bool => $model->exists)
             ->all();
@@ -83,7 +106,6 @@ class SettingsRelation extends MorphMany
         }
 
         return $this->eagerKeys = $keys
-            ->push(IdentifierEnum::Default->value)
             ->values()
             ->unique(null, true)
             ->sort()
@@ -93,9 +115,7 @@ class SettingsRelation extends MorphMany
     protected function resolveSettings(Collection $settings, BaseCollection $eagerKeys): BaseCollection
     {
         [$defaults, $overrides] = $settings->partition(
-            fn (Model $setting): bool => $this->isDefaultIdentifier(
-                $setting->getAttribute($this->getForeignKeyName())
-            )
+            fn (Model $setting): bool => $setting->getAttribute('is_default') === true
         );
 
         $defaults  = $defaults->keyBy('key');
@@ -111,10 +131,6 @@ class SettingsRelation extends MorphMany
         Collection $defaults,
         Collection $overrides,
     ): Collection {
-        if ($this->isDefaultIdentifier($itemId)) {
-            return $defaults->values();
-        }
-
         $itemOverrides = $overrides
             ->get($itemId, $this->related->newCollection())
             ->keyBy('key');
@@ -133,10 +149,5 @@ class SettingsRelation extends MorphMany
         return $setting
             ->replicate([$this->getForeignKeyName()])
             ->setAttribute($this->getForeignKeyName(), $itemId);
-    }
-
-    protected function isDefaultIdentifier(mixed $itemId): bool
-    {
-        return (string) $itemId === IdentifierEnum::Default->value;
     }
 }

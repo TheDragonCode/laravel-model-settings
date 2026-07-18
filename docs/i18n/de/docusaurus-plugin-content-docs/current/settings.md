@@ -196,10 +196,10 @@ ohne Modellüberschreibungen abzufragen. Seine Methoden `set()`, `setMany()`, `f
 `forgetMany()` und `purge()` lösen vor einer Speicherabfrage oder dem Durchlaufen des Iterables eine
 `InvalidSettingsOwnerException` aus.
 
-Die Ganzzahl `0` und die Zeichenfolge `'0'` sind in 1.x für gemeinsame Standardwerte reserviert. Ein
-gespeichertes Modell mit einem dieser Schlüssel kann Klassenstandards lesen, aber jede
-Änderungsmethode löst eine `InvalidSettingsOwnerException` aus. Andere Zeichenfolgenschlüssel,
-einschließlich `'00'`, bleiben gültig.
+Gespeicherte Modelle mit der Ganzzahl-ID `0` oder der Zeichenfolge `'0'` unterstützen dieselben Lese-
+und Änderungsvorgänge wie jeder andere gespeicherte Besitzer. Der Bereichsdiskriminator trennt ihre
+Überschreibungen von Klassenstandards, obwohl beide Zeilen `item_id = '0'` behalten. Andere
+Zeichenfolgenschlüssel, einschließlich `'00'`, bleiben gültig.
 
 Einstellungen werden unter der aktuellen Morph-Klasse des Modells gespeichert. Wird ein Morph-Map-
 Alias nach dem Schreiben von Einstellungen eingeführt oder geändert, müssen vorhandene `item_type`-

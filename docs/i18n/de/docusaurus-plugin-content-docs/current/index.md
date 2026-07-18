@@ -89,12 +89,13 @@ statt `modelSettings` oder das interne Repository als Erweiterungs-API zu behand
 
 ## Speichergrenzen
 
-Jede Zeile wird durch drei Werte identifiziert:
+Jede Zeile wird durch vier Werte identifiziert:
 
 | Wert | Bedeutung |
 |------|-----------|
 | `item_type` | Morph-Klasse oder Morph-Map-Alias des übergeordneten Modells |
-| `item_id` | Primärschlüssel des übergeordneten Modells oder der reservierte Wert `0` für Klassenstandards |
+| `item_id` | Primärschlüssel des übergeordneten Modells; Klassenstandards behalten den physischen Wert `0` |
+| `is_default` | `true` für einen Klassenstandard, `false` für eine Modellüberschreibung |
 | `key` | Name der Einstellung |
 
 Dadurch bleiben Standardwerte für jede Modellklasse unabhängig. Ein `User`-Standard wird nie zum
@@ -103,7 +104,9 @@ Dadurch bleiben Standardwerte für jede Modellklasse unabhängig. Ein `User`-Sta
 ## Unterstützte Modelle
 
 Das Paket unterstützt Eloquent-Modelle mit ganzzahligen, Zeichenfolgen-, UUID- oder ULID-
-Primärschlüsseln. Modelle können außerdem eine Laravel Morph Map verwenden.
+Primärschlüsseln. Gespeicherte Modelle mit der Ganzzahl-ID `0` oder der Zeichenfolge `'0'` können
+Überschreibungen speichern, ohne mit Klassenstandards zu kollidieren. Modelle können außerdem eine
+Laravel Morph Map verwenden.
 
 Modellspezifische Einstellungen gehören zu gespeicherten Modellen. Ein ungespeichertes Modell erbt
 keine Standardwerte: `get()` gibt `null` und `all()` eine leere Collection zurück. `set()`,

@@ -23,7 +23,8 @@ Requires PHP 8.3+ and Laravel 12 or 13.
 - `get()` and `all()` resolve shared defaults and per-model overrides automatically.
 - `setMany()`, `forgetMany()`, and `purge()` provide bounded-query bulk mutations.
 - Eager loading avoids one settings query per model in a collection.
-- Integer, string, UUID, and ULID primary keys work with or without a Laravel morph map.
+- Integer, string, UUID, and ULID primary keys work with or without a Laravel morph map, including
+  persisted integer `0` and string `'0'` identifiers.
 - Payloads use JSON by default and may use model-wide or per-key custom casts.
 
 ## Quick Start

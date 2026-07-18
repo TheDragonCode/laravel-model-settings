@@ -77,11 +77,13 @@ The published migration creates these columns:
 | `id` | Settings row primary key |
 | `item_type` | Parent model morph class or alias |
 | `item_id` | Parent identifier, stored as a string up to 36 characters |
+| `is_default` | Distinguishes class defaults from model overrides |
 | `key` | Setting key |
 | `payload` | Payload declared by the migration as `jsonb` |
 | `created_at` and `updated_at` | Laravel timestamps |
 
-The combination of `item_type`, `item_id`, and `key` is unique.
+The combination of `item_type`, `item_id`, `is_default`, and `key` is unique. A lookup index on
+`item_type`, `is_default`, and `item_id` supports default and owner-scope reads.
 
 Class defaults and model overrides share this table. The package does not create a second defaults
 table or add encryption metadata columns.
@@ -90,10 +92,38 @@ The default `item_id` column stores at most 36 characters. Integer, string, UUID
 identifiers fit this schema when their string form is no longer than 36 characters. A longer custom
 primary key requires a matching migration change.
 
-The value `0` is reserved in `item_id` for class defaults. In 1.x, every mutation through
-`settings()` rejects a persisted owner whose key is integer `0` or string `'0'` with
-`InvalidSettingsOwnerException` before querying this table. Changing the database connection, table
-name, or morph-map aliases after data exists requires moving or updating the existing rows yourself.
+Class defaults use `item_id = '0'` with `is_default = true`. A persisted owner whose key is integer
+`0` or string `'0'` uses the same physical `item_id` with `is_default = false`, so both rows can
+coexist for the same model type and setting key. Changing the database connection, table name, or
+morph-map aliases after data exists requires moving or updating the existing rows yourself.
+
+## Upgrade from an earlier 1.x release
+
+After updating the package, publish its new migration and run it with the application in maintenance
+mode:
+
+```bash
+php artisan vendor:publish --tag="model_settings"
+php artisan migrate
+```
+
+The upgrade migration adds `is_default`, classifies every legacy row with `item_id = '0'` as a
+class default, creates the discriminator-aware indexes, and then removes the legacy unique index.
+It never writes setting keys or payloads to migration output.
+
+Earlier 1.x schemas encoded class defaults and real owner ID `0` rows identically. The migration
+therefore cannot distinguish a manually inserted owner override from a default and classifies both
+as defaults. Inspect any known legacy owner-ID-0 data after migration and set `is_default = false`
+for rows that are actual model overrides.
+
+Do not run the old package runtime against the upgraded schema. It does not write the discriminator
+and would store defaults as overrides. Deploy the migration and compatible runtime as one maintenance
+boundary.
+
+Rollback is safe only before a real owner-ID-0 override exists. The migration stops before changing
+the schema when it finds `item_id = '0'` with `is_default = false`, because the legacy schema cannot
+represent that row without changing its meaning. Remove or export those overrides before rolling
+back. A safe rollback restores the legacy unique index and removes `is_default`.
 
 ## Replace the storage model
 
@@ -110,6 +140,7 @@ final class ApplicationSetting extends Model
     protected $fillable = [
         'item_type',
         'item_id',
+        'is_default',
         'key',
         'payload',
     ];
@@ -125,8 +156,9 @@ final class ApplicationSetting extends Model
     protected function casts(): array
     {
         return [
-            'item_id' => 'string',
-            'payload' => PayloadCast::class,
+            'item_id'    => 'string',
+            'is_default' => 'boolean',
+            'payload'    => PayloadCast::class,
         ];
     }
 }
@@ -145,9 +177,10 @@ At minimum, the replacement model must preserve these behaviors:
 
 | Requirement | Reason |
 |-------------|--------|
-| Fill `item_type`, `item_id`, `key`, and `payload` | `updateOrCreate()` writes these attributes |
+| Fill `item_type`, `item_id`, `is_default`, `key`, and `payload` | Storage writes these attributes |
 | Use the configured connection and table | The migration and repository must address the same rows |
 | Cast `item_id` to `string` | Integer, string, UUID, and ULID identifiers share one column |
+| Cast `is_default` to `boolean` | Lazy and eager resolution must read the same scope discriminator |
 | Cast `payload` with `PayloadCast` or an equivalent | Reads and writes must preserve JSON behavior |
 
 ## See Also

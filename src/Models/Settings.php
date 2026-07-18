@@ -15,6 +15,7 @@ final class Settings extends Model
     protected $fillable = [
         'item_type',
         'item_id',
+        'is_default',
         'key',
         'payload',
     ];
@@ -31,7 +32,8 @@ final class Settings extends Model
     protected function casts(): array
     {
         return [
-            'item_id' => 'string',
+            'item_id'    => 'string',
+            'is_default' => 'boolean',
 
             'payload' => PayloadCast::class,
         ];

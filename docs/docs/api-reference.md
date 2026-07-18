@@ -80,9 +80,9 @@ $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
 The method validates the owner, then uses an update-or-create operation for the model type, model
-identifier, and key. Passing a value considered blank by Laravel removes the row. Validation happens
-before the blank-value path is selected. After either path, the loaded `modelSettings` relation is
-cleared so the next read cannot reuse stale data.
+identifier, scope discriminator, and key. Passing a value considered blank by Laravel removes the
+row. Validation happens before the blank-value path is selected. After either path, the loaded
+`modelSettings` relation is cleared so the next read cannot reuse stale data.
 
 ## setMany
 
@@ -148,18 +148,14 @@ $defaults->purge();
 ## Exceptions
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` extends PHP's
-`DomainException`. Every mutation through `settings()` throws it before a storage query when either
-condition is true:
-
-- The owner model is unsaved, including an unsaved model with a preassigned key.
-- The persisted owner key is integer `0` or string `'0'`, which collides with the 1.x class-default
-  sentinel.
+`DomainException`. Every mutation through `settings()` throws it before a storage query when the
+owner model is unsaved, including an unsaved model with a preassigned key.
 
 This validation also happens before a bulk iterable is consumed. Mutations through
 `defaultSettings()` remain valid because that service selects the class-default scope explicitly.
 Read-only access stays deterministic: an unsaved owner returns `null` or an empty collection without
-querying overrides, while a persisted owner with key `0` can read class defaults but cannot mutate
-them as model overrides.
+querying overrides. A persisted owner with integer `0` or string `'0'` can read and mutate its model
+overrides; `is_default` keeps those rows separate from class defaults.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` is thrown when a configured
 model-wide or key-aware cast is missing, has an invalid type, implements no supported contract, or

@@ -77,9 +77,10 @@ $timezone = $user->settings()->get('timezone');
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-이 메서드는 소유자를 검증한 다음 모델 형식, 모델 식별자와 키를 기준으로 update-or-create를 수행합니다.
-Laravel이 빈 값으로 판단하는 값을 전달하면 행을 제거합니다. 빈 값 경로를 선택하기 전에 검증이 실행됩니다.
-두 경로 모두 로딩된 `modelSettings` 관계를 지워 다음 읽기에서 오래된 데이터를 재사용하지 않도록 합니다.
+이 메서드는 소유자를 검증한 다음 모델 형식, 모델 식별자, 범위 판별자와 키를 기준으로 update-or-create를
+수행합니다. Laravel이 빈 값으로 판단하는 값을 전달하면 행을 제거합니다. 빈 값 경로를 선택하기 전에 검증이
+실행됩니다. 두 경로 모두 로딩된 `modelSettings` 관계를 지워 다음 읽기에서 오래된 데이터를 재사용하지 않도록
+합니다.
 
 ## setMany
 
@@ -143,16 +144,13 @@ $defaults->purge();
 ## 예외
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException`은 PHP의
-`DomainException`을 확장합니다. 다음 조건 중 하나가 참이면 `settings()`를 통한 모든 변경은 저장소 쿼리가
-실행되기 전에 이 예외를 발생시킵니다.
-
-- 소유자 모델이 저장되지 않았습니다. 키가 미리 할당된 저장되지 않은 모델도 포함됩니다.
-- 저장된 소유자 키가 정수 `0` 또는 문자열 `'0'`이며, 1.x 클래스 기본값 센티널과 충돌합니다.
+`DomainException`을 확장합니다. 소유자 모델이 저장되지 않은 경우 `settings()`를 통한 모든 변경은 저장소
+쿼리가 실행되기 전에 이 예외를 발생시킵니다. 키가 미리 할당된 저장되지 않은 모델도 포함됩니다.
 
 이 검증은 일괄 iterable을 소비하기 전에도 실행됩니다. `defaultSettings()`를 통한 변경은 해당 서비스가 클래스
 기본값 범위를 명시적으로 선택하므로 계속 유효합니다. 읽기 동작은 결정적입니다. 저장되지 않은 소유자는 재정의를
-쿼리하지 않고 `null` 또는 빈 컬렉션을 반환합니다. 키가 `0`인 저장된 소유자는 클래스 기본값을 읽을 수 있지만
-모델 재정의로 변경할 수 없습니다.
+쿼리하지 않고 `null` 또는 빈 컬렉션을 반환합니다. 정수 키 `0` 또는 문자열 `'0'`을 가진 저장된 소유자는 자신의
+재정의를 읽고 변경할 수 있으며, `is_default`가 이 행을 클래스 기본값과 분리합니다.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast`는 구성된 모델 전체 또는 키별 캐스트가
 없거나 타입이 잘못되었거나 지원 계약을 구현하지 않았거나 Laravel 컨테이너로 해석할 수 없을 때 발생합니다.

@@ -75,11 +75,13 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 | `id` | 설정 행의 기본 키 |
 | `item_type` | 상위 모델의 morph 클래스 또는 별칭 |
 | `item_id` | 최대 36자의 문자열로 저장되는 상위 모델 식별자 |
+| `is_default` | 클래스 기본값과 모델 재정의를 구분 |
 | `key` | 설정 키 |
 | `payload` | 마이그레이션에서 `jsonb`로 선언한 페이로드 |
 | `created_at`과 `updated_at` | Laravel 타임스탬프 |
 
-`item_type`, `item_id`, `key`의 조합은 고유합니다.
+`item_type`, `item_id`, `is_default`, `key`의 조합은 고유합니다. `item_type`, `is_default`,
+`item_id` 조회 인덱스는 기본값 및 소유자 범위 읽기를 지원합니다.
 
 클래스 기본값과 모델 재정의 값은 이 테이블을 공유합니다. 패키지는 두 번째 기본값 테이블이나 암호화 메타데이터
 열을 만들지 않습니다.
@@ -87,10 +89,35 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 기본 `item_id` 열은 최대 36자를 저장합니다. 문자열 표현이 36자 이하인 정수, 문자열, UUID, ULID 식별자는
 이 스키마에 맞습니다. 더 긴 사용자 정의 기본 키에는 해당 마이그레이션 변경이 필요합니다.
 
-`item_id`의 값 `0`은 클래스 기본값을 위해 예약됩니다. 1.x에서 `settings()`를 통한 모든 변경은 정수 `0`
-또는 문자열 `'0'` 키를 가진 저장된 소유자를 거부하며, 이 테이블을 쿼리하기 전에
-`InvalidSettingsOwnerException`을 발생시킵니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는
-morph map 별칭을 변경하면 기존 행을 직접 이동하거나 업데이트해야 합니다.
+클래스 기본값은 `item_id = '0'`과 `is_default = true`를 사용합니다. 정수 키 `0` 또는 문자열 `'0'`을 가진
+저장된 소유자는 동일한 물리적 `item_id`와 `is_default = false`를 사용합니다. 따라서 같은 모델 형식과 설정
+키에 두 행이 함께 존재할 수 있습니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는 morph map
+별칭을 변경하면 기존 행을 직접 이동하거나 업데이트해야 합니다.
+
+## 이전 1.x 릴리스에서 업그레이드
+
+패키지를 업데이트한 후 애플리케이션을 유지 관리 모드로 전환하고 새 마이그레이션을 게시하여 실행합니다.
+
+```bash
+php artisan vendor:publish --tag="model_settings"
+php artisan migrate
+```
+
+업그레이드 마이그레이션은 `is_default`를 추가하고 기존 `item_id = '0'` 행을 모두 클래스 기본값으로
+분류합니다. 그런 다음 판별자를 포함한 인덱스를 만들고 이전 고유 인덱스를 제거합니다. 마이그레이션 출력에는
+설정 키나 페이로드를 기록하지 않습니다.
+
+이전 1.x 스키마는 클래스 기본값과 실제 소유자 ID `0` 행을 동일하게 인코딩했습니다. 따라서 마이그레이션은
+수동으로 삽입한 소유자 재정의와 기본값을 구분할 수 없으며 둘 다 기본값으로 분류합니다. 마이그레이션 후 알려진
+기존 소유자 ID `0` 데이터를 확인하고 실제 모델 재정의 행에는 `is_default = false`를 설정합니다.
+
+업그레이드된 스키마에서 이전 패키지 런타임을 실행하지 마십시오. 이전 런타임은 판별자를 기록하지 않으므로
+기본값을 재정의로 저장합니다. 마이그레이션과 호환 런타임을 하나의 유지 관리 경계에서 배포합니다.
+
+실제 소유자 ID `0` 재정의가 생기기 전에만 롤백이 안전합니다. 마이그레이션은
+`item_id = '0'`과 `is_default = false`인 행을 발견하면 스키마를 변경하기 전에 중단합니다. 이전 스키마는
+의미를 바꾸지 않고 이 행을 표현할 수 없기 때문입니다. 롤백 전에 해당 재정의를 제거하거나 내보냅니다. 안전한
+롤백은 이전 고유 인덱스를 복원하고 `is_default`를 제거합니다.
 
 ## 저장 모델 교체
 
@@ -107,6 +134,7 @@ final class ApplicationSetting extends Model
     protected $fillable = [
         'item_type',
         'item_id',
+        'is_default',
         'key',
         'payload',
     ];
@@ -122,8 +150,9 @@ final class ApplicationSetting extends Model
     protected function casts(): array
     {
         return [
-            'item_id' => 'string',
-            'payload' => PayloadCast::class,
+            'item_id'    => 'string',
+            'is_default' => 'boolean',
+            'payload'    => PayloadCast::class,
         ];
     }
 }
@@ -142,9 +171,10 @@ final class ApplicationSetting extends Model
 
 | 요구 사항 | 이유 |
 |-----------|------|
-| `item_type`, `item_id`, `key`, `payload` 채우기 | `updateOrCreate()`가 이 속성을 기록 |
+| `item_type`, `item_id`, `is_default`, `key`, `payload` 채우기 | 저장소가 이 속성을 기록 |
 | 구성된 연결과 테이블 사용 | 마이그레이션과 리포지토리가 같은 행을 사용해야 함 |
 | `item_id`를 `string`으로 캐스트 | 정수, 문자열, UUID, ULID 식별자가 한 열을 공유 |
+| `is_default`를 `boolean`으로 캐스트 | 지연 및 즉시 해석이 같은 범위 판별자를 읽어야 함 |
 | `payload`를 `PayloadCast` 또는 동등한 방식으로 캐스트 | 읽기와 쓰기가 JSON 동작을 유지해야 함 |
 
 ## 함께 보기
