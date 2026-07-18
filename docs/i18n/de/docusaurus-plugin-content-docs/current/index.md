@@ -52,15 +52,40 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
+$hasTimezone = $settings->has('timezone');
 
-$user->settings()->forget('timezone');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
+$user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 `get()` gibt einen effektiven Wert zurück. `all()` gibt eine `Illuminate\Support\Collection` zurück,
 in der Standardwerte und Überschreibungen zusammengeführt sind.
+Verwende die Methode `has()` der Collection, wenn die Existenz eines effektiven Schlüssels relevant
+ist. `get()` akzeptiert absichtlich keinen vom Aufrufer angegebenen Ersatzwert: Der persistierte
+Klassenstandard ist der einzige Rückfallwert, gefolgt von `null`, wenn der Schlüssel in beiden
+Bereichen fehlt.
 
-Für Standardwerte und Überschreibungen stehen dieselben vier Operationen bereit: `all()`, `get()`,
-`set()` und `forget()`.
+Für Standardwerte und Überschreibungen stehen dieselben Operationen bereit: `all()`, `get()`, `set()`,
+`setMany()`, `forget()`, `forgetMany()` und `purge()`.
+
+## Klare Paketgrenzen
+
+Laravel Model Settings ist ein fokussiertes Eloquent-Paket und kein allgemeines Framework für
+Anwendungseinstellungen.
+
+| Grenze | Beabsichtigtes Verhalten |
+|--------|--------------------------|
+| Speicherung | Eine Datenbanktabelle; kein Redis-Backend und keine Speicherung in Feldern des übergeordneten Modells |
+| Standardwerte | Reservierte Zeilen in derselben Tabelle; keine zweite Standardwerttabelle |
+| Registrierung | Keine Repository-Registry, typisierten globalen Einstellungsklassen oder Klassenerkennung |
+| Migrationen | Kein Migrations-Runner pro Einstellungsschlüssel |
+| Caching | Kein verpflichtender Cache über mehrere Requests; Eager Loading verwendet nur eine geladene Relation erneut |
+
+Anwendungen mit solchen Anforderungen müssen die Funktionen außerhalb dieses Pakets zusammensetzen,
+statt `modelSettings` oder das interne Repository als Erweiterungs-API zu behandeln.
 
 ## Speichergrenzen
 
@@ -81,9 +106,9 @@ Das Paket unterstützt Eloquent-Modelle mit ganzzahligen, Zeichenfolgen-, UUID- 
 Primärschlüsseln. Modelle können außerdem eine Laravel Morph Map verwenden.
 
 Modellspezifische Einstellungen gehören zu gespeicherten Modellen. Ein ungespeichertes Modell erbt
-keine Standardwerte: `get()` gibt `null` und `all()` eine leere Collection zurück. `set()` oder
-`forget()` für einen ungespeicherten Besitzer lösen vor einer Speicherabfrage eine
-`InvalidSettingsOwnerException` aus.
+keine Standardwerte: `get()` gibt `null` und `all()` eine leere Collection zurück. `set()`,
+`setMany()`, `forget()`, `forgetMany()` oder `purge()` für einen ungespeicherten Besitzer lösen vor
+einer Speicherabfrage eine `InvalidSettingsOwnerException` aus.
 
 Payloads werden als JSON gespeichert. Ohne konfigurierten Cast geben Lesevorgänge dekodierte Arrays
 oder skalare Werte zurück. [Payload-Casts](payload-casts.md) können stattdessen anwendungsspezifische

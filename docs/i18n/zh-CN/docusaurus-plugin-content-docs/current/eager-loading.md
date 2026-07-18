@@ -65,8 +65,20 @@ $settings = $users->map(
 
 ## 预加载后的修改
 
-`set()` 和 `forget()` 会清除对应模型上已加载的 `modelSettings` 关联。下一次服务读取会查询当前最终值，
-因此不会返回过期数据。在下一次批量读取前，请显式重新预加载该关联。
+成功执行 `set()`、`setMany()`、`forget()`、`forgetMany()` 或 `purge()` 后，软件包会恰好清除一次该模型上
+已加载的 `modelSettings` 关联。下一次服务读取会查询当前最终值，因此不会返回过期数据。批量修改失败时，
+现有的已加载关联会保留，同时包含写入和删除的事务会回滚。
+
+在下一次批量读取前，请显式重新加载该关联：
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->load('modelSettings');
+```
 
 修改操作仍会执行自己的写入查询。预加载只影响后续读取。
 

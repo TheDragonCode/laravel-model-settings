@@ -23,7 +23,7 @@ php artisan vendor:publish --tag="model_settings"
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | 저장된 설정에 사용하는 Eloquent 모델 |
 | `connection` | 애플리케이션 기본값 | 모델과 마이그레이션이 사용하는 데이터베이스 연결 |
 | `table` | `settings` | 모델과 마이그레이션이 사용하는 데이터베이스 테이블 |
-| `casts` | `[]` | 상위 모델 클래스에 따라 선택되는 페이로드 캐스트 |
+| `casts` | `[]` | 상위 모델 클래스와 선택적으로 설정 키에 따라 선택되는 페이로드 캐스트 |
 
 패키지는 다음 환경 변수를 읽습니다.
 
@@ -41,6 +41,31 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 나중에 값을 변경해도 기존 레코드는 이동하지 않습니다.
 
+## 페이로드 캐스트 구성
+
+기존의 모델 전체 형식도 계속 지원합니다. 하나의 캐스트가 해당 모델 클래스에 속한 모든 페이로드를 처리합니다.
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+키마다 다른 타입이나 처리가 필요하면 키별 맵을 사용합니다.
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+키는 정확히 일치해야 합니다. 점은 중첩 경로 의미가 없으며 맵에 없는 키는 기본 JSON 캐스트를 사용합니다.
+각 모델 항목은 모델 전체에 적용되는 클래스 문자열 또는 키별 맵 중 하나입니다. 키별 맵 안에는 와일드카드 항목이
+없습니다. 지원되는 캐스트 계약과 암호화 예시는 [페이로드 캐스트](payload-casts.md)를 참조합니다.
+
 ## 저장 스키마
 
 게시된 마이그레이션은 다음 열을 생성합니다.
@@ -56,13 +81,16 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 `item_type`, `item_id`, `key`의 조합은 고유합니다.
 
+클래스 기본값과 모델 재정의 값은 이 테이블을 공유합니다. 패키지는 두 번째 기본값 테이블이나 암호화 메타데이터
+열을 만들지 않습니다.
+
 기본 `item_id` 열은 최대 36자를 저장합니다. 문자열 표현이 36자 이하인 정수, 문자열, UUID, ULID 식별자는
 이 스키마에 맞습니다. 더 긴 사용자 정의 기본 키에는 해당 마이그레이션 변경이 필요합니다.
 
-`item_id`의 값 `0`은 클래스 기본값을 위해 예약됩니다. 1.x에서 `set()`과 `forget()`은 정수 `0` 또는 문자열
-`'0'` 키를 가진 저장된 소유자를 거부하며, 이 테이블을 쿼리하기 전에 `InvalidSettingsOwnerException`을
-발생시킵니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는 morph map 별칭을 변경하면 기존 행을
-직접 이동하거나 업데이트해야 합니다.
+`item_id`의 값 `0`은 클래스 기본값을 위해 예약됩니다. 1.x에서 `settings()`를 통한 모든 변경은 정수 `0`
+또는 문자열 `'0'` 키를 가진 저장된 소유자를 거부하며, 이 테이블을 쿼리하기 전에
+`InvalidSettingsOwnerException`을 발생시킵니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는
+morph map 별칭을 변경하면 기존 행을 직접 이동하거나 업데이트해야 합니다.
 
 ## 저장 모델 교체
 

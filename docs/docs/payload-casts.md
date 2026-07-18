@@ -26,7 +26,7 @@ Values must be JSON-serializable. JSON encoding errors are not suppressed.
 
 ## Cast selection
 
-Custom casts are configured by parent model class:
+The legacy model-wide form applies one cast to every setting owned by a parent model class:
 
 ```php
 'casts' => [
@@ -34,11 +34,24 @@ Custom casts are configured by parent model class:
 ],
 ```
 
-One configured cast handles every setting payload owned by that parent model class. Laravel morph
-map aliases are resolved back to the model class before the cast is selected.
+Use a key-aware map when only exact setting keys need custom handling:
 
-A configured class must implement `CastsAttributes` or extend `Spatie\LaravelData\Data`. Other class
-names do not receive custom handling and values use the default JSON path.
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Laravel morph-map aliases are resolved back to the parent model class before selection. Key matching
+uses the stored setting key, not the Eloquent attribute name `payload`. Dots are literal, so
+`billing.credentials` is one key. Keys missing from a key-aware map use normal JSON.
+
+A configured class must implement `CastsAttributes` or extend `Spatie\LaravelData\Data`. Invalid,
+missing, unsupported, or container-unresolvable configured classes throw `InvalidPayloadCast`; the
+package does not silently fall back to plain JSON for a configured entry.
 
 ## Cast lifecycle
 
@@ -50,7 +63,8 @@ For a `CastsAttributes` implementation, the package runs this sequence:
 | Read | Pass the stored JSON string to the custom `get()` |
 
 The `$model` argument is the configured settings storage model, not the parent `User` or `Post`.
-The package creates the cast with no constructor arguments.
+The package resolves `CastsAttributes` implementations through Laravel's container, so constructor
+dependencies may use normal container bindings.
 
 ## Eloquent attribute cast
 
@@ -78,6 +92,56 @@ final class UserSettingsPayloadCast implements CastsAttributes
 
 The custom `set()` result must remain JSON-serializable. JSON encoding errors are not suppressed.
 
+## Per-key encryption
+
+Encryption belongs in an application cast because the package schema has no encryption metadata or
+key-rotation contract. This cast encrypts one setting key while leaving all other keys on the normal
+JSON path:
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+
+final class EncryptedSettingPayload implements CastsAttributes
+{
+    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    {
+        $ciphertext = Json::decode($value);
+
+        return Json::decode(Crypt::decryptString((string) $ciphertext));
+    }
+
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return Crypt::encryptString(Json::encode($value));
+    }
+}
+```
+
+Register it for an exact literal key:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+```php
+$user->settings()->set('billing.credentials', $credentials);
+
+$credentials = $user->settings()->get('billing.credentials');
+```
+
+Do not log the value before or after the cast. If encryption keys may change, define and test an
+application-level rotation policy before storing production data. Do not add metadata columns to the
+package table without a separate storage contract that defines versioning and rotation.
+
 ## Spatie Laravel Data
 
 When `spatie/laravel-data` is installed, a `Data` class can be used directly:
@@ -88,7 +152,9 @@ composer require spatie/laravel-data:^4.23
 
 ```php
 'casts' => [
-    App\Models\User::class => App\Data\UserSettingsData::class,
+    App\Models\User::class => [
+        'preferences' => App\Data\UserSettingsData::class,
+    ],
 ],
 ```
 
@@ -106,8 +172,15 @@ $user->settings()->set('preferences', $preferences);
 $preferences = $user->settings()->get('preferences');
 ```
 
-Because a cast is selected per parent model class rather than per key, every payload for that model
-must be valid input for the configured cast.
+Other keys for the same model continue to use normal JSON. Use the legacy model-wide form only when
+every payload for that parent model is valid input for the configured data class.
+
+## Cast errors
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` identifies the parent model class,
+setting key, and configured cast when resolution fails. It never includes the payload. The exception
+is thrown for both single and bulk writes, and for reads of persisted values using that configured
+entry.
 
 ## See Also
 

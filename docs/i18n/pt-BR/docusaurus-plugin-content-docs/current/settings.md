@@ -59,6 +59,18 @@ $settings = $user->settings()->all();
 
 `all()` retorna uma `Illuminate\Support\Collection` indexada pelas chaves das configurações.
 
+`get()` aceita somente a chave. Ele retorna primeiro a sobrescrita do modelo, depois o valor padrão
+persistente da classe e, por fim, `null`. Ele não aceita um valor alternativo fornecido pelo
+chamador. Use a coleção quando precisar distinguir uma chave efetiva ausente de um valor armazenado:
+
+```php
+$settings = $user->settings()->all();
+
+if ($settings->has('timezone')) {
+    $timezone = $settings->get('timezone');
+}
+```
+
 Por exemplo, uma sobrescrita substitui somente o valor padrão correspondente:
 
 ```php
@@ -94,9 +106,41 @@ Para remover o próprio valor padrão, chame `forget()` por meio de `defaultSett
 
 Chamar `forget()` para uma chave inexistente não tem efeito.
 
+## Alterações em lote
+
+Use `setMany()` e `forgetMany()` quando um escopo precisar de várias alterações:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->settings()->forgetMany(['timezone', 'locale']);
+```
+
+Os dois métodos aceitam qualquer iterable. `setMany()` normaliza cada chave antes da escrita. Quando
+várias chaves de entrada são normalizadas para a mesma chave armazenada, o último valor vence.
+Valores vazios removem essa chave do escopo atual pela mesma regra de `set()`.
+
+Um lote misto de `setMany()` usa um upsert e uma exclusão dentro de uma transação. `forgetMany()`
+remove todas as chaves informadas com uma consulta. A quantidade de consultas depende dos tipos de
+operação no lote, não do número de chaves.
+
+Use `purge()` para remover todo o escopo atual:
+
+```php
+$user->settings()->purge();
+```
+
+Em `settings()`, `purge()` remove somente as sobrescritas desse proprietário e volta a expor os
+valores padrão persistentes. Em `defaultSettings()`, remove os padrões dessa classe sem excluir as
+sobrescritas dos modelos. Os três métodos em lote retornam `void`.
+
 ## Valores vazios
 
-`set()` usa o helper `blank()` do Laravel. Um valor vazio remove a configuração em vez de armazená-la.
+`set()` e `setMany()` usam o helper `blank()` do Laravel. Um valor vazio remove a configuração em vez
+de armazená-la.
 
 | Valor | Resultado |
 |-------|-----------|
@@ -107,7 +151,7 @@ Chamar `forget()` para uma chave inexistente não tem efeito.
 | `false` | Armazenado |
 | `'0'` | Armazenado |
 
-O pacote não consegue persistir um valor intencionalmente vazio por meio de `set()`.
+O pacote não consegue persistir um valor intencionalmente vazio por nenhum dos métodos.
 
 ## Chaves de configuração
 
@@ -130,19 +174,29 @@ Use a mesma chave ou case ao ler, substituir ou remover uma configuração.
 O pacote não valida o conteúdo da chave. A API pública e o esquema padrão aceitam chaves vazias e
 chaves contendo apenas espaços.
 
+Pontos são caracteres literais. A chave `mail.from.address` é uma única chave opaca e nunca representa
+um caminho aninhado:
+
+```php
+$user->settings()->set('mail.from.address', 'noreply@example.com');
+
+$address = $user->settings()->get('mail.from.address');
+```
+
 ## Identificadores de modelo
 
 Chaves primárias inteiras, string, UUID e ULID são compatíveis.
 
 Alterações nas configurações de um modelo exigem um proprietário persistido com uma chave diferente
 de `null`. Para um modelo não persistido, `get()` retorna `null`, e `all()` retorna uma coleção vazia
-sem consultar as sobrescritas do modelo. Seus métodos `set()` e `forget()` lançam
-`InvalidSettingsOwnerException` antes de uma consulta ao armazenamento.
+sem consultar as sobrescritas do modelo. Seus métodos `set()`, `setMany()`, `forget()`,
+`forgetMany()` e `purge()` lançam `InvalidSettingsOwnerException` antes de uma consulta ao
+armazenamento ou do consumo do iterable.
 
 O inteiro `0` e a string `'0'` são reservados para valores padrão compartilhados na versão 1.x. Um
-modelo persistido com qualquer uma dessas chaves pode ler os valores padrão da classe, mas `set()` e
-`forget()` lançam `InvalidSettingsOwnerException`. Outras chaves string, incluindo `'00'`, continuam
-válidas.
+modelo persistido com qualquer uma dessas chaves pode ler os valores padrão da classe, mas qualquer
+método de alteração lança `InvalidSettingsOwnerException`. Outras chaves string, incluindo `'00'`,
+continuam válidas.
 
 As configurações são armazenadas usando a classe morph atual do modelo. Adicionar ou alterar um alias
 do morph map depois que as configurações forem gravadas exige a atualização dos valores `item_type`

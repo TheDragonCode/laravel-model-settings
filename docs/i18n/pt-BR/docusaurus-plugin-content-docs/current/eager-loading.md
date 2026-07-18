@@ -70,9 +70,21 @@ Esse comportamento é coberto para chaves primárias inteiras, string, UUID e UL
 
 ## Alterações depois do carregamento antecipado
 
-`set()` e `forget()` limpam a relação `modelSettings` carregada nesse modelo. A próxima leitura pelo
-serviço consulta o valor efetivo atual e não retorna dados desatualizados. Carregue a relação
-explicitamente de novo antes de outra leitura em lote.
+Depois de um `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` bem-sucedido, o pacote limpa
+exatamente uma vez a relação `modelSettings` carregada nesse modelo. A próxima leitura pelo serviço
+consulta o valor efetivo atual e não retorna dados desatualizados. Uma alteração em lote que falha
+mantém a relação carregada e reverte uma transação mista de escrita e exclusão.
+
+Carregue a relação explicitamente de novo antes de outra leitura em lote:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->load('modelSettings');
+```
 
 A alteração ainda executa suas próprias consultas de escrita. O carregamento antecipado muda apenas
 as leituras seguintes.

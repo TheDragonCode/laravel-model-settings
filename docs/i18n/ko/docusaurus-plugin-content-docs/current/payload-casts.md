@@ -26,7 +26,7 @@ $notifications = $user->settings()->get('notifications');
 
 ## 캐스트 선택
 
-사용자 지정 캐스트는 상위 모델 클래스별로 구성합니다.
+기존의 모델 전체 형식은 상위 모델 클래스에 속한 모든 설정에 하나의 캐스트를 적용합니다.
 
 ```php
 'casts' => [
@@ -34,11 +34,24 @@ $notifications = $user->settings()->get('notifications');
 ],
 ```
 
-구성된 캐스트 하나가 해당 상위 모델 클래스에 속한 모든 설정 페이로드를 처리합니다. 캐스트를 선택하기 전에
-Laravel morph map 별칭을 모델 클래스로 다시 해석합니다.
+정확히 일치하는 설정 키에만 사용자 지정 처리가 필요하면 키별 맵을 사용합니다.
 
-구성된 클래스는 `CastsAttributes`를 구현하거나 `Spatie\LaravelData\Data`를 확장해야 합니다. 다른 클래스는
-사용자 지정 처리를 받지 않고 기본 JSON 경로를 사용합니다.
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+선택 전에 Laravel morph map 별칭을 상위 모델 클래스로 다시 해석합니다. 키 일치는 Eloquent 속성 이름
+`payload`가 아니라 저장된 설정 키를 사용합니다. 점은 리터럴이므로 `billing.credentials`는 하나의 키입니다.
+키별 맵에 없는 키는 일반 JSON을 사용합니다.
+
+구성된 클래스는 `CastsAttributes`를 구현하거나 `Spatie\LaravelData\Data`를 확장해야 합니다. 구성된 클래스가
+잘못되었거나 없거나 지원되지 않거나 컨테이너로 해석할 수 없으면 `InvalidPayloadCast`가 발생합니다. 패키지는
+구성된 항목을 일반 JSON으로 조용히 대체하지 않습니다.
 
 ## 캐스트 수명 주기
 
@@ -49,8 +62,8 @@ Laravel morph map 별칭을 모델 클래스로 다시 해석합니다.
 | 쓰기 | 사용자 지정 `set()`을 호출한 다음 결과를 JSON으로 인코딩 |
 | 읽기 | 저장된 JSON 문자열을 사용자 지정 `get()`에 전달 |
 
-`$model` 인수는 상위 `User` 또는 `Post`가 아니라 구성된 설정 저장 모델입니다. 패키지는 생성자 인수 없이
-캐스트를 생성합니다.
+`$model` 인수는 상위 `User` 또는 `Post`가 아니라 구성된 설정 저장 모델입니다. 패키지는 Laravel 컨테이너를
+통해 `CastsAttributes` 구현을 해석하므로 생성자 의존성은 일반 컨테이너 바인딩을 사용할 수 있습니다.
 
 ## Eloquent 속성 캐스트
 
@@ -78,6 +91,55 @@ final class UserSettingsPayloadCast implements CastsAttributes
 
 사용자 지정 `set()`의 결과는 계속 JSON으로 직렬화할 수 있어야 합니다. JSON 인코딩 오류는 숨기지 않습니다.
 
+## 키별 암호화
+
+패키지 스키마에는 암호화 메타데이터나 키 순환 계약이 없으므로 암호화는 애플리케이션 캐스트에서 처리합니다.
+다음 캐스트는 설정 키 하나를 암호화하고 다른 모든 키는 일반 JSON 경로에 둡니다.
+
+```php
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+
+final class EncryptedSettingPayload implements CastsAttributes
+{
+    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    {
+        $ciphertext = Json::decode($value);
+
+        return Json::decode(Crypt::decryptString((string) $ciphertext));
+    }
+
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    {
+        return Crypt::encryptString(Json::encode($value));
+    }
+}
+```
+
+정확한 리터럴 키에 등록합니다.
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+```php
+$user->settings()->set('billing.credentials', $credentials);
+
+$credentials = $user->settings()->get('billing.credentials');
+```
+
+캐스트 전후의 값을 로그에 기록하지 않습니다. 암호화 키가 바뀔 수 있다면 운영 데이터를 저장하기 전에
+애플리케이션 수준의 순환 정책을 정의하고 테스트합니다. 버전 관리와 순환을 정의한 별도 저장 계약 없이 패키지
+테이블에 메타데이터 열을 추가하지 않습니다.
+
 ## Spatie Laravel Data
 
 `spatie/laravel-data`가 설치되어 있으면 `Data` 클래스를 직접 사용할 수 있습니다.
@@ -88,7 +150,9 @@ composer require spatie/laravel-data:^4.23
 
 ```php
 'casts' => [
-    App\Models\User::class => App\Data\UserSettingsData::class,
+    App\Models\User::class => [
+        'preferences' => App\Data\UserSettingsData::class,
+    ],
 ],
 ```
 
@@ -106,8 +170,14 @@ $user->settings()->set('preferences', $preferences);
 $preferences = $user->settings()->get('preferences');
 ```
 
-캐스트는 키별이 아니라 상위 모델 클래스별로 선택됩니다. 따라서 이 모델의 모든 페이로드는 구성된 캐스트의 유효한
-입력이어야 합니다.
+같은 모델의 다른 키는 일반 JSON을 계속 사용합니다. 해당 상위 모델의 모든 페이로드가 구성된 데이터 클래스에
+유효한 입력일 때만 기존 모델 전체 형식을 사용합니다.
+
+## 캐스트 오류
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast`는 해석에 실패했을 때 상위 모델 클래스,
+설정 키, 구성된 캐스트를 식별합니다. 페이로드는 절대 포함하지 않습니다. 이 예외는 단일 쓰기와 일괄 쓰기,
+그리고 해당 구성 항목을 사용하는 저장된 값 읽기에서 발생합니다.
 
 ## 함께 보기
 

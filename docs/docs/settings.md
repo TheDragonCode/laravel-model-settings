@@ -59,6 +59,18 @@ $settings = $user->settings()->all();
 
 `all()` returns an `Illuminate\Support\Collection` keyed by setting key.
 
+`get()` accepts only the key. It returns the model override, then the persistent class default, then
+`null`. It does not accept a caller-supplied fallback value. Use the collection when you need to
+distinguish a missing effective key from a stored value:
+
+```php
+$settings = $user->settings()->all();
+
+if ($settings->has('timezone')) {
+    $timezone = $settings->get('timezone');
+}
+```
+
 For example, one override replaces only the matching default:
 
 ```php
@@ -94,9 +106,41 @@ To remove the default itself, call `forget()` through `defaultSettings()`:
 
 Calling `forget()` for a missing key has no effect.
 
+## Bulk mutations
+
+Use `setMany()` and `forgetMany()` when one scope needs several changes:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->settings()->forgetMany(['timezone', 'locale']);
+```
+
+Both methods accept any iterable. `setMany()` normalizes every key before writing. When multiple
+input keys normalize to the same stored key, the last value wins. Blank values delete that key from
+the current scope, using the same rule as `set()`.
+
+A mixed `setMany()` batch uses one upsert and one delete inside a transaction. `forgetMany()` uses
+one delete for all listed keys. Query count depends on the operation types in the batch, not the
+number of keys.
+
+Use `purge()` to remove the complete current scope:
+
+```php
+$user->settings()->purge();
+```
+
+For `settings()`, `purge()` deletes only that owner's overrides and exposes any persistent defaults
+again. For `defaultSettings()`, it deletes the defaults for that model class without deleting model
+overrides. All three bulk methods return `void`.
+
 ## Blank values
 
-`set()` uses Laravel's `blank()` helper. A blank value removes the setting instead of storing it.
+`set()` and `setMany()` use Laravel's `blank()` helper. A blank value removes the setting instead of
+storing it.
 
 | Value | Result |
 |-------|--------|
@@ -107,7 +151,7 @@ Calling `forget()` for a missing key has no effect.
 | `false` | Stored |
 | `'0'` | Stored |
 
-The package cannot persist an intentionally blank value through `set()`.
+The package cannot persist an intentionally blank value through either method.
 
 ## Setting keys
 
@@ -130,16 +174,26 @@ key or enum case when reading, replacing, or removing a setting.
 The package does not validate key content. Empty and whitespace-only keys are accepted by the public
 API and the default schema.
 
+Dots are literal characters. The key `mail.from.address` is one opaque setting key and never means a
+nested path:
+
+```php
+$user->settings()->set('mail.from.address', 'noreply@example.com');
+
+$address = $user->settings()->get('mail.from.address');
+```
+
 ## Model identifiers
 
 Integer, string, UUID, and ULID primary keys are supported.
 
 Per-model mutations require a persisted owner with a non-null key. For an unsaved model, `get()`
 returns `null`, and `all()` returns an empty collection without querying model overrides. Its
-`set()` and `forget()` methods throw `InvalidSettingsOwnerException` before a storage query runs.
+`set()`, `setMany()`, `forget()`, `forgetMany()`, and `purge()` methods throw
+`InvalidSettingsOwnerException` before a storage query or iterable consumption occurs.
 
 The integer `0` and string `'0'` are reserved for shared defaults in 1.x. A persisted model with
-either key can read class defaults, but `set()` and `forget()` throw
+either key can read class defaults, but every mutation method throws
 `InvalidSettingsOwnerException`. Other string keys, including `'00'`, remain valid.
 
 Settings are stored against the model's current morph class. Introducing or changing a morph-map

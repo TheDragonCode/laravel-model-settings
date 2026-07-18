@@ -23,7 +23,7 @@ Dadurch werden `config/model_settings.php` und die Paketmigration veröffentlich
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | Eloquent-Modell für gespeicherte Einstellungen |
 | `connection` | Anwendungsstandard | Datenbankverbindung für Modell und Migration |
 | `table` | `settings` | Datenbanktabelle für Modell und Migration |
-| `casts` | `[]` | Nach der Klasse des übergeordneten Modells ausgewählter Payload-Cast |
+| `casts` | `[]` | Nach der Klasse des übergeordneten Modells und optional nach Einstellungsschlüssel ausgewählte Payload-Casts |
 
 Das Paket liest folgende Umgebungsvariablen:
 
@@ -41,6 +41,35 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 Eine spätere Änderung verschiebt keine vorhandenen Datensätze.
 
+## Payload-Cast-Konfiguration
+
+Die bisherige modellweite Form wird weiterhin unterstützt. Ein Cast verarbeitet jeden Payload der
+Modellklasse:
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+Verwende eine schlüsselbezogene Map, wenn unterschiedliche Schlüssel unterschiedliche Typen oder
+Behandlungen benötigen:
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+Schlüssel werden exakt abgeglichen. Punkte haben keine Bedeutung als verschachtelte Pfade. Ein in
+der Map fehlender Schlüssel verwendet den standardmäßigen JSON-Cast. Jeder Modelleintrag ist entweder
+ein modellweiter Klassenname oder eine schlüsselbezogene Map; innerhalb einer solchen Map gibt es
+keinen Platzhaltereintrag. Unterstützte Cast-Verträge und ein Verschlüsselungsbeispiel stehen unter
+[Payload-Casts](payload-casts.md).
+
 ## Speicherschema
 
 Die veröffentlichte Migration erstellt folgende Spalten:
@@ -56,14 +85,17 @@ Die veröffentlichte Migration erstellt folgende Spalten:
 
 Die Kombination aus `item_type`, `item_id` und `key` ist eindeutig.
 
+Klassenstandards und Modellüberschreibungen verwenden dieselbe Tabelle. Das Paket erstellt weder eine
+zweite Standardwerttabelle noch Spalten für Verschlüsselungsmetadaten.
+
 Die Standardspalte `item_id` speichert höchstens 36 Zeichen. Ganzzahlige IDs, Zeichenfolgen, UUIDs
 und ULIDs passen in dieses Schema, wenn ihre Zeichenfolgendarstellung höchstens 36 Zeichen lang ist.
 Ein längerer benutzerdefinierter Primärschlüssel erfordert eine entsprechende Änderung der Migration.
 
-Der Wert `0` ist in `item_id` für Klassenstandards reserviert. In 1.x lehnen `set()` und `forget()`
-einen gespeicherten Besitzer mit der Ganzzahl `0` oder der Zeichenfolge `'0'` als Schlüssel ab und
-lösen vor einer Abfrage dieser Tabelle eine `InvalidSettingsOwnerException` aus. Werden
-Datenbankverbindung, Tabellenname oder Morph-Map-Aliase geändert, nachdem Daten vorhanden sind,
+Der Wert `0` ist in `item_id` für Klassenstandards reserviert. In 1.x lehnt jede Änderung über
+`settings()` einen gespeicherten Besitzer mit der Ganzzahl `0` oder der Zeichenfolge `'0'` als
+Schlüssel ab und löst vor einer Abfrage dieser Tabelle eine `InvalidSettingsOwnerException` aus.
+Werden Datenbankverbindung, Tabellenname oder Morph-Map-Aliase geändert, nachdem Daten vorhanden sind,
 müssen die bestehenden Zeilen selbst verschoben oder aktualisiert werden.
 
 ## Speichermodell ersetzen

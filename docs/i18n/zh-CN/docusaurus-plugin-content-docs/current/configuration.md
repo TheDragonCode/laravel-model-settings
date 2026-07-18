@@ -23,7 +23,7 @@ php artisan vendor:publish --tag="model_settings"
 | `model` | `DragonCode\LaravelModelSettings\Models\Settings` | 用于已存储设置的 Eloquent 模型 |
 | `connection` | 应用程序默认值 | 模型和迁移使用的数据库连接 |
 | `table` | `settings` | 模型和迁移使用的数据库表 |
-| `casts` | `[]` | 按父模型类选择的数据转换 |
+| `casts` | `[]` | 按父模型类以及可选的设置键选择的数据转换 |
 
 此软件包读取以下环境变量：
 
@@ -41,6 +41,31 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 以后修改任一值都不会移动现有记录。
 
+## 数据转换配置
+
+旧有的模型级格式仍受支持。一个转换处理属于该模型类的所有数据：
+
+```php
+'casts' => [
+    App\Models\User::class => App\Casts\UserSettingsPayloadCast::class,
+],
+```
+
+不同的键需要不同类型或处理方式时，请使用按键映射：
+
+```php
+'casts' => [
+    App\Models\User::class => [
+        'profile' => App\Data\ProfileData::class,
+        'billing.credentials' => App\Casts\EncryptedSettingPayload::class,
+    ],
+],
+```
+
+键必须精确匹配。点号没有嵌套路径含义，映射中缺少的键使用默认 JSON 转换。每个模型条目只能是应用于
+整个模型的类字符串或按键映射；按键映射中没有通配符条目。支持的转换接口和加密示例见
+[数据转换](payload-casts.md)。
+
 ## 存储结构
 
 发布的迁移会创建以下字段：
@@ -56,12 +81,14 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 `item_type`、`item_id` 和 `key` 的组合是唯一的。
 
+类默认值和模型覆盖值共用此表。软件包不会创建第二个默认值表，也不会添加加密元数据字段。
+
 默认 `item_id` 字段最多存储 36 个字符。字符串表示不超过 36 个字符的整数、字符串、UUID 和 ULID 标识符
 都适用于此结构。更长的自定义主键需要对迁移进行相应修改。
 
-`item_id` 中的值 `0` 保留给类默认值。在 1.x 中，`set()` 和 `forget()` 会拒绝主键为整数 `0` 或字符串
-`'0'` 的已持久化所有者，并在查询此表前抛出 `InvalidSettingsOwnerException`。如果数据已经存在，修改
-数据库连接、表名或 morph map 别名时，需要自行移动或更新现有记录。
+`item_id` 中的值 `0` 保留给类默认值。在 1.x 中，通过 `settings()` 执行的每个修改都会拒绝主键为整数
+`0` 或字符串 `'0'` 的已持久化所有者，并在查询此表前抛出 `InvalidSettingsOwnerException`。如果数据已经
+存在，修改数据库连接、表名或 morph map 别名时，需要自行移动或更新现有记录。
 
 ## 替换存储模型
 

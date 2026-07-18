@@ -71,9 +71,22 @@ Ce comportement est couvert pour les clés primaires entières, chaînes, UUID e
 
 ## Modifications après le chargement anticipé
 
-`set()` et `forget()` effacent la relation `modelSettings` chargée sur le modèle concerné. La lecture
-suivante par le service interroge la valeur effective actuelle et ne renvoie donc pas de données
-périmées. Chargez de nouveau la relation explicitement avant une autre lecture groupée.
+Après un appel réussi à `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()`, le paquet efface
+exactement une fois la relation `modelSettings` chargée sur le modèle concerné. La lecture suivante
+par le service interroge la valeur effective actuelle et ne renvoie donc pas de données périmées.
+Une modification groupée en échec conserve la relation chargée existante et annule la transaction
+mixte d’écriture et de suppression.
+
+Chargez de nouveau la relation explicitement avant une autre lecture groupée :
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->load('modelSettings');
+```
 
 La modification effectue toujours ses propres requêtes d’écriture. Le chargement anticipé ne change
 que les lectures suivantes.

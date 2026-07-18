@@ -49,13 +49,35 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
+$hasTimezone = $settings->has('timezone');
 
-$user->settings()->forget('timezone');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
+$user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 `get()` 返回一个最终值。`all()` 返回一个 `Illuminate\Support\Collection`，其中默认值与覆盖值已合并。
+需要判断最终键是否存在时，请使用集合的 `has()` 方法。`get()` 有意不接受调用方提供的回退值参数：唯一的
+回退值是持久化的类默认值；两个作用域都没有该键时返回 `null`。
 
-默认值和覆盖值使用相同的四个操作：`all()`、`get()`、`set()` 和 `forget()`。
+默认值和覆盖值使用相同的操作：`all()`、`get()`、`set()`、`setMany()`、`forget()`、`forgetMany()` 和
+`purge()`。
+
+## 明确的软件包边界
+
+Laravel Model Settings 是一个专注于 Eloquent 的软件包，不是通用的应用程序设置框架。
+
+| 边界 | 预期行为 |
+|------|----------|
+| 存储 | 使用一个数据库表；不提供 Redis 后端或父模型字段存储 |
+| 默认值 | 使用同一表中的保留记录；不提供第二个默认值表 |
+| 注册 | 不提供仓库注册表、类型化全局设置类或类自动发现 |
+| 迁移 | 不提供按设置键运行的迁移器 |
+| 缓存 | 不强制使用跨请求缓存；预加载只复用已加载的关联 |
+
+需要这些功能的应用程序应在软件包外部组合实现，不应将 `modelSettings` 或内部仓库视为扩展 API。
 
 ## 存储边界
 
@@ -75,8 +97,8 @@ $user->settings()->forget('timezone');
 此软件包支持使用整数、字符串、UUID 或 ULID 主键的 Eloquent 模型。模型也可以使用 Laravel morph map。
 
 单个模型的设置只属于已持久化的模型。未保存的模型不会继承默认值：`get()` 返回 `null`，`all()` 返回空集合。
-对未保存的所有者调用 `set()` 或 `forget()` 时，会在执行存储查询前抛出
-`InvalidSettingsOwnerException`。
+对未保存的所有者调用 `set()`、`setMany()`、`forget()`、`forgetMany()` 或 `purge()` 时，会在执行存储
+查询前抛出 `InvalidSettingsOwnerException`。
 
 设置数据以 JSON 格式存储。未配置转换时，读取操作会返回解码后的数组或标量值。
 [数据转换](payload-casts.md)可以改为返回应用程序专用对象。

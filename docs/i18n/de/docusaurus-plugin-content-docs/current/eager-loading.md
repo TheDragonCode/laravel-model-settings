@@ -69,9 +69,22 @@ Dieses Verhalten ist für ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärsch
 
 ## Änderungen nach dem Eager Loading
 
-`set()` und `forget()` löschen die geladene Relation `modelSettings` des betroffenen Modells. Der
-nächste Service-Lesevorgang fragt den aktuellen effektiven Wert ab und gibt keine veralteten Daten
-zurück. Lade die Relation vor einem weiteren gebündelten Lesevorgang erneut explizit vorab.
+Nach einem erfolgreichen `set()`, `setMany()`, `forget()`, `forgetMany()` oder `purge()` löscht das
+Paket die geladene Relation `modelSettings` des betroffenen Modells genau einmal. Der nächste
+Service-Lesevorgang fragt den aktuellen effektiven Wert ab und gibt keine veralteten Daten zurück.
+Eine fehlgeschlagene gebündelte Änderung behält die geladene Relation bei und setzt eine gemischte
+Schreib-/Löschtransaktion zurück.
+
+Lade die Relation vor einem weiteren gebündelten Lesevorgang erneut explizit:
+
+```php
+$user->settings()->setMany([
+    'timezone' => 'Europe/Paris',
+    'locale' => 'fr',
+]);
+
+$user->load('modelSettings');
+```
 
 Eine Änderung führt weiterhin ihre eigenen Schreibabfragen aus. Eager Loading beeinflusst nur die
 nachfolgenden Lesevorgänge.

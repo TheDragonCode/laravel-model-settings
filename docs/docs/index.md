@@ -50,14 +50,39 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
+$hasTimezone = $settings->has('timezone');
 
-$user->settings()->forget('timezone');
+$user->settings()->setMany([
+    'locale' => 'fr',
+    'notifications.email' => true,
+]);
+$user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 `get()` returns one effective value. `all()` returns an
 `Illuminate\Support\Collection` containing defaults merged with overrides.
+Use the collection's `has()` method when effective-key existence matters. `get()` intentionally has
+no caller-supplied fallback argument: the persistent class default is its only fallback, followed by
+`null` when neither scope contains the key.
 
-Defaults and overrides use the same four operations: `all()`, `get()`, `set()`, and `forget()`.
+Defaults and overrides use the same operations: `all()`, `get()`, `set()`, `setMany()`, `forget()`,
+`forgetMany()`, and `purge()`.
+
+## Focused package boundaries
+
+Laravel Model Settings is a focused Eloquent package, not a general application-settings
+framework.
+
+| Boundary | Intentional behavior |
+|----------|----------------------|
+| Storage | One database table; no Redis backend or parent-model field storage |
+| Defaults | Reserved rows in the same table; no second defaults table |
+| Registration | No repository registry, typed global settings classes, or class discovery |
+| Migrations | No per-key settings migration runner |
+| Caching | No mandatory cross-request cache; eager loading only reuses a loaded relation |
+
+Applications that need those features should compose them outside this package rather than treating
+`modelSettings` or the internal repository as an extension API.
 
 ## Storage boundaries
 
@@ -78,8 +103,9 @@ The package supports Eloquent models with integer, string, UUID, or ULID primary
 also use a Laravel morph map.
 
 Per-model settings belong to persisted models. An unsaved model does not inherit defaults:
-`get()` returns `null`, and `all()` returns an empty collection. Calling `set()` or `forget()` for an
-unsaved owner throws `InvalidSettingsOwnerException` before a storage query runs.
+`get()` returns `null`, and `all()` returns an empty collection. Calling `set()`, `setMany()`,
+`forget()`, `forgetMany()`, or `purge()` for an unsaved owner throws
+`InvalidSettingsOwnerException` before a storage query runs.
 
 Payloads are stored as JSON. Without a configured cast, reads return decoded arrays or scalar
 values. [Payload casts](payload-casts.md) can return application-specific objects instead.
