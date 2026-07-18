@@ -70,7 +70,7 @@
             "@clear",
             "@prepare"
         ],
-        "benchmark": "vendor/bin/pest --compact benchmarks",
+        "benchmark": "vendor/bin/pest --compact tests/Benchmark",
         "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "style": [

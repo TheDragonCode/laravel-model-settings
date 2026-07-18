@@ -12,8 +12,6 @@ use Workbench\Database\Factories\UserFactory;
 uses(TestCase::class, WithWorkbench::class, RefreshDatabase::class);
 
 test('eager relation replication benchmark', function (int $ownerCount, int $defaultCount): void {
-    ini_set('memory_limit', '1G');
-
     UserFactory::new()->count($ownerCount)->create();
 
     $defaults = (new User)->defaultSettings();

@@ -31,7 +31,7 @@ implement [https://github.com/TheDragonCode/laravel-model-settings/issues/93](ht
 
 - [x] Task 1: Add `database/migrations/2026_07_18_000000_add_is_default_to_model_settings_table.php` and an isolated `tests/Migration/IsDefaultMigrationTest.php` suite without `RefreshDatabase`. Add a non-null `is_default` boolean, classify legacy `item_id = '0'` rows without row-level output, create discriminator-aware unique and lookup indexes before removing the legacy unique index, and provide a rollback that stops before DDL when owner-ID-0 overrides make the downgrade ambiguous. Logging: migration output remains silent and exceptions expose neither keys nor payloads.
 - [x] Task 2: Update `src/Models/Settings.php`, `src/Internal/SettingsScope.php`, `src/Repositories/SettingsRepository.php`, and `src/Exceptions/InvalidSettingsOwnerException.php` so every read, write, bulk upsert, delete, and purge carries `is_default`, while unsaved-owner validation remains and real integer/string ID `0` mutations become valid. Logging: preserve existing structured service logs and never add owner setting keys or payloads.
-- [x] Task 3: Add `benchmarks/EagerLoadingTest.php` and the Composer benchmark script for 100/1,000 owners with 10/100 defaults; execute the benchmark before changing the eager-relation replication algorithm. Logging: benchmark output contains scenario dimensions and aggregate timing/memory only.
+- [x] Task 3: Add `tests/Benchmark/EagerLoadingTest.php` and the Composer benchmark script for 100/1,000 owners with 10/100 defaults; execute the benchmark before changing the eager-relation replication algorithm. Logging: benchmark output contains scenario dimensions and aggregate timing/memory only.
 
 ### Phase 2: Resolution and Eager Loading
 
