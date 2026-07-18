@@ -51,7 +51,7 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
-$hasTimezone = $settings->has('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 
 $user->settings()->setMany([
     'locale' => 'fr',
@@ -62,12 +62,13 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 `get()` retorna um valor efetivo. `all()` retorna uma `Illuminate\Support\Collection` com os valores
 padrão combinados com as sobrescritas.
-Use o método `has()` da coleção para verificar a existência de uma chave efetiva. `get()`
-intencionalmente não aceita um valor alternativo fornecido pelo chamador: o valor padrão persistente
-da classe é sua única alternativa, seguido por `null` quando nenhum escopo contém a chave.
+Use `has()` quando a existência de uma chave efetiva for importante, inclusive quando o valor
+armazenado for o JSON `null`. `get()` intencionalmente não aceita um valor alternativo fornecido pelo
+chamador: o valor padrão persistente da classe é sua única alternativa, seguido por `null` quando
+nenhum escopo contém a chave.
 
-Valores padrão e sobrescritas usam as mesmas operações: `all()`, `get()`, `set()`, `setMany()`,
-`forget()`, `forgetMany()` e `purge()`.
+Valores padrão e sobrescritas usam as mesmas operações: `all()`, `get()`, `has()`, `set()`,
+`setMany()`, `forget()`, `forgetMany()` e `purge()`.
 
 ## Limites definidos do pacote
 
@@ -106,13 +107,13 @@ persistidos com identificador inteiro `0` ou string `'0'` podem armazenar sobres
 com os padrões da classe. Os modelos também podem usar um morph map do Laravel.
 
 Configurações por modelo pertencem a modelos persistidos. Um modelo não persistido não herda os
-valores padrão: `get()` retorna `null`, e `all()` retorna uma coleção vazia. Chamar `set()`,
-`setMany()`, `forget()`, `forgetMany()` ou `purge()` para um proprietário não persistido lança
-`InvalidSettingsOwnerException` antes de uma consulta ao armazenamento.
+valores padrão: `get()` retorna `null`, `has()` retorna `false` e `all()` retorna uma coleção vazia.
+Chamar `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` para um proprietário não
+persistido lança `InvalidSettingsOwnerException` antes de uma consulta ao armazenamento.
 
-Os payloads são armazenados como JSON. Sem uma conversão configurada, as leituras retornam arrays
-decodificados ou valores escalares. As [conversões de payload](payload-casts.md) podem retornar
-objetos específicos da aplicação.
+Os payloads são armazenados como JSON, incluindo `null`, strings vazias, strings de espaços, arrays
+vazios, zero e `false`. Sem uma conversão configurada, as leituras retornam o valor decodificado
+exato. As [conversões de payload](payload-casts.md) podem retornar objetos específicos da aplicação.
 
 ## Veja também
 

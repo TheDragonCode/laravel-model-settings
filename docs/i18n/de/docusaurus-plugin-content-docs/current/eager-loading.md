@@ -10,8 +10,9 @@ description: N+1-Abfragen beim Lesen von Einstellungen für Eloquent-Modell-Coll
 
 ## Einstellungen mit den Modellen laden
 
-Ohne Eager Loading führt jeder Aufruf von `settings()->get()` oder `settings()->all()` eine
-Einstellungsabfrage aus. Diese Service-Lesevorgänge laden `modelSettings` nicht als Nebeneffekt.
+Ohne Eager Loading führt jeder Aufruf von `settings()->get()`, `settings()->has()` oder
+`settings()->all()` eine Einstellungsabfrage aus. Diese Service-Lesevorgänge laden `modelSettings`
+nicht als Nebeneffekt.
 
 Lade die Relation vorab, wenn das Ergebnis mehrere Modelle enthält:
 
@@ -26,7 +27,7 @@ $timezones = $users->map(
 ```
 
 Die vorab geladene Relation enthält die Überschreibungen jedes Modells sowie alle geerbten
-Standardwerte. Nachfolgende Aufrufe von `get()` und `all()` verwenden die geladene Relation.
+Standardwerte. Nachfolgende Aufrufe von `get()`, `has()` und `all()` verwenden die geladene Relation.
 
 ## Einstellungen nach der Abfrage laden
 
@@ -72,8 +73,8 @@ Dieses Verhalten ist für ganzzahlige, Zeichenfolgen-, UUID- und ULID-Primärsch
 Nach einem erfolgreichen `set()`, `setMany()`, `forget()`, `forgetMany()` oder `purge()` löscht das
 Paket die geladene Relation `modelSettings` des betroffenen Modells genau einmal. Der nächste
 Service-Lesevorgang fragt den aktuellen effektiven Wert ab und gibt keine veralteten Daten zurück.
-Eine fehlgeschlagene gebündelte Änderung behält die geladene Relation bei und setzt eine gemischte
-Schreib-/Löschtransaktion zurück.
+Eine fehlgeschlagene gebündelte Änderung behält die geladene Relation bei und setzt den
+transaktionalen Batch zurück.
 
 Lade die Relation vor einem weiteren gebündelten Lesevorgang erneut explizit:
 

@@ -14,7 +14,7 @@ use Workbench\Database\Factories\UserFactory;
 
 use function Pest\Laravel\assertDatabaseCount;
 
-test('setMany stores defaults and overrides while blank values delete only the current scope', function (): void {
+test('setMany stores exact defaults and overrides without implicit deletion', function (): void {
     $user = UserFactory::new()->create();
 
     (new User)->defaultSettings()->setMany([
@@ -29,10 +29,12 @@ test('setMany stores defaults and overrides while blank values delete only the c
     ]);
 
     $user->settings()->setMany([
-        'fallback'   => null,
-        'model-only' => [],
-        'zero'       => 0,
-        'false'      => false,
+        'fallback'     => null,
+        'model-only'   => [],
+        'empty-string' => '',
+        'whitespace'   => '   ',
+        'zero'         => 0,
+        'false'        => false,
     ]);
 
     expect((new User)->defaultSettings()->all()->all())->toBe([
@@ -41,13 +43,16 @@ test('setMany stores defaults and overrides while blank values delete only the c
     ]);
 
     expect($user->settings()->all()->sortKeys()->all())->toBe([
-        'fallback' => 'default',
-        'false'    => false,
-        'shared'   => 'override',
-        'zero'     => 0,
+        'empty-string' => '',
+        'fallback'     => null,
+        'false'        => false,
+        'model-only'   => [],
+        'shared'       => 'override',
+        'whitespace'   => '   ',
+        'zero'         => 0,
     ]);
 
-    assertDatabaseCount(Settings::class, 5);
+    assertDatabaseCount(Settings::class, 9);
 });
 
 test('setMany uses the last value for duplicate normalized keys', function (): void {

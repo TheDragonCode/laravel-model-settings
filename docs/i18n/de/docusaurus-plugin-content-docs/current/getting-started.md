@@ -94,8 +94,8 @@ assert($user->settings()->get('timezone') === 'UTC');
 
 Verwende `settings()->set()`, `setMany()`, `forget()`, `forgetMany()` und `purge()` erst, nachdem das
 übergeordnete Modell gespeichert wurde. Für ein ungespeichertes Modell gibt `settings()->get()`
-`null` und `settings()->all()` eine leere Collection zurück, selbst wenn Klassenstandards vorhanden
-sind. Jede Änderungsmethode löst vor einer Speicherabfrage eine
+`null`, `settings()->has()` gibt `false` und `settings()->all()` eine leere Collection zurück, selbst
+wenn Klassenstandards vorhanden sind. Jede Änderungsmethode löst vor einer Speicherabfrage eine
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` aus.
 
 ## Siehe auch

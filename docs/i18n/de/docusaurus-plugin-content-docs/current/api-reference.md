@@ -28,8 +28,9 @@ basiert.
 |---------|----------|-----------|
 | `all()` | `Collection` | Gibt Standardwerte zusammengeführt mit Modellüberschreibungen zurück |
 | `get(int\|string\|UnitEnum $key)` | `mixed` | Gibt eine Überschreibung, ihren Standardwert oder `null` zurück |
-| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Erstellt, ersetzt oder entfernt eine leere Einstellung |
-| `setMany(iterable $values)` | `void` | Führt ein Upsert für gefüllte Werte aus und entfernt leere Werte in einem begrenzten Batch |
+| `has(int\|string\|UnitEnum $key)` | `bool` | Meldet, ob ein effektiver Schlüssel existiert, auch bei gespeichertem `null` |
+| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Erstellt oder ersetzt eine Einstellung mit dem exakten JSON-Wert |
+| `setMany(iterable $values)` | `void` | Führt ein Upsert für alle Werte in einem begrenzten transaktionalen Batch aus |
 | `forget(int\|string\|UnitEnum $key)` | `void` | Entfernt eine Einstellung, falls sie vorhanden ist |
 | `forgetMany(iterable $keys)` | `void` | Entfernt die angegebenen Schlüssel aus dem aktuellen Bereich |
 | `purge()` | `void` | Entfernt alle im aktuellen Bereich gespeicherten Einstellungen |
@@ -37,21 +38,21 @@ basiert.
 Die Methoden mit Schlüssel akzeptieren Backed Enums und Pure Unit Enums. Laravel wandelt Backed
 Enums in ihren zugrunde liegenden Wert und Pure Unit Enums in ihren Case-Namen um.
 
-`SettingsService` besitzt weder einen vom Aufrufer angegebenen Ersatzwert für `get()` noch eine
-eigene Methode `has()`. Verwende `all()->has($key)`, um zu prüfen, ob ein effektiver Schlüssel
-vorhanden ist.
+`SettingsService` besitzt keinen vom Aufrufer angegebenen Ersatzwert für `get()`. Verwende
+`has($key)`, um einen fehlenden effektiven Schlüssel von einem gespeicherten JSON-`null` zu
+unterscheiden.
 
 ## Auflösungsmatrix
 
-| Modellüberschreibung | Klassenstandard | Ergebnis von `get()` | In `all()` enthalten |
-|----------------------|-----------------|----------------------|----------------------|
-| Vorhanden | Vorhanden | Überschreibung | Überschreibung |
-| Vorhanden | Fehlt | Überschreibung | Überschreibung |
-| Fehlt | Vorhanden | Standardwert | Standardwert |
-| Fehlt | Fehlt | `null` | Kein Eintrag |
+| Modellüberschreibung | Klassenstandard | Ergebnis von `get()` | Ergebnis von `has()` | In `all()` enthalten |
+|----------------------|-----------------|----------------------|----------------------|----------------------|
+| Vorhanden | Vorhanden | Überschreibung, einschließlich `null` | `true` | Überschreibung |
+| Vorhanden | Fehlt | Überschreibung, einschließlich `null` | `true` | Überschreibung |
+| Fehlt | Vorhanden | Standardwert, einschließlich `null` | `true` | Standardwert |
+| Fehlt | Fehlt | `null` | `false` | Kein Eintrag |
 
-Für ein ungespeichertes Modell gibt `get()` `null` und `all()` eine leere Collection zurück.
-Klassenstandards werden nur von gespeicherten Modellen geerbt.
+Für ein ungespeichertes Modell gibt `get()` `null`, `has()` gibt `false` und `all()` eine leere
+Collection zurück. Klassenstandards werden nur von gespeicherten Modellen geerbt.
 
 ## all
 
@@ -59,7 +60,6 @@ Klassenstandards werden nur von gespeicherten Modellen geerbt.
 $settings = $user->settings()->all();
 
 $timezone = $settings->get('timezone');
-$hasTimezone = $settings->has('timezone');
 ```
 
 Das Ergebnis ist eine `Illuminate\Support\Collection`, die nach Einstellungsschlüsseln indiziert
@@ -75,17 +75,28 @@ Das Ergebnis ist der effektive dekodierte oder gecastete Wert. Fehlt eine Übers
 Standardwert verwendet. Fehlen Überschreibung und Standardwert, wird `null` zurückgegeben. Die
 Signatur akzeptiert absichtlich kein zweites Argument als Ersatzwert.
 
+## has
+
+```php
+$hasTimezone = $user->settings()->has('timezone');
+```
+
+Die Methode gibt `true` zurück, wenn eine Modellüberschreibung oder eine Zeile für den Klassenstandard
+vorhanden ist. Ein gespeichertes JSON-`null` ergibt `true`, ein fehlender Schlüssel `false`. Lazy und
+Eager Loading verwenden dieselbe Priorität; der Eager-Pfad führt keine zusätzliche Einstellungsabfrage
+aus.
+
 ## set
 
 ```php
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-Die Methode validiert den Besitzer und führt danach eine Update-or-create-Operation für Modelltyp,
-Modell-ID, Bereichsdiskriminator und Schlüssel aus. Ein von Laravel als leer betrachteter Wert löscht
-die Zeile. Die Validierung erfolgt vor der Auswahl des Pfads für leere Werte. In beiden Fällen wird
-die geladene `modelSettings`-Relation gelöscht, damit beim nächsten Lesen keine veralteten Daten
-verwendet werden.
+Die Methode validiert den Besitzer und den normalisierten Schlüssel und führt danach eine
+Update-or-create-Operation für Modelltyp, Modell-ID, Bereichsdiskriminator und Schlüssel aus. Jeder
+JSON-Wert wird gespeichert, einschließlich `null`, leerer Zeichenfolgen, Leerzeichenfolgen, leerer
+Arrays, `0` und `false`. Nach erfolgreichem Schreiben wird die geladene `modelSettings`-Relation
+gelöscht, damit beim nächsten Lesen keine veralteten Daten verwendet werden.
 
 ## setMany
 
@@ -98,10 +109,10 @@ $user->settings()->setMany([
 ```
 
 Die Schlüssel des Iterables verwenden dieselbe Normalisierung wie `set()`. Werden mehrere
-Eingabeschlüssel auf dieselbe Zeichenfolge normalisiert, gewinnt der letzte Wert. Gefüllte Werte
-verwenden ein datenbankeigenes Upsert, leere Werte einen Löschvorgang. Sind beide Gruppen vorhanden,
-laufen beide Operationen in einer Transaktion. Die Methode validiert den Besitzer vor dem Durchlaufen
-des Iterables und löscht `modelSettings` nach Erfolg einmal.
+Eingabeschlüssel auf dieselbe Zeichenfolge normalisiert, gewinnt der letzte Wert. Alle Werte verwenden
+ein einziges datenbankeigenes Upsert innerhalb einer Transaktion. Die Methode validiert den Besitzer
+vor dem Durchlaufen des Iterables und löscht `modelSettings` nach Erfolg einmal. Verwende
+`forgetMany()` zum Löschen.
 
 ## forget
 
@@ -137,7 +148,7 @@ zurück und löscht eine geladene Relation nach Erfolg.
 
 ## defaultSettings
 
-Der von `defaultSettings()` zurückgegebene Service besitzt dieselben sieben Methoden:
+Der von `defaultSettings()` zurückgegebene Service besitzt dieselben acht Methoden:
 
 ```php
 $defaults = (new User)->defaultSettings();
@@ -145,6 +156,7 @@ $defaults = (new User)->defaultSettings();
 $defaults->set('timezone', 'UTC');
 $defaults->setMany(['timezone' => 'UTC', 'locale' => 'en']);
 $timezone = $defaults->get('timezone');
+$hasTimezone = $defaults->has('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 $defaults->forgetMany(['timezone', 'locale']);
@@ -161,9 +173,9 @@ Schlüssel.
 Diese Validierung erfolgt auch vor dem Durchlaufen eines gebündelten Iterables. Änderungen über
 `defaultSettings()` bleiben gültig, weil dieser Service den Bereich für Klassenstandards explizit
 auswählt. Der Lesezugriff bleibt eindeutig: Ein ungespeicherter Besitzer gibt `null` oder eine leere
-Collection zurück, ohne Überschreibungen abzufragen. Ein gespeicherter Besitzer mit dem ganzzahligen
-Schlüssel `0` oder der Zeichenfolge `'0'` kann seine Überschreibungen lesen und ändern; `is_default`
-trennt diese Zeilen von Klassenstandards.
+Collection zurück, ohne Überschreibungen abzufragen, und `has()` gibt `false` zurück. Ein gespeicherter
+Besitzer mit dem ganzzahligen Schlüssel `0` oder der Zeichenfolge `'0'` kann seine Überschreibungen
+lesen und ändern; `is_default` trennt diese Zeilen von Klassenstandards.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` wird ausgelöst, wenn ein
 konfigurierter modellweiter oder schlüsselbezogener Cast fehlt, einen ungültigen Typ besitzt, keinen
@@ -171,9 +183,13 @@ unterstützten Vertrag implementiert oder nicht durch Laravels Container aufgel�
 Meldung darf das übergeordnete Modell, den Einstellungsschlüssel und die Cast-Klasse nennen, aber nie
 den Payload.
 
-Schlägt eine gemischte `setMany()`-Operation fehl, setzt die Transaktion ihre Schreib- und
-Löschvorgänge zurück. Die Exception wird erneut ausgelöst und die bestehende geladene Relation
-`modelSettings` wird nicht gelöscht.
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` wird nach der Normalisierung
+ausgelöst, wenn ein Schlüssel leer ist oder nur aus Leerzeichen besteht. Die Meldung und die
+Paketprotokolle enthalten weder den abgelehnten Schlüssel noch den Payload.
+
+Schlägt eine nicht leere `setMany()`-Operation fehl, setzt die Transaktion den Batch zurück. Die
+Exception wird erneut ausgelöst und die bestehende geladene Relation `modelSettings` wird nicht
+gelöscht.
 
 ## Siehe auch
 

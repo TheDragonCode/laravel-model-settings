@@ -28,8 +28,9 @@ l’exécution, la relation est une `SettingsRelation` du paquet basée sur la r
 |---------|---------|--------------|
 | `all()` | `Collection` | Renvoie les valeurs par défaut fusionnées avec les surcharges du modèle |
 | `get(int\|string\|UnitEnum $key)` | `mixed` | Renvoie une surcharge, sa valeur par défaut ou `null` |
-| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Crée, remplace ou supprime un paramètre vide |
-| `setMany(iterable $values)` | `void` | Écrit les valeurs non vides et supprime les valeurs vides dans un lot borné |
+| `has(int\|string\|UnitEnum $key)` | `bool` | Indique si une clé effective existe, y compris avec une valeur `null` stockée |
+| `set(int\|string\|UnitEnum $key, mixed $value)` | `void` | Crée ou remplace un paramètre avec la valeur JSON exacte |
+| `setMany(iterable $values)` | `void` | Insère toutes les valeurs dans un lot transactionnel borné |
 | `forget(int\|string\|UnitEnum $key)` | `void` | Supprime un paramètre s’il existe |
 | `forgetMany(iterable $keys)` | `void` | Supprime les clés indiquées de la portée actuelle |
 | `purge()` | `void` | Supprime tous les paramètres stockés dans la portée actuelle |
@@ -37,20 +38,20 @@ l’exécution, la relation est une `SettingsRelation` du paquet basée sur la r
 Les méthodes utilisant une clé acceptent les backed enums et les pure unit enums. Laravel convertit
 les backed enums en leur valeur sous-jacente et les pure unit enums en nom de cas.
 
-`SettingsService` ne fournit ni argument de repli pour `get()` ni méthode `has()` distincte. Utilisez
-`all()->has($key)` pour vérifier l’existence d’une clé effective.
+`SettingsService` ne fournit aucun argument de repli pour `get()`. Utilisez `has($key)` pour
+distinguer une clé effective absente d’une valeur JSON `null` stockée.
 
 ## Matrice de résolution
 
-| Surcharge du modèle | Valeur par défaut de la classe | Résultat de `get()` | Inclus dans `all()` |
-|---------------------|--------------------------------|---------------------|----------------------|
-| Présente | Présente | Surcharge | Surcharge |
-| Présente | Absente | Surcharge | Surcharge |
-| Absente | Présente | Valeur par défaut | Valeur par défaut |
-| Absente | Absente | `null` | Aucune entrée |
+| Surcharge du modèle | Valeur par défaut de la classe | Résultat de `get()` | Résultat de `has()` | Inclus dans `all()` |
+|---------------------|--------------------------------|---------------------|----------------------|----------------------|
+| Présente | Présente | Surcharge, y compris `null` | `true` | Surcharge |
+| Présente | Absente | Surcharge, y compris `null` | `true` | Surcharge |
+| Absente | Présente | Valeur par défaut, y compris `null` | `true` | Valeur par défaut |
+| Absente | Absente | `null` | `false` | Aucune entrée |
 
-Pour un modèle non enregistré, `get()` renvoie `null` et `all()` une collection vide. Seuls les
-modèles enregistrés héritent des valeurs par défaut de la classe.
+Pour un modèle non enregistré, `get()` renvoie `null`, `has()` renvoie `false` et `all()` une
+collection vide. Seuls les modèles enregistrés héritent des valeurs par défaut de la classe.
 
 ## all
 
@@ -58,7 +59,6 @@ modèles enregistrés héritent des valeurs par défaut de la classe.
 $settings = $user->settings()->all();
 
 $timezone = $settings->get('timezone');
-$hasTimezone = $settings->has('timezone');
 ```
 
 Le résultat est une `Illuminate\Support\Collection` indexée par la clé du paramètre. Pour les
@@ -74,17 +74,28 @@ Le résultat est la valeur effective décodée ou convertie. Une surcharge absen
 par défaut. Si la surcharge et la valeur par défaut sont absentes, la méthode renvoie `null`. Sa
 signature n’accepte volontairement aucun second argument de repli.
 
+## has
+
+```php
+$hasTimezone = $user->settings()->has('timezone');
+```
+
+La méthode renvoie `true` lorsqu’une surcharge du modèle ou une ligne de valeur par défaut de classe
+existe. Une valeur JSON `null` stockée renvoie `true` ; une clé absente renvoie `false`. Les services
+en chargement différé et anticipé appliquent la même priorité, et le chemin anticipé n’exécute aucune
+requête de paramètres supplémentaire.
+
 ## set
 
 ```php
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-La méthode valide le propriétaire, puis effectue une opération update-or-create pour le type de
-modèle, son identifiant, le discriminateur de portée et la clé. Une valeur considérée comme vide par
-Laravel supprime la ligne. La validation a lieu avant la sélection du traitement des valeurs vides.
-Dans les deux cas, la relation `modelSettings` chargée est effacée afin que la prochaine lecture ne
-réutilise pas d’anciennes données.
+La méthode valide le propriétaire et la clé normalisée, puis effectue une opération update-or-create
+pour le type de modèle, son identifiant, le discriminateur de portée et la clé. Chaque valeur JSON est
+stockée, y compris `null`, les chaînes vides ou composées d’espaces, les tableaux vides, zéro et
+`false`. Après une écriture réussie, la relation `modelSettings` chargée est effacée afin que la
+prochaine lecture ne réutilise pas d’anciennes données.
 
 ## setMany
 
@@ -97,10 +108,10 @@ $user->settings()->setMany([
 ```
 
 Les clés de l’iterable sont normalisées comme avec `set()`. Si plusieurs clés d’entrée se
-normalisent vers la même chaîne, la dernière valeur est retenue. Les valeurs non vides utilisent un
-upsert natif unique et les valeurs vides une suppression unique. Lorsque les deux groupes existent,
-les opérations s’exécutent dans une transaction. La méthode valide le propriétaire avant de
-consommer l’iterable et efface `modelSettings` une fois après la réussite.
+normalisent vers la même chaîne, la dernière valeur est retenue. Toutes les valeurs utilisent un
+upsert natif unique dans une transaction. La méthode valide le propriétaire avant de consommer
+l’iterable et efface `modelSettings` une fois après la réussite. Utilisez `forgetMany()` pour les
+suppressions.
 
 ## forget
 
@@ -135,7 +146,7 @@ surcharges des modèles. Elle renvoie `void` et efface une relation chargée apr
 
 ## defaultSettings
 
-Le service renvoyé par `defaultSettings()` possède les sept mêmes méthodes :
+Le service renvoyé par `defaultSettings()` possède les huit mêmes méthodes :
 
 ```php
 $defaults = (new User)->defaultSettings();
@@ -143,6 +154,7 @@ $defaults = (new User)->defaultSettings();
 $defaults->set('timezone', 'UTC');
 $defaults->setMany(['timezone' => 'UTC', 'locale' => 'en']);
 $timezone = $defaults->get('timezone');
+$hasTimezone = $defaults->has('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 $defaults->forgetMany(['timezone', 'locale']);
@@ -159,17 +171,21 @@ attribuée à l’avance.
 Cette validation a aussi lieu avant la consommation d’un iterable groupé. Les modifications par
 `defaultSettings()` restent valides, car ce service sélectionne explicitement la portée des valeurs
 par défaut de la classe. La lecture reste déterministe : un propriétaire non enregistré renvoie
-`null` ou une collection vide sans interroger les surcharges. Un propriétaire enregistré avec la clé
-entière `0` ou la chaîne `'0'` peut lire et modifier ses surcharges ; `is_default` sépare ces lignes
-des valeurs par défaut de la classe.
+`null` ou une collection vide sans interroger les surcharges, et `has()` renvoie `false`. Un
+propriétaire enregistré avec la clé entière `0` ou la chaîne `'0'` peut lire et modifier ses
+surcharges ; `is_default` sépare ces lignes des valeurs par défaut de la classe.
 
 `DragonCode\LaravelModelSettings\Exceptions\InvalidPayloadCast` est levée lorsqu’une conversion
 configurée pour un modèle ou une clé est absente, d’un type invalide, n’implémente aucun contrat pris
 en charge ou ne peut pas être résolue par le conteneur Laravel. Son message peut identifier le modèle
 parent, la clé et la classe de conversion, mais jamais les données.
 
-Si une opération `setMany()` mixte échoue, la transaction annule l’écriture et la suppression.
-L’exception est relancée et la relation `modelSettings` déjà chargée n’est pas effacée.
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey` est levée après normalisation
+lorsqu’une clé est vide ou ne contient que des espaces. Son message et les journaux du paquet ne
+contiennent jamais la clé rejetée ni les données du paramètre.
+
+Si une opération `setMany()` non vide échoue, la transaction annule le lot. L’exception est relancée
+et la relation `modelSettings` déjà chargée n’est pas effacée.
 
 ## Voir aussi
 

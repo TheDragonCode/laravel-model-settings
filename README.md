@@ -20,8 +20,9 @@ Requires PHP 8.3+ and Laravel 12 or 13.
 
 - Shared defaults are isolated by Eloquent model class.
 - Per-model values override defaults without changing other records.
-- `get()` and `all()` resolve shared defaults and per-model overrides automatically.
-- `setMany()`, `forgetMany()`, and `purge()` provide bounded-query bulk mutations.
+- `get()`, `has()`, and `all()` resolve shared defaults and per-model overrides automatically.
+- `set()` and `setMany()` preserve exact JSON values, including `null`, empty strings, and arrays.
+- `forgetMany()` and `purge()` provide bounded-query deletion for explicit scopes.
 - Eager loading avoids one settings query per model in a collection.
 - Integer, string, UUID, and ULID primary keys work with or without a Laravel morph map, including
   persisted integer `0` and string `'0'` identifiers.
@@ -62,7 +63,7 @@ $user->settings()->setMany([
 ]);
 
 assert($user->settings()->get('timezone') === 'Europe/Paris');
-assert($user->settings()->all()->has('notifications.email'));
+assert($user->settings()->has('notifications.email'));
 
 $user->settings()->forget('timezone');
 
@@ -83,7 +84,7 @@ Read the [documentation site](https://model-settings.dragon-code.pro) or open a 
 |-------|-------------|
 | [Overview](docs/docs/index.md) | Resolution rules, boundaries, and supported models |
 | [Getting Started](docs/docs/getting-started.md) | Installation and first setting |
-| [Working with Settings](docs/docs/settings.md) | Defaults, owners, keys, and blank values |
+| [Working with Settings](docs/docs/settings.md) | Defaults, owners, keys, and JSON values |
 | [Eager Loading](docs/docs/eager-loading.md) | Avoiding settings N+1 queries |
 | [Configuration](docs/docs/configuration.md) | Connection, schema, and storage model |
 | [Payload Casts](docs/docs/payload-casts.md) | JSON, custom casts, and data objects |

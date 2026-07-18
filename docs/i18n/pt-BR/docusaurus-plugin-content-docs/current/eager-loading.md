@@ -10,9 +10,9 @@ description: Evite consultas N+1 ao ler configurações de coleções de modelos
 
 ## Carregar configurações com os modelos
 
-Sem carregamento antecipado, cada chamada de `settings()->get()` ou `settings()->all()` executa uma
-consulta de configurações. Essas leituras pelo serviço não carregam `modelSettings` como efeito
-colateral.
+Sem carregamento antecipado, cada chamada de `settings()->get()`, `settings()->has()` ou
+`settings()->all()` executa uma consulta de configurações. Essas leituras pelo serviço não carregam
+`modelSettings` como efeito colateral.
 
 Carregue a relação antecipadamente quando o resultado contiver vários modelos:
 
@@ -27,7 +27,7 @@ $timezones = $users->map(
 ```
 
 A relação carregada antecipadamente contém as sobrescritas de cada modelo e todos os valores padrão
-herdados. As chamadas seguintes de `get()` e `all()` usam a relação carregada.
+herdados. As chamadas seguintes de `get()`, `has()` e `all()` usam a relação carregada.
 
 ## Carregar configurações depois da consulta
 
@@ -73,7 +73,7 @@ Esse comportamento é coberto para chaves primárias inteiras, string, UUID e UL
 Depois de um `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` bem-sucedido, o pacote limpa
 exatamente uma vez a relação `modelSettings` carregada nesse modelo. A próxima leitura pelo serviço
 consulta o valor efetivo atual e não retorna dados desatualizados. Uma alteração em lote que falha
-mantém a relação carregada e reverte uma transação mista de escrita e exclusão.
+mantém a relação carregada e reverte o lote transacional.
 
 Carregue a relação explicitamente de novo antes de outra leitura em lote:
 

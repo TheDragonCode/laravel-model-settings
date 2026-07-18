@@ -6,5 +6,7 @@ namespace Workbench\App\Enums;
 
 enum StringBackedEnum: string
 {
-    case Bar = 'bar';
+    case Bar        = 'bar';
+    case Empty      = '';
+    case Whitespace = '   ';
 }

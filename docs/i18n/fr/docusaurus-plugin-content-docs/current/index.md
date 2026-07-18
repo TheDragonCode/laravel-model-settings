@@ -52,7 +52,7 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
-$hasTimezone = $settings->has('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 
 $user->settings()->setMany([
     'locale' => 'fr',
@@ -63,12 +63,13 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 `get()` renvoie une valeur effective. `all()` renvoie une `Illuminate\Support\Collection` contenant
 les valeurs par défaut fusionnées avec les surcharges.
-Utilisez la méthode `has()` de la collection pour vérifier l’existence d’une clé effective. `get()`
-n’accepte volontairement aucune valeur de repli fournie par l’appelant : la valeur persistante par
-défaut de la classe est son seul repli, puis `null` est renvoyé si aucune portée ne contient la clé.
+Utilisez `has()` lorsque l’existence d’une clé effective importe, y compris lorsque la valeur stockée
+est le JSON `null`. `get()` n’accepte volontairement aucune valeur de repli fournie par l’appelant :
+la valeur persistante par défaut de la classe est son seul repli, puis `null` est renvoyé si aucune
+portée ne contient la clé.
 
-Les valeurs par défaut et les surcharges utilisent les mêmes opérations : `all()`, `get()`, `set()`,
-`setMany()`, `forget()`, `forgetMany()` et `purge()`.
+Les valeurs par défaut et les surcharges utilisent les mêmes opérations : `all()`, `get()`, `has()`,
+`set()`, `setMany()`, `forget()`, `forgetMany()` et `purge()`.
 
 ## Limites ciblées du paquet
 
@@ -109,13 +110,14 @@ stocker des surcharges sans entrer en conflit avec les valeurs par défaut de la
 peuvent aussi utiliser une morph map Laravel.
 
 Les paramètres propres à un modèle nécessitent un modèle enregistré. Un modèle non enregistré
-n’hérite pas des valeurs par défaut : `get()` renvoie `null` et `all()` une collection vide. Appeler
-`set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` pour un propriétaire non enregistré
-lève `InvalidSettingsOwnerException` avant toute requête de stockage.
+n’hérite pas des valeurs par défaut : `get()` renvoie `null`, `has()` renvoie `false` et `all()` une
+collection vide. Appeler `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()` pour un
+propriétaire non enregistré lève `InvalidSettingsOwnerException` avant toute requête de stockage.
 
-Les données sont stockées au format JSON. Sans conversion configurée, la lecture renvoie des
-tableaux décodés ou des valeurs scalaires. Les [conversions des données](payload-casts.md) peuvent
-renvoyer des objets propres à l’application.
+Les données sont stockées au format JSON, y compris `null`, les chaînes vides ou composées d’espaces,
+les tableaux vides, zéro et `false`. Sans conversion configurée, la lecture renvoie exactement la
+valeur décodée. Les [conversions des données](payload-casts.md) peuvent renvoyer des objets propres à
+l’application.
 
 ## Voir aussi
 

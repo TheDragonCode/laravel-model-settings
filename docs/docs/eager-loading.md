@@ -10,8 +10,8 @@ description: Avoid N+1 queries when reading settings for Eloquent model collecti
 
 ## Load settings with the models
 
-Without eager loading, each `settings()->get()` or `settings()->all()` call performs a settings
-query. These service reads do not load `modelSettings` as a side effect.
+Without eager loading, each `settings()->get()`, `settings()->has()`, or `settings()->all()` call
+performs a settings query. These service reads do not load `modelSettings` as a side effect.
 
 Eager load the relation when the result contains multiple models:
 
@@ -26,7 +26,7 @@ $timezones = $users->map(
 ```
 
 The eager-loaded relation contains each model's overrides plus any defaults it inherits. Subsequent
-`get()` and `all()` calls use the loaded relation.
+`get()`, `has()`, and `all()` calls use the loaded relation.
 
 ## Load settings after the query
 
@@ -72,7 +72,7 @@ This behavior is covered for integer, string, UUID, and ULID primary keys.
 After a successful `set()`, `setMany()`, `forget()`, `forgetMany()`, or `purge()`, the package clears
 the loaded `modelSettings` relation on that model exactly once. The next service read queries the
 current effective value, so it does not return stale data. A failed bulk mutation keeps the existing
-loaded relation and rolls back a mixed write/delete transaction.
+loaded relation and rolls back the transactional batch.
 
 Explicitly load the relation again before another batch read:
 

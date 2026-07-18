@@ -10,9 +10,9 @@ description: Éviter les requêtes N+1 lors de la lecture des paramètres de col
 
 ## Charger les paramètres avec les modèles
 
-Sans chargement anticipé, chaque appel à `settings()->get()` ou `settings()->all()` exécute une
-requête de paramètres. Ces lectures par le service ne chargent pas `modelSettings` comme effet de
-bord.
+Sans chargement anticipé, chaque appel à `settings()->get()`, `settings()->has()` ou
+`settings()->all()` exécute une requête de paramètres. Ces lectures par le service ne chargent pas
+`modelSettings` comme effet de bord.
 
 Chargez la relation à l’avance lorsque le résultat contient plusieurs modèles :
 
@@ -27,7 +27,7 @@ $timezones = $users->map(
 ```
 
 La relation chargée à l’avance contient les surcharges de chaque modèle et toutes les valeurs par
-défaut dont il hérite. Les appels suivants à `get()` et `all()` utilisent la relation chargée.
+défaut dont il hérite. Les appels suivants à `get()`, `has()` et `all()` utilisent la relation chargée.
 
 ## Charger les paramètres après la requête
 
@@ -74,8 +74,8 @@ Ce comportement est couvert pour les clés primaires entières, chaînes, UUID e
 Après un appel réussi à `set()`, `setMany()`, `forget()`, `forgetMany()` ou `purge()`, le paquet efface
 exactement une fois la relation `modelSettings` chargée sur le modèle concerné. La lecture suivante
 par le service interroge la valeur effective actuelle et ne renvoie donc pas de données périmées.
-Une modification groupée en échec conserve la relation chargée existante et annule la transaction
-mixte d’écriture et de suppression.
+Une modification groupée en échec conserve la relation chargée existante et annule le lot
+transactionnel.
 
 Chargez de nouveau la relation explicitement avant une autre lecture groupée :
 

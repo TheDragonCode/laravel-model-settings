@@ -13,7 +13,12 @@ dataset('setting keys', [
 
     'string' => 'foo',
     'int'    => 10,
+]);
 
-    'space symbol' => ' ',
-    'empty'        => '',
+dataset('invalid setting keys', [
+    'empty string'           => '',
+    'space-only string'      => '   ',
+    'whitespace-only string' => "\t\r\n",
+    'empty backed enum'      => StringBackedEnum::Empty,
+    'whitespace backed enum' => StringBackedEnum::Whitespace,
 ]);

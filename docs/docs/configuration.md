@@ -99,6 +99,20 @@ morph-map aliases after data exists requires moving or updating the existing row
 
 ## Upgrade from an earlier 1.x release
 
+This release changes the runtime contract in addition to the storage discriminator migration:
+
+| Earlier 1.x behavior | Current behavior | Required application change |
+|----------------------|------------------|-----------------------------|
+| `set($key, null)`, empty strings, whitespace strings, and empty arrays deleted the row | `set()` stores every JSON value exactly | Replace deletion calls with `forget($key)` |
+| Blank entries in `setMany()` were deleted in the same batch | Every `setMany()` entry is stored in one transactional upsert | Move deleted keys to a separate `forgetMany()` call |
+| Empty and whitespace-only keys were accepted | Normalized blank keys throw `InvalidSettingKey` | Rename or remove invalid keys before upgrading |
+| Existence checks required `all()->has($key)` | `has($key)` distinguishes stored JSON `null` from a missing key | Prefer the focused `has()` method |
+
+A stored `null` model override now hides a filled class default until `forget()` removes the
+override. Custom payload casts now receive blank values from both setters, and custom storage-model
+create or update events receive them from `set()`. `get()` still accepts only one argument; no
+caller fallback or permanent `put()` alias was added.
+
 After updating the package, publish its new migration and run it with the application in maintenance
 mode:
 

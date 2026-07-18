@@ -50,10 +50,11 @@ $user->settings()->set('timezone', 'America/Toronto');
 Somente a configuração desse modelo é alterada. Os demais modelos continuam usando sua própria
 sobrescrita ou o valor padrão compartilhado.
 
-`get()` e `all()` resolvem os valores com a mesma precedência:
+`get()`, `has()` e `all()` resolvem os valores com a mesma precedência:
 
 ```php
 $timezone = $user->settings()->get('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 $settings = $user->settings()->all();
 ```
 
@@ -61,13 +62,11 @@ $settings = $user->settings()->all();
 
 `get()` aceita somente a chave. Ele retorna primeiro a sobrescrita do modelo, depois o valor padrão
 persistente da classe e, por fim, `null`. Ele não aceita um valor alternativo fornecido pelo
-chamador. Use a coleção quando precisar distinguir uma chave efetiva ausente de um valor armazenado:
+chamador. `has()` distingue uma chave ausente de um JSON `null` armazenado:
 
 ```php
-$settings = $user->settings()->all();
-
-if ($settings->has('timezone')) {
-    $timezone = $settings->get('timezone');
+if ($user->settings()->has('timezone')) {
+    $timezone = $user->settings()->get('timezone');
 }
 ```
 
@@ -120,12 +119,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 ```
 
 Os dois métodos aceitam qualquer iterable. `setMany()` normaliza cada chave antes da escrita. Quando
-várias chaves de entrada são normalizadas para a mesma chave armazenada, o último valor vence.
-Valores vazios removem essa chave do escopo atual pela mesma regra de `set()`.
+várias chaves de entrada são normalizadas para a mesma chave armazenada, o último valor vence. Todos
+os valores são armazenados; somente `forget()` e `forgetMany()` removem linhas.
 
-Um lote misto de `setMany()` usa um upsert e uma exclusão dentro de uma transação. `forgetMany()`
-remove todas as chaves informadas com uma consulta. A quantidade de consultas depende dos tipos de
-operação no lote, não do número de chaves.
+Um lote não vazio de `setMany()` usa um único upsert nativo dentro de uma transação. `forgetMany()`
+remove todas as chaves informadas com uma consulta. A quantidade de consultas é limitada pelo tipo
+de operação, não pelo número de chaves.
 
 Use `purge()` para remover todo o escopo atual:
 
@@ -137,21 +136,22 @@ Em `settings()`, `purge()` remove somente as sobrescritas desse proprietário e 
 valores padrão persistentes. Em `defaultSettings()`, remove os padrões dessa classe sem excluir as
 sobrescritas dos modelos. Os três métodos em lote retornam `void`.
 
-## Valores vazios
+## Valores JSON
 
-`set()` e `setMany()` usam o helper `blank()` do Laravel. Um valor vazio remove a configuração em vez
-de armazená-la.
+`set()` e `setMany()` armazenam valores JSON exatos:
 
 | Valor | Resultado |
 |-------|-----------|
-| `null` | Removido |
-| `''` ou string contendo apenas espaços | Removido |
-| `[]` | Removido |
+| `null` | Armazenado |
+| `''` ou string contendo apenas espaços | Armazenado |
+| `[]` | Armazenado |
 | `0` | Armazenado |
 | `false` | Armazenado |
 | `'0'` | Armazenado |
 
-O pacote não consegue persistir um valor intencionalmente vazio por nenhum dos métodos.
+Um `null` armazenado é considerado um valor existente. `has($key)` retorna `true`, enquanto
+`get($key)` retorna `null`. Uma sobrescrita de modelo com `null` também oculta um valor padrão
+preenchido da classe até que a sobrescrita seja removida com `forget()`.
 
 ## Chaves de configuração
 
@@ -171,8 +171,10 @@ $timezone = $user->settings()->get(SettingKey::Timezone);
 O Laravel armazena um backed enum pelo seu valor subjacente e um pure unit enum pelo nome do case.
 Use a mesma chave ou case ao ler, substituir ou remover uma configuração.
 
-O pacote não valida o conteúdo da chave. A API pública e o esquema padrão aceitam chaves vazias e
-chaves contendo apenas espaços.
+Chaves vazias ou contendo apenas espaços lançam
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingKey`. A validação ocorre depois da
+normalização de inteiros e enums para a string armazenada. A exceção e os logs do pacote nunca
+incluem a chave rejeitada nem o payload da configuração.
 
 Pontos são caracteres literais. A chave `mail.from.address` é uma única chave opaca e nunca representa
 um caminho aninhado:
@@ -188,10 +190,10 @@ $address = $user->settings()->get('mail.from.address');
 Chaves primárias inteiras, string, UUID e ULID são compatíveis.
 
 Alterações nas configurações de um modelo exigem um proprietário persistido com uma chave diferente
-de `null`. Para um modelo não persistido, `get()` retorna `null`, e `all()` retorna uma coleção vazia
-sem consultar as sobrescritas do modelo. Seus métodos `set()`, `setMany()`, `forget()`,
-`forgetMany()` e `purge()` lançam `InvalidSettingsOwnerException` antes de uma consulta ao
-armazenamento ou do consumo do iterable.
+de `null`. Para um modelo não persistido, `get()` retorna `null`, `has()` retorna `false` e `all()`
+retorna uma coleção vazia sem consultar as sobrescritas do modelo. Seus métodos `set()`, `setMany()`,
+`forget()`, `forgetMany()` e `purge()` lançam `InvalidSettingsOwnerException` antes de uma consulta
+ao armazenamento ou do consumo do iterable.
 
 Modelos persistidos com identificador inteiro `0` ou string `'0'` aceitam as mesmas leituras e
 alterações que qualquer outro proprietário persistido. O discriminador de escopo separa suas

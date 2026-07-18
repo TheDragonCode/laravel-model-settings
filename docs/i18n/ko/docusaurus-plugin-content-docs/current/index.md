@@ -50,7 +50,7 @@ $user->settings()->set('timezone', 'Europe/Paris');
 
 $timezone = $user->settings()->get('timezone');
 $settings = $user->settings()->all();
-$hasTimezone = $settings->has('timezone');
+$hasTimezone = $user->settings()->has('timezone');
 
 $user->settings()->setMany([
     'locale' => 'fr',
@@ -61,11 +61,12 @@ $user->settings()->forgetMany(['timezone', 'locale']);
 
 `get()`은 최종 값 하나를 반환합니다. `all()`은 기본값과 재정의 값이 병합된
 `Illuminate\Support\Collection`을 반환합니다.
-최종 키의 존재 여부가 중요하면 컬렉션의 `has()` 메서드를 사용합니다. `get()`은 호출자가 지정하는 대체값
-인수를 의도적으로 받지 않습니다. 유일한 대체값은 저장된 클래스 기본값이며, 두 범위에 키가 없으면 `null`입니다.
+저장된 값이 JSON `null`인 경우를 포함해 최종 키의 존재 여부가 중요하면 `has()`를 사용합니다. `get()`은
+호출자가 지정하는 대체값 인수를 의도적으로 받지 않습니다. 유일한 대체값은 저장된 클래스 기본값이며, 두 범위에
+키가 없으면 `null`입니다.
 
-기본값과 재정의 값에는 `all()`, `get()`, `set()`, `setMany()`, `forget()`, `forgetMany()`, `purge()`의
-동일한 작업을 사용합니다.
+기본값과 재정의 값에는 `all()`, `get()`, `has()`, `set()`, `setMany()`, `forget()`, `forgetMany()`,
+`purge()`의 동일한 작업을 사용합니다.
 
 ## 패키지의 명확한 경계
 
@@ -103,12 +104,13 @@ Laravel Model Settings는 Eloquent에 집중한 패키지이며 범용 애플리
 morph map도 사용할 수 있습니다.
 
 모델별 설정은 저장된 모델에만 속합니다. 저장되지 않은 모델은 기본값을 상속하지 않습니다. `get()`은
-`null`을 반환하고 `all()`은 빈 컬렉션을 반환합니다. 저장되지 않은 소유자에 `set()`, `setMany()`,
-`forget()`, `forgetMany()`, `purge()`를 호출하면 저장소 쿼리가 실행되기 전에
+`null`을 반환하고 `has()`는 `false`, `all()`은 빈 컬렉션을 반환합니다. 저장되지 않은 소유자에 `set()`,
+`setMany()`, `forget()`, `forgetMany()`, `purge()`를 호출하면 저장소 쿼리가 실행되기 전에
 `InvalidSettingsOwnerException`이 발생합니다.
 
-페이로드는 JSON으로 저장됩니다. 캐스트를 구성하지 않으면 읽을 때 디코딩된 배열 또는 스칼라 값을 반환합니다.
-[페이로드 캐스트](payload-casts.md)를 사용하면 애플리케이션 전용 객체를 반환할 수 있습니다.
+페이로드는 `null`, 빈 문자열, 공백 문자열, 빈 배열, 0, `false`를 포함해 JSON으로 저장됩니다. 캐스트를
+구성하지 않으면 읽을 때 정확히 디코딩된 값을 반환합니다. [페이로드 캐스트](payload-casts.md)를 사용하면
+애플리케이션 전용 객체를 반환할 수 있습니다.
 
 ## 함께 보기
 

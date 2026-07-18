@@ -92,9 +92,9 @@ assert($user->settings()->get('timezone') === 'UTC');
 ## Спочатку зберігайте моделі
 
 Викликайте `settings()->set()`, `setMany()`, `forget()`, `forgetMany()` і `purge()` лише після
-збереження батьківської моделі. Для незбереженої моделі `settings()->get()` повертає `null`, а
-`settings()->all()` — порожню колекцію, навіть якщо для класу є значення за замовчуванням. Кожен
-метод зміни викидає
+збереження батьківської моделі. Для незбереженої моделі `settings()->get()` повертає `null`,
+`settings()->has()` — `false`, а `settings()->all()` — порожню колекцію, навіть якщо для класу є
+значення за замовчуванням. Кожен метод зміни викидає
 `DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` до виконання запиту до
 сховища.
 
