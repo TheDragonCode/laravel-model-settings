@@ -36,7 +36,7 @@ As suítes Pest cobrem contratos diferentes:
 | `tests/Feature` | Padrões, sobrescritas, exclusão, dados ausentes e propriedade |
 | `tests/Unit/Casts` | JSON padrão, conversões personalizadas, morph maps e Laravel Data |
 | `tests/Unit/KeyTypes` | Chaves string, inteiras, backed enum e pure unit enum |
-| `tests/Unit/PrimaryKeyTypes` | Identificadores pais inteiros, UUID e ULID |
+| `tests/Unit/PrimaryKeyTypes` | Identificadores pais inteiros, string, UUID e ULID |
 | `tests/Unit/QueryCount` | Contagens de consultas de leitura e escrita, incluindo carregamento antecipado |
 | `tests/Architecture` | Namespaces, tipos, rigor e regras de arquitetura do Laravel |
 

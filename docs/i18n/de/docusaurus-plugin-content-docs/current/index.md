@@ -77,11 +77,13 @@ Dadurch bleiben Standardwerte für jede Modellklasse unabhängig. Ein `User`-Sta
 
 ## Unterstützte Modelle
 
-Das Paket unterstützt Eloquent-Modelle mit ganzzahligen Primärschlüsseln, UUIDs oder ULIDs. Modelle
-können außerdem eine Laravel Morph Map verwenden.
+Das Paket unterstützt Eloquent-Modelle mit ganzzahligen, Zeichenfolgen-, UUID- oder ULID-
+Primärschlüsseln. Modelle können außerdem eine Laravel Morph Map verwenden.
 
 Modellspezifische Einstellungen gehören zu gespeicherten Modellen. Ein ungespeichertes Modell erbt
-keine Standardwerte.
+keine Standardwerte: `get()` gibt `null` und `all()` eine leere Collection zurück. `set()` oder
+`forget()` für einen ungespeicherten Besitzer lösen vor einer Speicherabfrage eine
+`InvalidSettingsOwnerException` aus.
 
 Payloads werden als JSON gespeichert. Ohne konfigurierten Cast geben Lesevorgänge dekodierte Arrays
 oder skalare Werte zurück. [Payload-Casts](payload-casts.md) können stattdessen anwendungsspezifische

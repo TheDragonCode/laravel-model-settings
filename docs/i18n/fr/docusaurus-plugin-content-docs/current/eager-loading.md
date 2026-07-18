@@ -10,8 +10,9 @@ description: Éviter les requêtes N+1 lors de la lecture des paramètres de col
 
 ## Charger les paramètres avec les modèles
 
-La lecture différée des paramètres charge la relation `modelSettings`. Pour une collection, cela
-produit une requête de paramètres supplémentaire par modèle.
+Sans chargement anticipé, chaque appel à `settings()->get()` ou `settings()->all()` exécute une
+requête de paramètres. Ces lectures par le service ne chargent pas `modelSettings` comme effet de
+bord.
 
 Chargez la relation à l’avance lorsque le résultat contient plusieurs modèles :
 
@@ -40,6 +41,12 @@ $settings = $users->map(
 );
 ```
 
+## Limites de la relation
+
+Utilisez `modelSettings` uniquement avec `with()`, `load()` ou `loadMissing()`, et comme propriété de
+la relation chargée. Il s’agit d’une optimisation de lecture, pas d’une API alternative de requête
+ou de CRUD. Lisez et modifiez les valeurs avec `settings()` ou `defaultSettings()`.
+
 ## Comportement des requêtes
 
 Lorsque les modèles parents sont récupérés puis que leurs paramètres sont lus, le chargement différé
@@ -60,12 +67,13 @@ La requête de paramètres inclut les valeurs par défaut de la classe et tous l
 modèles demandés. La relation copie ensuite les valeurs par défaut héritées dans le résultat chargé
 de chaque modèle et remplace les clés correspondantes par les surcharges de ce modèle.
 
-Ce comportement est couvert pour les clés primaires entières, UUID et ULID.
+Ce comportement est couvert pour les clés primaires entières, chaînes, UUID et ULID.
 
 ## Modifications après le chargement anticipé
 
 `set()` et `forget()` effacent la relation `modelSettings` chargée sur le modèle concerné. La lecture
-suivante recharge la relation et ne peut donc pas renvoyer une ancienne valeur.
+suivante par le service interroge la valeur effective actuelle et ne renvoie donc pas de données
+périmées. Chargez de nouveau la relation explicitement avant une autre lecture groupée.
 
 La modification effectue toujours ses propres requêtes d’écriture. Le chargement anticipé ne change
 que les lectures suivantes.

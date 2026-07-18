@@ -16,9 +16,11 @@ description: Öffentliche Trait-, Service- und Relationsmethoden von Laravel Mod
 | `defaultSettings()` | `SettingsService` | Auf gemeinsame Standardwerte dieser Modellklasse zugreifen |
 | `modelSettings()` | Eloquent `Relation` | Standardwerte und Überschreibungen als Relation laden |
 
-Verwende die Relation `modelSettings` mit `with()`, `load()` oder `loadMissing()`. Verwende die beiden
-Service-Methoden zum Lesen oder Ändern von Werten. Zur Laufzeit ist die Relation eine paketinterne
-`SettingsRelation`, die auf Laravels `MorphMany`-Relation basiert.
+Verwende die Relation `modelSettings` nur mit `with()`, `load()` oder `loadMissing()` sowie als die
+daraus resultierende geladene Eigenschaft. Verwende ihre Relationsabfrage nicht als alternative
+Lese- oder CRUD-API. Verwende die beiden Service-Methoden zum Lesen oder Ändern von Werten. Zur
+Laufzeit ist die Relation eine paketinterne `SettingsRelation`, die auf Laravels `MorphMany`-Relation
+basiert.
 
 ## SettingsService
 
@@ -70,8 +72,9 @@ Standardwert verwendet. Fehlen Überschreibung und Standardwert, wird `null` zur
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-Die Methode führt eine Update-or-create-Operation für Modelltyp, Modell-ID und Schlüssel aus. Ein
-von Laravel als leer betrachteter Wert löscht die Zeile. In beiden Fällen wird die geladene
+Die Methode validiert den Besitzer und führt danach eine Update-or-create-Operation für Modelltyp,
+Modell-ID und Schlüssel aus. Ein von Laravel als leer betrachteter Wert löscht die Zeile. Die
+Validierung erfolgt vor der Auswahl des Pfads für leere Werte. In beiden Fällen wird die geladene
 `modelSettings`-Relation gelöscht, damit beim nächsten Lesen keine veralteten Daten verwendet werden.
 
 ## forget
@@ -80,8 +83,9 @@ von Laravel als leer betrachteter Wert löscht die Zeile. In beiden Fällen wird
 $user->settings()->forget('timezone');
 ```
 
-Die Methode ist sicher, wenn der Schlüssel nicht existiert. Das Entfernen einer Überschreibung löscht
-nicht ihren gemeinsamen Standardwert. Nach dem Löschen wird die geladene Relation entfernt.
+Für einen gültigen Besitzer ist die Methode sicher, wenn der Schlüssel nicht existiert. Das
+Entfernen einer Überschreibung löscht nicht ihren gemeinsamen Standardwert. Nach dem Löschen wird die
+geladene Relation entfernt.
 
 ## defaultSettings
 
@@ -95,6 +99,23 @@ $timezone = $defaults->get('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 ```
+
+## Exceptions
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` erweitert PHPs
+`DomainException`. `settings()->set()` und `settings()->forget()` lösen sie vor einer Speicherabfrage
+aus, wenn eine der folgenden Bedingungen erfüllt ist:
+
+- Das Besitzermodell ist ungespeichert, einschließlich eines ungespeicherten Modells mit vorab
+  zugewiesenem Schlüssel.
+- Der Schlüssel des gespeicherten Besitzers ist die Ganzzahl `0` oder die Zeichenfolge `'0'` und
+  kollidiert dadurch mit dem Sentinel für Klassenstandards in 1.x.
+
+Diese Validierung gilt auch, wenn `set()` einen leeren Wert erhält. Änderungen über
+`defaultSettings()` bleiben gültig, weil dieser Service den Bereich für Klassenstandards explizit
+auswählt. Der Lesezugriff bleibt eindeutig: Ein ungespeicherter Besitzer gibt `null` oder eine leere
+Collection zurück, ohne Überschreibungen abzufragen. Ein gespeicherter Besitzer mit Schlüssel `0`
+kann Klassenstandards lesen, aber nicht als Modellüberschreibungen ändern.
 
 ## Siehe auch
 

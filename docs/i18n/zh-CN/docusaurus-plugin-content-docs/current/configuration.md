@@ -56,11 +56,12 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 `item_type`、`item_id` 和 `key` 的组合是唯一的。
 
-默认 `item_id` 字段最多存储 36 个字符。整数、UUID 和 ULID 标识符都适用于此结构。更长的自定义主键需要对
-迁移进行相应修改。
+默认 `item_id` 字段最多存储 36 个字符。字符串表示不超过 36 个字符的整数、字符串、UUID 和 ULID 标识符
+都适用于此结构。更长的自定义主键需要对迁移进行相应修改。
 
-`item_id` 中的值 `0` 保留给类默认值。如果数据已经存在，修改数据库连接、表名或 morph map 别名时，需要
-自行移动或更新现有记录。
+`item_id` 中的值 `0` 保留给类默认值。在 1.x 中，`set()` 和 `forget()` 会拒绝主键为整数 `0` 或字符串
+`'0'` 的已持久化所有者，并在查询此表前抛出 `InvalidSettingsOwnerException`。如果数据已经存在，修改
+数据库连接、表名或 morph map 别名时，需要自行移动或更新现有记录。
 
 ## 替换存储模型
 
@@ -113,7 +114,7 @@ final class ApplicationSetting extends Model
 |------|------|
 | 填充 `item_type`、`item_id`、`key` 和 `payload` | `updateOrCreate()` 会写入这些属性 |
 | 使用配置的连接和数据表 | 迁移和仓库必须访问相同记录 |
-| 将 `item_id` 转换为 `string` | 整数、UUID 和 ULID 共用一个字段 |
+| 将 `item_id` 转换为 `string` | 整数、字符串、UUID 和 ULID 共用一个字段 |
 | 使用 `PayloadCast` 或等效方式转换 `payload` | 读写必须保持 JSON 行为 |
 
 ## 另请参阅

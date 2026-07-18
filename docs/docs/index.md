@@ -74,10 +74,12 @@ default, even when both classes use the same setting key.
 
 ## Supported models
 
-The package supports Eloquent models with integer, UUID, or ULID primary keys. Models may also use a
-Laravel morph map.
+The package supports Eloquent models with integer, string, UUID, or ULID primary keys. Models may
+also use a Laravel morph map.
 
-Per-model settings belong to persisted models. An unsaved model does not inherit defaults.
+Per-model settings belong to persisted models. An unsaved model does not inherit defaults:
+`get()` returns `null`, and `all()` returns an empty collection. Calling `set()` or `forget()` for an
+unsaved owner throws `InvalidSettingsOwnerException` before a storage query runs.
 
 Payloads are stored as JSON. Without a configured cast, reads return decoded arrays or scalar
 values. [Payload casts](payload-casts.md) can return application-specific objects instead.

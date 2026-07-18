@@ -56,11 +56,13 @@ MODEL_SETTINGS_DATABASE_TABLE=model_settings
 
 `item_type`, `item_id`, `key`의 조합은 고유합니다.
 
-기본 `item_id` 열은 최대 36자를 저장합니다. 정수, UUID, ULID 식별자는 이 스키마에 맞습니다. 더 긴 사용자
-정의 기본 키에는 해당 마이그레이션 변경이 필요합니다.
+기본 `item_id` 열은 최대 36자를 저장합니다. 문자열 표현이 36자 이하인 정수, 문자열, UUID, ULID 식별자는
+이 스키마에 맞습니다. 더 긴 사용자 정의 기본 키에는 해당 마이그레이션 변경이 필요합니다.
 
-`item_id`의 값 `0`은 클래스 기본값을 위해 예약됩니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는
-morph map 별칭을 변경하면 기존 행을 직접 이동하거나 업데이트해야 합니다.
+`item_id`의 값 `0`은 클래스 기본값을 위해 예약됩니다. 1.x에서 `set()`과 `forget()`은 정수 `0` 또는 문자열
+`'0'` 키를 가진 저장된 소유자를 거부하며, 이 테이블을 쿼리하기 전에 `InvalidSettingsOwnerException`을
+발생시킵니다. 데이터가 존재한 뒤 데이터베이스 연결, 테이블 이름 또는 morph map 별칭을 변경하면 기존 행을
+직접 이동하거나 업데이트해야 합니다.
 
 ## 저장 모델 교체
 
@@ -114,7 +116,7 @@ final class ApplicationSetting extends Model
 |-----------|------|
 | `item_type`, `item_id`, `key`, `payload` 채우기 | `updateOrCreate()`가 이 속성을 기록 |
 | 구성된 연결과 테이블 사용 | 마이그레이션과 리포지토리가 같은 행을 사용해야 함 |
-| `item_id`를 `string`으로 캐스트 | 정수, UUID, ULID 식별자가 한 열을 공유 |
+| `item_id`를 `string`으로 캐스트 | 정수, 문자열, UUID, ULID 식별자가 한 열을 공유 |
 | `payload`를 `PayloadCast` 또는 동등한 방식으로 캐스트 | 읽기와 쓰기가 JSON 동작을 유지해야 함 |
 
 ## 함께 보기

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DragonCode\LaravelModelSettings\Concerns;
 
-use DragonCode\LaravelModelSettings\Enums\IdentifierEnum;
 use DragonCode\LaravelModelSettings\Relations\SettingsRelation;
 use DragonCode\LaravelModelSettings\Services\SettingsService;
 use Illuminate\Database\Eloquent\Model;
@@ -23,10 +22,10 @@ trait HasSettings
 
     public function defaultSettings(): SettingsService
     {
-        $clone = new static;
-        $clone->setAttribute($clone->getKeyName(), IdentifierEnum::Default->value);
-
-        return app()->make(SettingsService::class, ['model' => $clone]);
+        return app()->make(SettingsService::class, [
+            'model'        => new static,
+            'defaultScope' => true,
+        ]);
     }
 
     public function modelSettings(): Relation

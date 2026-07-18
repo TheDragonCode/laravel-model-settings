@@ -23,6 +23,13 @@ class SettingsRelation extends MorphMany
             return;
         }
 
+        if (! $this->parent->exists) {
+            parent::addConstraints();
+            $this->getRelationQuery()->whereRaw('0 = 1');
+
+            return;
+        }
+
         $parentKey = $this->getParentKey();
 
         if ($parentKey === null) {
@@ -64,8 +71,19 @@ class SettingsRelation extends MorphMany
             return $this->eagerKeys;
         }
 
-        return $this->eagerKeys = (new BaseCollection(parent::getKeys($models, $key)))
-            ->push((int) IdentifierEnum::Default->value)
+        $models = (new BaseCollection($models))
+            ->filter(fn (Model $model): bool => $model->exists)
+            ->all();
+
+        $keys = (new BaseCollection(parent::getKeys($models, $key)))
+            ->map(fn (int|string $itemId): string => (string) $itemId);
+
+        if ($keys->isEmpty()) {
+            return [];
+        }
+
+        return $this->eagerKeys = $keys
+            ->push(IdentifierEnum::Default->value)
             ->values()
             ->unique(null, true)
             ->sort()

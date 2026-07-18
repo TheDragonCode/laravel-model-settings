@@ -10,8 +10,9 @@ description: Evite consultas N+1 ao ler configurações de coleções de modelos
 
 ## Carregar configurações com os modelos
 
-A leitura preguiçosa das configurações carrega a relação `modelSettings`. Para uma coleção, isso
-gera uma consulta adicional de configurações por modelo.
+Sem carregamento antecipado, cada chamada de `settings()->get()` ou `settings()->all()` executa uma
+consulta de configurações. Essas leituras pelo serviço não carregam `modelSettings` como efeito
+colateral.
 
 Carregue a relação antecipadamente quando o resultado contiver vários modelos:
 
@@ -40,6 +41,12 @@ $settings = $users->map(
 );
 ```
 
+## Limite da relação
+
+Use `modelSettings` somente com `with()`, `load()` ou `loadMissing()` e como a propriedade da relação
+já carregada. Ela é uma otimização de leitura, não uma API alternativa de consultas ou CRUD. Leia e
+altere valores por meio de `settings()` ou `defaultSettings()`.
+
 ## Comportamento das consultas
 
 Quando os modelos pais são buscados e suas configurações são lidas em seguida, o carregamento
@@ -59,12 +66,13 @@ A consulta de configurações inclui os valores padrão da classe e todos os ide
 solicitados. Em seguida, a relação copia os valores padrão herdados para o resultado carregado de
 cada modelo e substitui as chaves correspondentes pelas sobrescritas desse modelo.
 
-Esse comportamento é coberto para chaves primárias inteiras, UUID e ULID.
+Esse comportamento é coberto para chaves primárias inteiras, string, UUID e ULID.
 
 ## Alterações depois do carregamento antecipado
 
-`set()` e `forget()` limpam a relação `modelSettings` carregada nesse modelo. A próxima leitura
-recarrega a relação e não reutiliza um valor desatualizado.
+`set()` e `forget()` limpam a relação `modelSettings` carregada nesse modelo. A próxima leitura pelo
+serviço consulta o valor efetivo atual e não retorna dados desatualizados. Carregue a relação
+explicitamente de novo antes de outra leitura em lote.
 
 A alteração ainda executa suas próprias consultas de escrita. O carregamento antecipado muda apenas
 as leituras seguintes.

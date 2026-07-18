@@ -132,8 +132,15 @@ API and the default schema.
 
 ## Model identifiers
 
-Integer, UUID, and ULID primary keys are supported. The value `0` is reserved internally for shared
-defaults and must not be used as a real model primary key.
+Integer, string, UUID, and ULID primary keys are supported.
+
+Per-model mutations require a persisted owner with a non-null key. For an unsaved model, `get()`
+returns `null`, and `all()` returns an empty collection without querying model overrides. Its
+`set()` and `forget()` methods throw `InvalidSettingsOwnerException` before a storage query runs.
+
+The integer `0` and string `'0'` are reserved for shared defaults in 1.x. A persisted model with
+either key can read class defaults, but `set()` and `forget()` throw
+`InvalidSettingsOwnerException`. Other string keys, including `'00'`, remain valid.
 
 Settings are stored against the model's current morph class. Introducing or changing a morph-map
 alias after settings have been written requires updating existing `item_type` values.

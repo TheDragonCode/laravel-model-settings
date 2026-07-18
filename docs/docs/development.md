@@ -36,7 +36,7 @@ The Pest suites cover different contracts:
 | `tests/Feature` | Defaults, overrides, deletion, missing data, and ownership |
 | `tests/Unit/Casts` | Default JSON, custom casts, morph maps, and Laravel Data |
 | `tests/Unit/KeyTypes` | String, integer, backed enum, and pure unit enum keys |
-| `tests/Unit/PrimaryKeyTypes` | Integer, UUID, and ULID parent identifiers |
+| `tests/Unit/PrimaryKeyTypes` | Integer, string, UUID, and ULID parent identifiers |
 | `tests/Unit/QueryCount` | Read and write query counts, including eager loading |
 | `tests/Architecture` | Namespace, type, strictness, and Laravel architecture rules |
 

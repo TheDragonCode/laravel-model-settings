@@ -56,11 +56,14 @@ The published migration creates these columns:
 
 The combination of `item_type`, `item_id`, and `key` is unique.
 
-The default `item_id` column stores at most 36 characters. Integer, UUID, and ULID identifiers fit
-this schema. A longer custom primary key requires a matching migration change.
+The default `item_id` column stores at most 36 characters. Integer, string, UUID, and ULID
+identifiers fit this schema when their string form is no longer than 36 characters. A longer custom
+primary key requires a matching migration change.
 
-The value `0` is reserved in `item_id` for class defaults. Changing the database connection, table
-name, or morph-map aliases after data exists requires moving or updating the existing rows yourself.
+The value `0` is reserved in `item_id` for class defaults. In 1.x, `set()` and `forget()` reject a
+persisted owner whose key is integer `0` or string `'0'` with `InvalidSettingsOwnerException` before
+querying this table. Changing the database connection, table name, or morph-map aliases after data
+exists requires moving or updating the existing rows yourself.
 
 ## Replace the storage model
 
@@ -114,7 +117,7 @@ At minimum, the replacement model must preserve these behaviors:
 |-------------|--------|
 | Fill `item_type`, `item_id`, `key`, and `payload` | `updateOrCreate()` writes these attributes |
 | Use the configured connection and table | The migration and repository must address the same rows |
-| Cast `item_id` to `string` | Integer, UUID, and ULID identifiers share one column |
+| Cast `item_id` to `string` | Integer, string, UUID, and ULID identifiers share one column |
 | Cast `payload` with `PayloadCast` or an equivalent | Reads and writes must preserve JSON behavior |
 
 ## See Also

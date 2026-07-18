@@ -36,7 +36,7 @@ Les suites Pest couvrent différents contrats :
 | `tests/Feature` | Valeurs par défaut, surcharges, suppression, données absentes et propriétaires |
 | `tests/Unit/Casts` | JSON par défaut, conversions personnalisées, morph maps et Laravel Data |
 | `tests/Unit/KeyTypes` | Clés chaîne, entières, backed enum et pure unit enum |
-| `tests/Unit/PrimaryKeyTypes` | Identifiants parents entiers, UUID et ULID |
+| `tests/Unit/PrimaryKeyTypes` | Identifiants parents entiers, chaînes, UUID et ULID |
 | `tests/Unit/QueryCount` | Nombre de requêtes en lecture et en écriture, avec chargement anticipé |
 | `tests/Architecture` | Espaces de noms, types, rigueur et règles d’architecture Laravel |
 

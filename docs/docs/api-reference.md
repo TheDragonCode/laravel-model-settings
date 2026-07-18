@@ -16,9 +16,10 @@ description: Public trait, service, and relation methods provided by Laravel Mod
 | `defaultSettings()` | `SettingsService` | Access shared defaults for this model class |
 | `modelSettings()` | Eloquent `Relation` | Load defaults and overrides as a relation |
 
-Use the `modelSettings` relation for `with()`, `load()`, or `loadMissing()`. Use the two service
-methods to read or mutate values. At runtime, the relation is a package `SettingsRelation` based on
-Laravel's `MorphMany` relation.
+Use the `modelSettings` relation only for `with()`, `load()`, or `loadMissing()` and as the resulting
+loaded property. Do not use its relation query as an alternative read or CRUD API. Use the two
+service methods to read or mutate values. At runtime, the relation is a package `SettingsRelation`
+based on Laravel's `MorphMany` relation.
 
 ## SettingsService
 
@@ -70,9 +71,10 @@ missing override and default returns `null`.
 $user->settings()->set('timezone', 'Europe/Paris');
 ```
 
-The method uses an update-or-create operation for the model type, model identifier, and key. Passing
-a value considered blank by Laravel removes the row. After either path, the loaded `modelSettings`
-relation is cleared so the next read cannot reuse stale data.
+The method validates the owner, then uses an update-or-create operation for the model type, model
+identifier, and key. Passing a value considered blank by Laravel removes the row. Validation happens
+before the blank-value path is selected. After either path, the loaded `modelSettings` relation is
+cleared so the next read cannot reuse stale data.
 
 ## forget
 
@@ -80,8 +82,8 @@ relation is cleared so the next read cannot reuse stale data.
 $user->settings()->forget('timezone');
 ```
 
-The method is safe when the key does not exist. Removing an override does not remove its shared
-default. The loaded relation is cleared after the delete.
+For a valid owner, the method is safe when the key does not exist. Removing an override does not
+remove its shared default. The loaded relation is cleared after the delete.
 
 ## defaultSettings
 
@@ -95,6 +97,22 @@ $timezone = $defaults->get('timezone');
 $all = $defaults->all();
 $defaults->forget('timezone');
 ```
+
+## Exceptions
+
+`DragonCode\LaravelModelSettings\Exceptions\InvalidSettingsOwnerException` extends PHP's
+`DomainException`. `settings()->set()` and `settings()->forget()` throw it before a storage query
+when either condition is true:
+
+- The owner model is unsaved, including an unsaved model with a preassigned key.
+- The persisted owner key is integer `0` or string `'0'`, which collides with the 1.x class-default
+  sentinel.
+
+This validation also applies when `set()` receives a blank value. Mutations through
+`defaultSettings()` remain valid because that service selects the class-default scope explicitly.
+Read-only access stays deterministic: an unsaved owner returns `null` or an empty collection without
+querying overrides, while a persisted owner with key `0` can read class defaults but cannot mutate
+them as model overrides.
 
 ## See Also
 

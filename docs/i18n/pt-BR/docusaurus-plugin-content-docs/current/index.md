@@ -75,11 +75,13 @@ torna um padrão de `Post`, mesmo quando as duas classes usam a mesma chave de c
 
 ## Modelos compatíveis
 
-O pacote aceita modelos Eloquent com chaves primárias inteiras, UUID ou ULID. Os modelos também podem
-usar um morph map do Laravel.
+O pacote aceita modelos Eloquent com chaves primárias inteiras, string, UUID ou ULID. Os modelos
+também podem usar um morph map do Laravel.
 
 Configurações por modelo pertencem a modelos persistidos. Um modelo não persistido não herda os
-valores padrão.
+valores padrão: `get()` retorna `null`, e `all()` retorna uma coleção vazia. Chamar `set()` ou
+`forget()` para um proprietário não persistido lança `InvalidSettingsOwnerException` antes de uma
+consulta ao armazenamento.
 
 Os payloads são armazenados como JSON. Sem uma conversão configurada, as leituras retornam arrays
 decodificados ou valores escalares. As [conversões de payload](payload-casts.md) podem retornar

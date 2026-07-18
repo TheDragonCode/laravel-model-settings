@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DragonCode\LaravelModelSettings\Models\Settings;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Workbench\App\Casts\CustomCast;
 use Workbench\App\Models\User;
@@ -47,7 +48,7 @@ test('success with morph map', function (): void {
         $user->settings()->set('foo', $data);
 
         expect($user->settings()->get('foo'))->toBe($data);
-        expect($user->modelSettings()->value('item_type'))->toBe('user');
+        expect(Settings::query()->value('item_type'))->toBe('user');
     } finally {
         Relation::morphMap($morphMap, false);
     }

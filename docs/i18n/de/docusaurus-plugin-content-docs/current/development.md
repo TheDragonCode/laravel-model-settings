@@ -36,7 +36,7 @@ Die Pest-Suites decken verschiedene Verträge ab:
 | `tests/Feature` | Standardwerte, Überschreibungen, Löschen, fehlende Daten und Eigentümerschaft |
 | `tests/Unit/Casts` | Standard-JSON, benutzerdefinierte Casts, Morph Maps und Laravel Data |
 | `tests/Unit/KeyTypes` | Zeichenfolgen-, Ganzzahl-, Backed-Enum- und Pure-Unit-Enum-Schlüssel |
-| `tests/Unit/PrimaryKeyTypes` | Ganzzahlige, UUID- und ULID-IDs übergeordneter Modelle |
+| `tests/Unit/PrimaryKeyTypes` | Ganzzahlige, Zeichenfolgen-, UUID- und ULID-IDs übergeordneter Modelle |
 | `tests/Unit/QueryCount` | Anzahl der Lese- und Schreibabfragen einschließlich Eager Loading |
 | `tests/Architecture` | Namespaces, Typen, Striktheit und Laravel-Architekturregeln |
 
