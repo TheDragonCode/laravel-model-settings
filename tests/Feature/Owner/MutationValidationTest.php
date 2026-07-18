@@ -88,6 +88,11 @@ test('zero-valued owners can override defaults lazily and eagerly', function (
 
     $owner->settings()->set('foo', null);
 
+    expect($owner->settings()->has('foo'))->toBeTrue()
+        ->and($owner->settings()->get('foo'))->toBeNull();
+
+    $owner->settings()->forget('foo');
+
     expect($owner->settings()->get('foo'))->toBe(111);
 
     $owner->settings()->set('foo', 444);

@@ -98,10 +98,10 @@ test('bulk mutations isolate zero-valued owner overrides from defaults', functio
     ]);
 
     expect($settings->all()->sortKeys()->all())->toBe([
-        'bar' => 222,
+        'bar' => null,
         'baz' => 444,
         'foo' => 555,
-    ]);
+    ])->and($settings->has('bar'))->toBeTrue();
 
     $settings->purge();
 

@@ -20,7 +20,7 @@ test('default stored values use one query', function (): void {
     expect($recorder->calls())->toBe(1);
 });
 
-test('default mixed values use two queries', function (): void {
+test('default mixed values use one query', function (): void {
     $existing = [];
     $values   = [];
 
@@ -37,5 +37,5 @@ test('default mixed values use two queries', function (): void {
 
     (new User)->defaultSettings()->setMany($values);
 
-    expect($recorder->calls())->toBe(2);
+    expect($recorder->calls())->toBe(1);
 });

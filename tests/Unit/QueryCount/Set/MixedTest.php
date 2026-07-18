@@ -52,7 +52,7 @@ test('zero', function (): void {
     expect($recorder->calls())->toBe(2);
 });
 
-test('empty', function (): void {
+test('null', function (): void {
     $recorder = new QueryRecorder;
 
     $user = UserFactory::new()->create();
@@ -65,5 +65,5 @@ test('empty', function (): void {
 
     $user->settings()->set('foo', null);
 
-    expect($recorder->calls())->toBe(1);
+    expect($recorder->calls())->toBe(2);
 });

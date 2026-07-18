@@ -27,31 +27,29 @@ class SettingsRepository
     public function store(SettingsScope $scope, int|string|UnitEnum $key, mixed $value): Model
     {
         $scope->ensureMutable();
+        $key = SettingKey::normalize($key);
 
         return $this->modelClass::query()->updateOrCreate([
             'item_type'  => $scope->itemType(),
             'item_id'    => $scope->requiredItemId(),
             'is_default' => $scope->isDefault(),
-            'key'        => SettingKey::normalize($key),
+            'key'        => $key,
         ], ['payload' => $value]);
     }
 
-    public function storeMany(SettingsScope $scope, array $values, array $deletedKeys): void
+    public function storeMany(SettingsScope $scope, array $values): void
     {
         $scope->ensureMutable();
 
-        $operation = function () use ($scope, $values, $deletedKeys): void {
-            $this->upsert($this->serialize($scope, $values));
-            $this->deleteKeys($scope, $deletedKeys);
-        };
-
-        if ($values !== [] && $deletedKeys !== []) {
-            $this->settingsModel()->getConnection()->transaction($operation);
-
+        if ($values === []) {
             return;
         }
 
-        $operation();
+        $this->settingsModel()->getConnection()->transaction(
+            function () use ($scope, $values): void {
+                $this->upsert($this->serialize($scope, $values));
+            }
+        );
     }
 
     public function all(SettingsScope $scope): Collection
@@ -61,20 +59,32 @@ class SettingsRepository
 
     public function get(SettingsScope $scope, int|string|UnitEnum $key): mixed
     {
+        $key = SettingKey::normalize($key);
+
         return $this->settings($scope)
-            ->whereStrict('key', SettingKey::normalize($key))
+            ->whereStrict('key', $key)
             ->value('payload');
+    }
+
+    public function has(SettingsScope $scope, int|string|UnitEnum $key): bool
+    {
+        $key = SettingKey::normalize($key);
+
+        return $this->settings($scope)
+            ->whereStrict('key', $key)
+            ->isNotEmpty();
     }
 
     public function delete(SettingsScope $scope, int|string|UnitEnum $key): void
     {
         $scope->ensureMutable();
+        $key = SettingKey::normalize($key);
 
         $this->modelClass::query()
             ->where('item_type', $scope->itemType())
             ->where('item_id', $scope->requiredItemId())
             ->where('is_default', $scope->isDefault())
-            ->where('key', SettingKey::normalize($key))
+            ->where('key', $key)
             ->delete();
     }
 

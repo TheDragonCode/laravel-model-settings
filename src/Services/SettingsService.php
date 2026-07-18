@@ -14,7 +14,6 @@ use Throwable;
 use UnitEnum;
 
 use function array_values;
-use function blank;
 use function count;
 
 class SettingsService
@@ -41,13 +40,16 @@ class SettingsService
         return $this->repository->get($this->scope, $key);
     }
 
+    public function has(int|string|UnitEnum $key): bool
+    {
+        return $this->repository->has($this->scope, $key);
+    }
+
     public function set(int|string|UnitEnum $key, mixed $value): void
     {
         $this->scope->ensureMutable();
 
-        blank($value)
-            ? $this->repository->delete($this->scope, $key)
-            : $this->repository->store($this->scope, $key, $value);
+        $this->repository->store($this->scope, $key, $value);
 
         $this->model->unsetRelation('modelSettings');
     }
@@ -61,19 +63,17 @@ class SettingsService
         try {
             $this->scope->ensureMutable();
 
-            [$stored, $deleted] = $this->partitionValues($values);
+            $stored = $this->normalizeValues($values);
 
             Log::debug('Model settings bulk mutation prepared.', $this->logContext($operation, [
-                'stored_count'  => count($stored),
-                'deleted_count' => count($deleted),
+                'stored_count' => count($stored),
             ]));
 
-            $this->repository->storeMany($this->scope, $stored, $deleted);
+            $this->repository->storeMany($this->scope, $stored);
             $this->model->unsetRelation('modelSettings');
 
             Log::debug('Model settings bulk mutation completed.', $this->logContext($operation, [
-                'stored_count'  => count($stored),
-                'deleted_count' => count($deleted),
+                'stored_count' => count($stored),
             ]));
         } catch (Throwable $exception) {
             Log::error('Model settings bulk mutation failed.', $this->logContext($operation, [
@@ -144,7 +144,7 @@ class SettingsService
         }
     }
 
-    protected function partitionValues(iterable $values): array
+    protected function normalizeValues(iterable $values): array
     {
         $normalized = [];
 
@@ -152,20 +152,7 @@ class SettingsService
             $normalized[SettingKey::normalize($key)] = $value;
         }
 
-        $stored  = [];
-        $deleted = [];
-
-        foreach ($normalized as $key => $value) {
-            if (blank($value)) {
-                $deleted[] = (string) $key;
-
-                continue;
-            }
-
-            $stored[(string) $key] = $value;
-        }
-
-        return [$stored, $deleted];
+        return $normalized;
     }
 
     protected function normalizeKeys(iterable $keys): array

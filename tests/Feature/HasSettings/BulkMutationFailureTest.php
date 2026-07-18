@@ -15,7 +15,7 @@ use Workbench\Database\Factories\UserFactory;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 
-test('mixed setMany rolls back database work when payload serialization fails', function (): void {
+test('mixed-value setMany rolls back database work when payload serialization fails', function (): void {
     $user = UserFactory::new()->create();
 
     $user->settings()->setMany([
@@ -49,8 +49,8 @@ test('mixed setMany rolls back database work when payload serialization fails', 
     $recorder->start();
 
     expect(fn () => $user->settings()->setMany([
-        'stored' => $payload,
-        'delete' => null,
+        'stored'   => $payload,
+        'nullable' => null,
     ]))->toThrow(RuntimeException::class);
 
     expect($recorder->calls())->toBe(1);
@@ -59,6 +59,7 @@ test('mixed setMany rolls back database work when payload serialization fails', 
     assertDatabaseHas(Settings::class, ['key' => 'keep']);
     assertDatabaseHas(Settings::class, ['key' => 'delete']);
     assertDatabaseMissing(Settings::class, ['key' => 'stored']);
+    assertDatabaseMissing(Settings::class, ['key' => 'nullable']);
 
     expect(Json::decode(
         DB::table(config()->string('model_settings.table'))->where('key', 'keep')->value('payload')
@@ -73,7 +74,7 @@ test('mixed setMany rolls back database work when payload serialization fails', 
         ->once();
 });
 
-test('mixed setMany rolls back the upsert when the delete fails', function (): void {
+test('setMany preserves existing rows when the upsert fails', function (): void {
     $user = UserFactory::new()->create();
 
     $user->settings()->setMany([
@@ -85,14 +86,14 @@ test('mixed setMany rolls back the upsert when the delete fails', function (): v
     $queries = 0;
 
     DB::connection()->beforeExecuting(static function () use (&$queries): void {
-        if (++$queries === 2) {
+        if (++$queries === 1) {
             throw new RuntimeException('Forced persistence failure.');
         }
     });
 
     expect(fn () => $user->settings()->setMany([
-        'stored' => 'new',
-        'delete' => null,
+        'stored'   => 'new',
+        'nullable' => null,
     ]))->toThrow(RuntimeException::class, 'Forced persistence failure.');
 
     expect($user->relationLoaded('modelSettings'))->toBeTrue();
@@ -100,4 +101,5 @@ test('mixed setMany rolls back the upsert when the delete fails', function (): v
     assertDatabaseHas(Settings::class, ['key' => 'keep']);
     assertDatabaseHas(Settings::class, ['key' => 'delete']);
     assertDatabaseMissing(Settings::class, ['key' => 'stored']);
+    assertDatabaseMissing(Settings::class, ['key' => 'nullable']);
 });
